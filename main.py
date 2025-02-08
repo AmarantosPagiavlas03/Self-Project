@@ -125,14 +125,13 @@ if not st.session_state.user:
                     st.error(result)
 
 else:
-
     st.sidebar.markdown(
         """
         <style>
-        .red-button .stButton>button {
-            background-color: red !important;
-            color: white !important;
-        }
+            .red-button button {
+                background-color: red !important;
+                color: white !important;
+            }
         </style>
         """,
         unsafe_allow_html=True
