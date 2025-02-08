@@ -108,7 +108,7 @@ if not st.session_state.user:
                 success, result = login_user(email, password)
                 if success:
                     st.session_state.user = result
-                    st.query_params(rerun="true")
+                    st.experimental_rerun()
                 else:
                     st.error(result)
     
@@ -127,7 +127,7 @@ if not st.session_state.user:
 else:
     if st.sidebar.button("Logout"):
         st.session_state.user = None
-        st.query_params(rerun="true")
+        st.experimental_rerun()
     
     menu = st.sidebar.selectbox("Menu", ["Dashboard", "My Profile", "Find Players"])
 
