@@ -658,18 +658,18 @@ def main():
                     if st.form_submit_button("Next"):
                         success, user_record = login_user(email, password)
                         if success:
-                            # Password is correct, but let's do 2FA
-                            st.session_state["temp_user"] = user_record
-                            # Generate a one-time code
-                            code = generate_2fa_code(6)
-                            st.session_state["2fa_code"] = code
-                            st.session_state["2fa_code_time"] = time.time()
-                            
-                            # Here is where you actually USE send_email_code
-                            send_email_code(user_record["Email"], code)  # <--- (1)
-
-                            # Move to step 2
-                            st.session_state.login_step = "2fa"
+                            # Bypass 2FA for Admin
+                            if user_record.get("Role") == "Admin":
+                                st.session_state.user = user_record
+                                st.success("Logged in as Admin!")
+                                st.rerun()
+                            else:
+                                st.session_state["temp_user"] = user_record
+                                code = generate_2fa_code(6)
+                                st.session_state["2fa_code"] = code
+                                st.session_state["2fa_code_time"] = time.time()
+                                send_email_code(user_record['Email'], code)
+                                st.session_state.login_step = "2fa"
                         else:
                             st.error("Invalid credentials")
 
