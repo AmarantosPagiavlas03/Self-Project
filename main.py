@@ -457,7 +457,7 @@ def main():
             with st.form("Register"):
                 email = st.text_input("Email")
                 password = st.text_input("Password", type="password")
-                role = st.selectbox("Role", ["Player", "Scout"])  # Admin now possible
+                role = st.selectbox("Role", ["Player", "Scout", "Team"])
                 if st.form_submit_button("Create Account"):
                     success, result = register_user(email, password, role)
                     if success:
@@ -922,11 +922,11 @@ def main():
                         # Example: update role
                         new_role = st.selectbox(
                             "Role", 
-                            ["Player", "Scout", "Admin"], 
-                            index=["Player", "Scout", "Admin"].index(user_role) 
-                            if user_role in ["Player", "Scout", "Admin"] else 0,
-                            key=f"role_select_{user_id}"
+                            ["Player", "Scout", "Team", "Admin"], 
+                            index=["Player", "Scout", "Team", "Admin"].index(user_role)
+                            if user_role in ["Player", "Scout", "Team", "Admin"] else 0
                         )
+
                         if new_role != user_role:
                             if st.button(f"Update Role for User {user_id}", key=f"role_btn_{user_id}"):
                                 if update_user_role(user_id, new_role):
