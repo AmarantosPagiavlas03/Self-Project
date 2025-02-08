@@ -234,7 +234,7 @@ def load_css(file_name):
 
 def main():
     load_css("style.css")
-    st.title("⚽ Next-Gen Soccer Scout with Admin Panel")
+    st.title("⚽ Next-Gen Soccer Scout ")
 
     if 'user' not in st.session_state:
         st.session_state.user = None
