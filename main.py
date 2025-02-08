@@ -99,32 +99,52 @@ def get_all_teams():
     """Returns all Teams from the Teams sheet as a list of dicts."""
     return st.session_state["teams_sheet"].get_all_records()
 
+@st.cache_data(ttl=60)
+def get_all_sessions():
+    return st.session_state["sessions_sheet"].get_all_records()
+
 # -----------------------------------------------------------------------------
 # 3. Session Management Functions
 # -----------------------------------------------------------------------------
 
-@st.cache_data(ttl=60)
-def get_all_sessions():
-    return st.session_state["sessions_sheet"].get_all_records()
 
 def generate_session_token():
     """Generate a random 32-character token."""
     return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
 
 def validate_session_token(token):
-    """Check if token exists and is not expired. Returns user ID if valid."""
-    sessions = get_all_sessions()
-    now = datetime.now()
-    for session in sessions:
-        if session['Token'] == token:
-            try:
-                exp = datetime.strptime(session['Expiration'], "%Y-%m-%d %H:%M:%S")
-                if exp > now:
-                    return session['UserID']
-            except:
-                pass
-    return None
+    ws = st.session_state["sessions_sheet"]
+    
+    try:
+        cell = ws.find(token, in_column=1)
+        record = ws.row_values(cell.row)
+        expires_at = datetime.fromisoformat(record[2])  # Index 2 is Expiration
+        
+        if datetime.utcnow() < expires_at:
+            return record[1]  # Return UserID from index 1
+        return None
+    except gspread.exceptions.CellNotFound:
+        return None
+    except Exception as e:
+        st.error(f"Session validation error: {str(e)}")
+        return None
 
+def update_session_activity(token):
+    # Get the cached worksheet
+    ws = st.session_state["sessions_sheet"]
+    
+    # Calculate new expiration time (1 hour from now)
+    new_expiration = (datetime.utcnow() + timedelta(hours=1)).isoformat()
+    
+    try:
+        # Find the token in column 1 (Token column)
+        cell = ws.find(token, in_column=1)
+        # Update expiration in column 3 (Expiration column)
+        ws.update_cell(cell.row, 3, new_expiration)
+    except gspread.exceptions.CellNotFound:
+        st.error("Session token not found in sheet")
+    except Exception as e:
+        st.error(f"Error updating session: {str(e)}")
 # -----------------------------------------------------------------------------
 # 3. Functions (Write to Sheets, Filter, etc.)
 # -----------------------------------------------------------------------------
@@ -607,37 +627,30 @@ def main():
     st.title("⚽ Next-Gen Soccer Scout ")
 
 
-    # Check for session token - Add this section
-    params = st._get_query_params()
-    token_param = params.get("token", [None])[0]
-
-    # Auto-login via token if not logged in
-    if 'user' not in st.session_state:
-        # JavaScript to check localStorage and redirect
-        components.html("""
-            <script>
-            const token = localStorage.getItem('session_token');
-            if (token && !window.location.search.includes('token=')) {
-                window.location.search = `token=${token}`;
-            }
-            </script>
-        """, height=0)
-
-        if token_param:
-            user_id = validate_session_token(token_param)
+    if 'token_validated' not in st.session_state:
+        # Hidden component to read localStorage token
+        token = components.declare_component("token_manager", url="").get_token()
+        
+        if token:
+            user_id = validate_session_token(token)
             if user_id:
                 user = get_user_by_id(user_id)
                 if user:
                     st.session_state.user = user
-                    st._set_query_params()  # Clear token from URL
-                    st.rerun()
+                    update_session_activity(token)
+                else:
+                    components.html("""
+                        <script>
+                            localStorage.removeItem('session_token');
+                        </script>
+                    """)
             else:
                 components.html("""
                     <script>
-                    localStorage.removeItem('session_token');
-                    </script>
-                """, height=0)
-                st._set_query_params()
+                        localStorage.removeItem('session_token');
+                    </Script>
+                """)
+        st.session_state.token_validated = True
 
     if 'user' not in st.session_state:
         st.session_state.user = None
@@ -705,17 +718,21 @@ def main():
                             # Generate and store session token
                             token = generate_session_token()
                             expiration = datetime.now() + timedelta(days=7)
-                            expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")                            
+                            expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
+                            
+                            # Store in database
+                            st.session_state["sessions_sheet"].append_row([
+                                token, 
+                                st.session_state.user["UserID"], 
+                                expiration_str
+                            ])
+                            get_all_sessions.clear()
 
-                            # Save to Sessions sheet
-                            st.session_state["sessions_sheet"].append_row([token, st.session_state.user["UserID"], expiration_str])
-                            get_all_sessions.clear()  # Invalidate cache
-
-                            # Set token in localStorage and reload
+                            # Store in localStorage
                             components.html(f"""
                                 <script>
                                     localStorage.setItem('session_token', '{token}');
-                                    window.location.search = `token={token}`;
+                                    window.location.reload();
                                 </script>
                             """, height=0)
                             st.stop()
@@ -781,19 +798,24 @@ def main():
                             token = generate_session_token()
                             expiration = datetime.now() + timedelta(days=7)
                             expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
+                            
+                            # Store in database
+                            st.session_state["sessions_sheet"].append_row([
+                                token, 
+                                st.session_state.user["UserID"], 
+                                expiration_str
+                            ])
+                            get_all_sessions.clear()
 
-                            # Save to Sessions sheet
-                            st.session_state["sessions_sheet"].append_row([token, st.session_state.user["UserID"], expiration_str])
-                            get_all_sessions.clear()  # Invalidate cache
-
-                            # Set token in localStorage and reload
+                            # Store in localStorage
                             components.html(f"""
                                 <script>
                                     localStorage.setItem('session_token', '{token}');
-                                    window.location.search = `token={token}`;
+                                    window.location.reload();
                                 </script>
                             """, height=0)
                             st.stop()
+                            
                             # Clear temp states
                             st.session_state.pop("temp_user", None)
                             st.session_state.pop("2fa_code", None)
@@ -808,29 +830,22 @@ def main():
     # ------------------- Main App -------------------------
     else:
         if st.sidebar.button("Logout"):
-            # Remove all sessions for this user
-            if 'user' in st.session_state:
-                user_id = st.session_state.user["UserID"]
-                sessions = get_all_sessions()
-                rows_to_delete = []
-                for i, session in enumerate(sessions):
-                    if str(session["UserID"]) == str(user_id):
-                        rows_to_delete.append(i + 2)  # +2 for header offset
-                
-                # Delete in reverse order
-                for row in reversed(rows_to_delete):
-                    st.session_state["sessions_sheet"].delete_row(row)
-                get_all_sessions.clear()
-
-            # Clear client-side storage
+            # Remove from database
+            user_id = st.session_state.user["UserID"]
+            sessions = get_all_sessions()
+            rows_to_delete = [i+2 for i,s in enumerate(sessions) if str(s["UserID"]) == str(user_id)]
+            for row in reversed(rows_to_delete):
+                st.session_state["sessions_sheet"].delete_row(row)
+            
+            # Clear client-side
             components.html("""
                 <script>
-                localStorage.removeItem('session_token');
-                </script>
+                    localStorage.removeItem('session_token');
+                </Script>
             """, height=0)
             
             st.session_state.user = None
-            st.rerun(scope="app")
+            st.rerun()
 
         st.sidebar.markdown("### Menu")
         if st.sidebar.button("Dashboard"):
