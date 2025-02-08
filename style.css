@@ -1,35 +1,160 @@
+/* General Styles */
 body {
-    background-color: #f0f2f6;
-    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #333;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
 }
 
-.stButton>button {
-    background-color: #4CAF50;
+p {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Sidebar Styles */
+.stSidebar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+}
+
+.stSidebar .stMarkdown h1,
+.stSidebar .stMarkdown h2,
+.stSidebar .stMarkdown h3 {
+    color: white;
+}
+
+.stSidebar .stButton>button {
+    background-color: #3498db;
     color: white;
     border: none;
     padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.stSidebar .stButton>button:hover {
+    background-color: #2980b9;
+}
+
+/* Button Styles */
+.stButton>button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .stButton>button:hover {
-    background-color: #45a049;
+    background-color: #2980b9;
 }
 
-.stSidebar .css-1d391kg {
-    background-color: #333;
-    color: white;
+/* Input Fields */
+.stTextInput>div>div>input,
+.stNumberInput>div>div>input,
+.stSelectbox>div>div>select,
+.stTextArea>div>div>textarea {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
 }
 
-.stSidebar .css-1d391kg .css-1v3fvcr {
+.stTextInput>div>div>input:focus,
+.stNumberInput>div>div>input:focus,
+.stSelectbox>div>div>select:focus,
+.stTextArea>div>div>textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Slider Styles */
+.stSlider .stSliderSlider {
+    background-color: #3498db;
+}
+
+.stSlider .stSliderThumb {
+    background-color: #3498db;
+    border: 2px solid white;
+}
+
+/* Container Styles */
+.stContainer {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+.stTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.stTable th,
+.stTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.stTable th {
+    background-color: #3498db;
     color: white;
+    font-weight: 600;
+}
+
+/* Chart Styles */
+.stPlotlyChart {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #2c3e50;
+    color: white;
+    margin-top: 40px;
+}
+
+footer a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stSidebar {
+        padding: 10px;
+    }
+
+    .stButton>button {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .stContainer {
+        padding: 15px;
+    }
 }
