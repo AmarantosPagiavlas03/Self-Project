@@ -637,63 +637,63 @@ def main():
         auth_action = st.sidebar.selectbox("Menu", ["Login", "Register"])
         
         if auth_action == "Login":
-            with st.form("Login"):
 
-                if "login_step" not in st.session_state:
-                    st.session_state.login_step = "credentials"
 
-                if st.session_state.login_step == "credentials":
-                    st.subheader("Login - Step 1: Enter Credentials")
-                    with st.form("LoginForm"):
-                        email = st.text_input("Email")
-                        password = st.text_input("Password", type="password")
-                        if st.form_submit_button("Next"):
-                            success, user_record = login_user(email, password)
-                            if success:
-                                # Password is correct, but let's do 2FA
-                                st.session_state["temp_user"] = user_record
-                                # Generate a one-time code
-                                code = generate_2fa_code(6)
-                                st.session_state["2fa_code"] = code
-                                st.session_state["2fa_code_time"] = time.time()
-                                
-                                # Here is where you actually USE send_email_code
-                                send_email_code(user_record["Email"], code)  # <--- (1)
+            if "login_step" not in st.session_state:
+                st.session_state.login_step = "credentials"
 
-                                # Move to step 2
-                                st.session_state.login_step = "2fa"
-                            else:
-                                st.error("Invalid credentials")
+            if st.session_state.login_step == "credentials":
+                st.subheader("Login - Step 1: Enter Credentials")
+                with st.form("LoginForm"):
+                    email = st.text_input("Email")
+                    password = st.text_input("Password", type="password")
+                    if st.form_submit_button("Next"):
+                        success, user_record = login_user(email, password)
+                        if success:
+                            # Password is correct, but let's do 2FA
+                            st.session_state["temp_user"] = user_record
+                            # Generate a one-time code
+                            code = generate_2fa_code(6)
+                            st.session_state["2fa_code"] = code
+                            st.session_state["2fa_code_time"] = time.time()
+                            
+                            # Here is where you actually USE send_email_code
+                            send_email_code(user_record["Email"], code)  # <--- (1)
 
-                elif st.session_state.login_step == "2fa":
-                    st.subheader("Login - Step 2: 2FA Code")
-                    code_input = st.text_input("Check your email for the verification code:")
-                    if st.button("Verify"):
-                        now = time.time()
-                        code_generated_at = st.session_state["2fa_code_time"]
-                        
-                        # Expire code after 5 minutes (300s)
-                        if now - code_generated_at > 300:
-                            st.error("2FA code expired. Please try logging in again.")
-                            # Reset to Step 1
-                            st.session_state.login_step = "credentials"
+                            # Move to step 2
+                            st.session_state.login_step = "2fa"
                         else:
-                            correct_code = st.session_state["2fa_code"]
-                            if code_input.strip() == correct_code:
-                                # 2FA passed; finalize login
-                                st.session_state.user = st.session_state["temp_user"]
-                                st.success("You are now logged in!")
+                            st.error("Invalid credentials")
 
-                                # Clear temp states
-                                st.session_state.pop("temp_user", None)
-                                st.session_state.pop("2fa_code", None)
-                                st.session_state.pop("2fa_code_time", None)
-                                
-                                # Reset login step if you want to reuse logic
-                                st.session_state.login_step = "credentials"
-                                st.experimental_rerun()
-                            else:
-                                st.error("Incorrect code, please try again.")        
+            elif st.session_state.login_step == "2fa":
+                st.subheader("Login - Step 2: 2FA Code")
+                code_input = st.text_input("Check your email for the verification code:")
+                if st.button("Verify"):
+                    now = time.time()
+                    code_generated_at = st.session_state["2fa_code_time"]
+                    
+                    # Expire code after 5 minutes (300s)
+                    if now - code_generated_at > 300:
+                        st.error("2FA code expired. Please try logging in again.")
+                        # Reset to Step 1
+                        st.session_state.login_step = "credentials"
+                    else:
+                        correct_code = st.session_state["2fa_code"]
+                        if code_input.strip() == correct_code:
+                            # 2FA passed; finalize login
+                            st.session_state.user = st.session_state["temp_user"]
+                            st.success("You are now logged in!")
+
+                            # Clear temp states
+                            st.session_state.pop("temp_user", None)
+                            st.session_state.pop("2fa_code", None)
+                            st.session_state.pop("2fa_code_time", None)
+                            
+                            # Reset login step if you want to reuse logic
+                            st.session_state.login_step = "credentials"
+                            st.experimental_rerun()
+                        else:
+                            st.error("Incorrect code, please try again.")        
 
         elif auth_action == "Register":
             with st.form("Register"):
