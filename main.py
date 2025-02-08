@@ -201,7 +201,7 @@ def main():
                     success, result = login_user(email, password)
                     if success:
                         st.session_state.user = result
-                        st.experimental_rerun()
+                        st.rerun(scope="app")
                     else:
                         st.error(result)
         
@@ -220,7 +220,7 @@ def main():
         # Logged in
         if st.sidebar.button("Logout"):
             st.session_state.user = None
-            st.experimental_rerun()
+            st.rerun(scope="app")
         
         st.sidebar.markdown("### Menu")
         if st.sidebar.button("Dashboard"):
