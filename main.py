@@ -641,56 +641,56 @@ def main():
     load_css("style.css")
     st.title("⚽ Next-Gen Soccer Scout ")
 
-    if 'user' not in st.session_state:
-        # Get token from URL parameters (if exists)
-        token_param = st._get_query_params().get("token", [None])[0]
+    # if 'user' not in st.session_state:
+    #     # Get token from URL parameters (if exists)
+    #     token_param = st._get_query_params().get("token", [None])[0]
         
-        # Phase 1: Token from URL (initial validation)
-        if token_param:
-            user_id = validate_session_token(token_param)
-            st.write(user_id)
-            if user_id:
-                user = get_user_by_id(user_id)
-                if user:
-                    st.session_state.user = user
-                    update_session_activity(token_param)
+    #     # Phase 1: Token from URL (initial validation)
+    #     if token_param:
+    #         user_id = validate_session_token(token_param)
+    #         st.write(user_id)
+    #         if user_id:
+    #             user = get_user_by_id(user_id)
+    #             if user:
+    #                 st.session_state.user = user
+    #                 update_session_activity(token_param)
                     
-                    # Remove token from URL after validation
-                    components.html("""
-                        <script>
-                        const url = new URL(window.location);
-                        url.searchParams.delete('token');
-                        window.history.replaceState(null, '', url.toString());
-                        </script>
-                    """, height=0)
+    #                 # Remove token from URL after validation
+    #                 components.html("""
+    #                     <script>
+    #                     const url = new URL(window.location);
+    #                     url.searchParams.delete('token');
+    #                     window.history.replaceState(null, '', url.toString());
+    #                     </script>
+    #                 """, height=0)
                     
-                    # Store token in localStorage for future refreshes
-                    components.html(f"""
-                        <script>
-                        localStorage.setItem('session_token', '{token_param}');
-                        </script>
-                    """, height=0)
-            else:
-                # Invalid token - clear everything
-                components.html("""
-                    <script>
-                    localStorage.removeItem('session_token');
-                    </script>
-                """, height=0)
+    #                 # Store token in localStorage for future refreshes
+    #                 components.html(f"""
+    #                     <script>
+    #                     localStorage.setItem('session_token', '{token_param}');
+    #                     </script>
+    #                 """, height=0)
+    #         else:
+    #             # Invalid token - clear everything
+    #             components.html("""
+    #                 <script>
+    #                 localStorage.removeItem('session_token');
+    #                 </script>
+    #             """, height=0)
         
-        # Phase 2: Check localStorage if no URL token
-        else:
-            # Inject JavaScript to check localStorage and redirect
-            components.html("""
-                <script>
-                const token = localStorage.getItem('session_token');
-                if (token && !window.location.search.includes('token')) {
-                    const url = new URL(window.location);
-                    url.searchParams.set('token', token);
-                    window.location.href = url.toString();
-                }
-                </script>
-            """, height=0)
+    #     # Phase 2: Check localStorage if no URL token
+    #     else:
+    #         # Inject JavaScript to check localStorage and redirect
+    #         components.html("""
+    #             <script>
+    #             const token = localStorage.getItem('session_token');
+    #             if (token && !window.location.search.includes('token')) {
+    #                 const url = new URL(window.location);
+    #                 url.searchParams.set('token', token);
+    #                 window.location.href = url.toString();
+    #             }
+    #             </script>
+    #         """, height=0)
 
     if 'user' not in st.session_state:
         # Create a listener component
@@ -730,28 +730,28 @@ def main():
                         if success:
                             # Bypass 2FA for Admin
                             if user_record.get("Role") == "Admin":
-                                st.cache_data(ttl=60)
+                                st.experimental_singleton()
                                 st.session_state.user = user_record
                                 st.success("Logged in as Admin!")
                                 
-                                token = generate_session_token()
-                                expiration = datetime.now(timezone.utc) + timedelta(days=7)
-                                user_id = user_record.get("UserID")
-                                st.session_state["sessions_sheet"].append_row([
-                                    token,
-                                    user_id,
-                                    expiration.isoformat(),
-                                    datetime.now(timezone.utc).isoformat()  # LastActivity
-                                ])
-                                # get_all_sessions.clear()
+                                # token = generate_session_token()
+                                # expiration = datetime.now(timezone.utc) + timedelta(days=7)
+                                # user_id = user_record.get("UserID")
+                                # st.session_state["sessions_sheet"].append_row([
+                                #     token,
+                                #     user_id,
+                                #     expiration.isoformat(),
+                                #     datetime.now(timezone.utc).isoformat()  # LastActivity
+                                # ])
+                                # # get_all_sessions.clear()
 
-                                # Redirect with token in URL (trigger Phase 1 validation)
-                                components.html(f"""
-                                    <script>
-                                    localStorage.setItem('session_token', '{token}');
-                                    window.location.search = `token={token}`;
-                                    </script>
-                                """, height=0)
+                                # # Redirect with token in URL (trigger Phase 1 validation)
+                                # components.html(f"""
+                                #     <script>
+                                #     localStorage.setItem('session_token', '{token}');
+                                #     window.location.search = `token={token}`;
+                                #     </script>
+                                # """, height=0)
  
                                 st.rerun()                              
                             else:
@@ -783,25 +783,25 @@ def main():
                             st.session_state.user = st.session_state["temp_user"]
                             st.success("You are now logged in!")
 
-                            # Generate and store session token
-                            token = generate_session_token()
-                            user_id = user_record.get("UserID")
-                            expiration = datetime.now(timezone.utc) + timedelta(days=7)
-                            st.session_state["sessions_sheet"].append_row([
-                                token,
-                                user_id,
-                                expiration.isoformat(),
-                                datetime.now(timezone.utc).isoformat()  # LastActivity
-                            ])
-                            # get_all_sessions.clear()
+                            # # Generate and store session token
+                            # token = generate_session_token()
+                            # user_id = user_record.get("UserID")
+                            # expiration = datetime.now(timezone.utc) + timedelta(days=7)
+                            # st.session_state["sessions_sheet"].append_row([
+                            #     token,
+                            #     user_id,
+                            #     expiration.isoformat(),
+                            #     datetime.now(timezone.utc).isoformat()  # LastActivity
+                            # ])
+                            # # get_all_sessions.clear()
 
-                            # Redirect with token in URL (trigger Phase 1 validation)
-                            components.html(f"""
-                                <script>
-                                localStorage.setItem('session_token', '{token}');
-                                window.location.search = `token={token}`;
-                                </script>
-                            """, height=0)
+                            # # Redirect with token in URL (trigger Phase 1 validation)
+                            # components.html(f"""
+                            #     <script>
+                            #     localStorage.setItem('session_token', '{token}');
+                            #     window.location.search = `token={token}`;
+                            #     </script>
+                            # """, height=0)
 
 
 
@@ -897,23 +897,26 @@ def main():
 
     # ------------------- Main App -------------------------
     else:
-        if st.sidebar.button("Logout"):
-            # Database cleanup
-            user_id = st.session_state.user["UserID"]
-            sessions = get_all_sessions()
-            rows_to_delete = [i+2 for i,s in enumerate(sessions) if str(s["UserID"]) == str(user_id)]
-            for row in reversed(rows_to_delete):
-                st.session_state["sessions_sheet"].delete_rows(row)
+        # if st.sidebar.button("Logout"):
+        #     # Database cleanup
+        #     user_id = st.session_state.user["UserID"]
+        #     sessions = get_all_sessions()
+        #     rows_to_delete = [i+2 for i,s in enumerate(sessions) if str(s["UserID"]) == str(user_id)]
+        #     for row in reversed(rows_to_delete):
+        #         st.session_state["sessions_sheet"].delete_rows(row)
             
-            # Client-side cleanup
-            components.html("""
-                <script>
-                localStorage.removeItem('session_token');
-                window.location.href = window.location.href.split('?')[0];
-                </script>
-            """, height=0)
-            st.session_state.clear()
-            st.stop()
+        #     # Client-side cleanup
+        #     components.html("""
+        #         <script>
+        #         localStorage.removeItem('session_token');
+        #         window.location.href = window.location.href.split('?')[0];
+        #         </script>
+        #     """, height=0)
+        #     st.session_state.clear()
+        #     st.stop()
+        if st.sidebar.button("Logout"):
+            st.session_state.user = None
+            st.rerun(scope="app")
 
         st.sidebar.markdown("### Menu")
         if st.sidebar.button("Dashboard"):
