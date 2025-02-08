@@ -633,10 +633,16 @@ def main():
         st.session_state.user = None
     if 'menu' not in st.session_state:
         st.session_state.menu = "Dashboard"
+    if 'login_menu' not in st.session_state:
+        st.session_state.login_menu = "Login"
 
     # ------------------- Auth Flow ------------------------
     if not st.session_state.user:
-        auth_action = st.sidebar.selectbox("Menu", ["Login", "Register"])
+        if st.sidebar.button("Login"):
+            st.session_state.menu = "Login"
+        if st.sidebar.button("Register"):
+            st.session_state.menu = "Register"
+        auth_action = st.session_state.login_menu
         
         if auth_action == "Login":
 
