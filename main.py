@@ -649,6 +649,7 @@ def main():
         # Phase 1: Token from URL (initial validation)
         if token_param:
             user_id = validate_session_token(token_param)
+            st.write(user_id)
             if user_id:
                 user = get_user_by_id(user_id)
                 if user:
@@ -741,7 +742,7 @@ def main():
                                     expiration.isoformat(),
                                     datetime.now(timezone.utc).isoformat()  # LastActivity
                                 ])
-                                get_all_sessions.clear()
+                                # get_all_sessions.clear()
 
                                 # Redirect with token in URL (trigger Phase 1 validation)
                                 components.html(f"""
@@ -791,7 +792,7 @@ def main():
                                 expiration.isoformat(),
                                 datetime.now(timezone.utc).isoformat()  # LastActivity
                             ])
-                            get_all_sessions.clear()
+                            # get_all_sessions.clear()
 
                             # Redirect with token in URL (trigger Phase 1 validation)
                             components.html(f"""
@@ -870,7 +871,7 @@ def main():
                                 expiration.isoformat(),
                                 datetime.now(timezone.utc).isoformat()  # LastActivity
                             ])
-                            get_all_sessions.clear()
+                            # get_all_sessions.clear()
 
                             # Redirect with token in URL (trigger Phase 1 validation)
                             components.html(f"""
