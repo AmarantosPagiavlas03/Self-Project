@@ -719,83 +719,113 @@ def main():
             if not all_players:
                 st.info("No players found.")
             else:
-                for player in all_players:
-                    p_id = player["UserID"]
-                    first_name = player["First Name"]
-                    last_name = player["Last Name"]
-                    position = player["Position"]
-                    age = player["Age"]
-                    height = player["Height (cm)"]
-                    weight = player["Weight (kg)"]
-                    email = player["Email"]
-                    agility = player["Agility"]
-                    power = player["Power"]
-                    speed = player["Speed"]
-                    bio = player["Bio"]
-                    video_links = player["Video Links"]
-                    looking_for_team = (
-                        str(player["Looking For A Team"]).lower() in ["true", "1", "yes"]
-                    )
+                # 1) Add a text input for name search
+                name_query = st.text_input("Search players by name (partial or full)")
 
-                    # Each player's details in an expander
-                    with st.expander(f"Player {p_id}: {first_name} {last_name}", expanded=False):
-                        st.write(f"**Position:** {position}, **Age:** {age}")
-                        
-                        # Admin can override fields
-                        c1, c2, c3 = st.columns(3)
-                        new_first_name = c1.text_input(
-                            "First Name",
-                            value=first_name,
-                            key=f"fname_{p_id}"
-                        )
-                        new_last_name = c2.text_input(
-                            "Last Name",
-                            value=last_name,
-                            key=f"lname_{p_id}"
-                        )
-                        new_position = c3.selectbox(
-                            "Position",
-                            ["Goalkeeper", "Defender", "Midfielder", "Forward"],
-                            index=["Goalkeeper", "Defender", "Midfielder", "Forward"].index(position)
-                            if position in ["Goalkeeper", "Defender", "Midfielder", "Forward"]
-                            else 0,
-                            key=f"pos_{p_id}"
-                        )
+                # 2) Filter players if there's a search query
+                if name_query:
+                    name_query_lower = name_query.lower()
+                    filtered_players = []
+                    for p in all_players:
+                        full_name = (p["First Name"] + " " + p["Last Name"]).lower()
+                        if name_query_lower in full_name:
+                            filtered_players.append(p)
+                else:
+                    # If no query, show all players
+                    filtered_players = all_players
 
-                        colA, colB, colC = st.columns(3)
-                        new_age = colA.number_input("Age", 16, 50, int(age) if str(age).isdigit() else 20, key=f"age_{p_id}")
-                        new_height = colB.number_input("Height (cm)", 100, 250, int(height) if str(height).isdigit() else 170, key=f"height_{p_id}")
-                        new_weight = colC.number_input("Weight (kg)", 30, 150, int(weight) if str(weight).isdigit() else 70, key=f"weight_{p_id}")
+                # 3) Display the filtered list
+                if not filtered_players:
+                    st.warning("No players match your search.")
+                else:
+                    for player in filtered_players:
+                        p_id = player["UserID"]
+                        first_name = player["First Name"]
+                        last_name = player["Last Name"]
+                        position = player["Position"]
+                        age = player["Age"]
+                        height = player["Height (cm)"]
+                        weight = player["Weight (kg)"]
+                        email = player["Email"]
+                        agility = player["Agility"]
+                        power = player["Power"]
+                        speed = player["Speed"]
+                        bio = player["Bio"]
+                        video_links = player["Video Links"]
+                        looking_for_team = (str(player["Looking For A Team"]).lower() in ["true", "1", "yes"])
 
-                        new_email = st.text_input("Email", value=email, key=f"email_{p_id}")
-                        new_agility = st.slider("Agility", 0, 5, int(agility), key=f"agility_{p_id}")
-                        new_power = st.slider("Power", 0, 5, int(power), key=f"power_{p_id}")
-                        new_speed = st.slider("Speed", 0, 5, int(speed), key=f"speed_{p_id}")
-
-                        new_bio = st.text_area("Bio", value=bio, key=f"bio_{p_id}")
-                        new_video_links = st.text_input("Video Links", value=video_links, key=f"videos_{p_id}")
-                        new_lft = st.checkbox("Looking For A Team?", value=looking_for_team, key=f"lft_{p_id}")
-
-                        # The update & delete buttons
-                        update_col, delete_col = st.columns([1,1])
-                        if update_col.button(f"Update Player {p_id}", key=f"update_{p_id}"):
-                            success, msg = admin_update_player(
-                                p_id, new_first_name, new_last_name, new_position, new_age,
-                                new_height, new_weight, new_email, new_agility, new_power,
-                                new_speed, new_bio, new_video_links, new_lft
+                        with st.expander(f"Player {p_id}: {first_name} {last_name}", expanded=False):
+                            st.write(f"**Position:** {position}, **Age:** {age}")
+                            
+                            # Admin can override fields
+                            c1, c2, c3 = st.columns(3)
+                            new_first_name = c1.text_input(
+                                "First Name",
+                                value=first_name,
+                                key=f"fname_{p_id}"
                             )
-                            if success:
-                                st.success(msg)
-                                st.experimental_rerun()
-                            else:
-                                st.error(msg)
+                            new_last_name = c2.text_input(
+                                "Last Name",
+                                value=last_name,
+                                key=f"lname_{p_id}"
+                            )
+                            new_position = c3.selectbox(
+                                "Position",
+                                ["Goalkeeper", "Defender", "Midfielder", "Forward"],
+                                index=["Goalkeeper", "Defender", "Midfielder", "Forward"].index(position)
+                                if position in ["Goalkeeper", "Defender", "Midfielder", "Forward"]
+                                else 0,
+                                key=f"pos_{p_id}"
+                            )
 
-                        if delete_col.button(f"Delete Player {p_id}", key=f"delete_{p_id}"):
-                            if admin_delete_player(p_id):
-                                st.warning(f"Player {first_name} {last_name} deleted.")
-                                st.experimental_rerun()
-                            else:
-                                st.error("Could not delete. Player not found?")
+                            colA, colB, colC = st.columns(3)
+                            new_age = colA.number_input(
+                                "Age", 16, 50,
+                                int(age) if str(age).isdigit() else 20,
+                                key=f"age_{p_id}"
+                            )
+                            new_height = colB.number_input(
+                                "Height (cm)", 100, 250,
+                                int(height) if str(height).isdigit() else 170,
+                                key=f"height_{p_id}"
+                            )
+                            new_weight = colC.number_input(
+                                "Weight (kg)", 30, 150,
+                                int(weight) if str(weight).isdigit() else 70,
+                                key=f"weight_{p_id}"
+                            )
+
+                            new_email = st.text_input("Email", value=email, key=f"email_{p_id}")
+                            new_agility = st.slider("Agility", 0, 5, int(agility), key=f"agility_{p_id}")
+                            new_power = st.slider("Power", 0, 5, int(power), key=f"power_{p_id}")
+                            new_speed = st.slider("Speed", 0, 5, int(speed), key=f"speed_{p_id}")
+
+                            new_bio = st.text_area("Bio", value=bio, key=f"bio_{p_id}")
+                            new_video_links = st.text_input("Video Links", value=video_links, key=f"videos_{p_id}")
+                            new_lft = st.checkbox("Looking For A Team?", value=looking_for_team, key=f"lft_{p_id}")
+
+                            # Update & delete buttons
+                            update_col, delete_col = st.columns([1,1])
+                            if update_col.button(f"Update Player {p_id}", key=f"update_{p_id}"):
+                                success, msg = admin_update_player(
+                                    p_id, new_first_name, new_last_name, new_position,
+                                    new_age, new_height, new_weight, new_email,
+                                    new_agility, new_power, new_speed, new_bio,
+                                    new_video_links, new_lft
+                                )
+                                if success:
+                                    st.success(msg)
+                                    st.experimental_rerun()
+                                else:
+                                    st.error(msg)
+
+                            if delete_col.button(f"Delete Player {p_id}", key=f"delete_{p_id}"):
+                                if admin_delete_player(p_id):
+                                    st.warning(f"Player {first_name} {last_name} deleted.")
+                                    st.experimental_rerun()
+                                else:
+                                    st.error("Could not delete. Player not found?")
+
 
             # ------------------------- Manage Teams -------------------------
             st.subheader("Add New Team")
