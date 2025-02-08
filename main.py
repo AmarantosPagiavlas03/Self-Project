@@ -629,33 +629,54 @@ def main():
 
 
     if 'user' not in st.session_state:
-        # Check for token in localStorage and validate
-        if 'token_checked' not in st.session_state:
-            # Inject JavaScript to check localStorage
+        # Get token from URL parameters (if exists)
+        token_param = st._get_query_params().get("token", [None])[0]
+        
+        # Phase 1: Token from URL (initial validation)
+        if token_param:
+            user_id = validate_session_token(token_param)
+            if user_id:
+                user = get_user_by_id(user_id)
+                if user:
+                    st.session_state.user = user
+                    update_session_activity(token_param)
+                    
+                    # Remove token from URL after validation
+                    components.html("""
+                        <script>
+                        const url = new URL(window.location);
+                        url.searchParams.delete('token');
+                        window.history.replaceState(null, '', url.toString());
+                        </script>
+                    """, height=0)
+                    
+                    # Store token in localStorage for future refreshes
+                    components.html(f"""
+                        <script>
+                        localStorage.setItem('session_token', '{token_param}');
+                        </script>
+                    """, height=0)
+            else:
+                # Invalid token - clear everything
+                components.html("""
+                    <script>
+                    localStorage.removeItem('session_token');
+                    </script>
+                """, height=0)
+        
+        # Phase 2: Check localStorage if no URL token
+        else:
+            # Inject JavaScript to check localStorage and redirect
             components.html("""
                 <script>
                 const token = localStorage.getItem('session_token');
-                if(token) {
-                    window.parent.postMessage({
-                        type: 'streamlit:setComponentValue',
-                        value: token
-                    }, '*');
+                if (token && !window.location.search.includes('token')) {
+                    const url = new URL(window.location);
+                    url.searchParams.set('token', token);
+                    window.location.href = url.toString();
                 }
                 </script>
             """, height=0)
-            st.session_state.token_checked = True
-        else:
-            # Check if we received a token from JS
-            if 'js_token' in st.session_state:
-                token = st.session_state.js_token
-                user_id = validate_session_token(token)
-                if user_id:
-                    user = get_user_by_id(user_id)
-                    if user:
-                        st.session_state.user = user
-                        update_session_activity(token)
-                # Clear the temporary token storage
-                del st.session_state.js_token
 
     if 'user' not in st.session_state:
         # Create a listener component
@@ -739,11 +760,11 @@ def main():
                             ])
                             get_all_sessions.clear()
 
-                            # Store in localStorage and reload
+                            # Redirect with token in URL (trigger Phase 1 validation)
                             components.html(f"""
                                 <script>
-                                    localStorage.setItem('session_token', '{token}');
-                                    window.location.reload();
+                                localStorage.setItem('session_token', '{token}');
+                                window.location.search = `token={token}`;
                                 </script>
                             """, height=0)
                             st.stop()
@@ -819,11 +840,11 @@ def main():
                             ])
                             get_all_sessions.clear()
 
-                            # Store in localStorage and reload
+                            # Redirect with token in URL (trigger Phase 1 validation)
                             components.html(f"""
                                 <script>
-                                    localStorage.setItem('session_token', '{token}');
-                                    window.location.reload();
+                                localStorage.setItem('session_token', '{token}');
+                                window.location.search = `token={token}`;
                                 </script>
                             """, height=0)
                             st.stop()
@@ -843,22 +864,22 @@ def main():
     # ------------------- Main App -------------------------
     else:
         if st.sidebar.button("Logout"):
-            # Remove from database
+            # Database cleanup
             user_id = st.session_state.user["UserID"]
             sessions = get_all_sessions()
             rows_to_delete = [i+2 for i,s in enumerate(sessions) if str(s["UserID"]) == str(user_id)]
             for row in reversed(rows_to_delete):
                 st.session_state["sessions_sheet"].delete_row(row)
             
-            # Clear client-side
+            # Client-side cleanup
             components.html("""
                 <script>
-                    localStorage.removeItem('session_token');
+                localStorage.removeItem('session_token');
+                window.location.href = window.location.href.split('?')[0];
                 </script>
             """, height=0)
-            
             st.session_state.clear()
-            st.rerun()
+            st.stop()
 
         st.sidebar.markdown("### Menu")
         if st.sidebar.button("Dashboard"):
