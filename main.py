@@ -268,6 +268,41 @@ def update_team(team_id, new_name, new_city, new_founded_year, new_coach):
     get_all_teams.clear()
     return True, f"Team {team_id} updated."
 
+def admin_add_player(
+    first_name, last_name, position, age, height, weight, email, 
+    agility, power, speed, bio, video_links, looking_for_team
+):
+    """
+    Creates a new row in the Players sheet with the given data.
+    Returns (success_boolean, message).
+    """
+    players = get_all_players()  # your cached function that returns all players
+    new_id = len(players) + 1  # A simple ID scheme (UserID = row_count + 1)
+
+    # Convert the boolean for "Looking For A Team" to a string if needed
+    lft_value = "TRUE" if looking_for_team else "FALSE"
+
+    row_data = [
+        new_id,
+        first_name,
+        last_name,
+        position,
+        age,
+        height,
+        weight,
+        email,
+        agility,
+        power,
+        speed,
+        bio,
+        video_links,
+        lft_value
+    ]
+
+    st.session_state["players_sheet"].append_row(row_data)
+    get_all_players.clear()  # Invalidate the cache so we see the new row next time
+    return True, f"Player '{first_name} {last_name}' added (ID={new_id})."
+
 
 def admin_update_player(
     player_id, first_name, last_name, position, age, height, weight, email,
@@ -606,6 +641,47 @@ def main():
             # -----------------------------------------------------------------
             # Example: Manage Players
             # -----------------------------------------------------------------
+            st.subheader("Add New Player")
+            with st.form("AddPlayerForm"):
+                new_first_name = st.text_input("First Name")
+                new_last_name = st.text_input("Last Name")
+                new_position = st.selectbox(
+                    "Position", 
+                    ["Goalkeeper", "Defender", "Midfielder", "Forward"]
+                )
+
+                # Basic fields
+                c1, c2, c3 = st.columns(3)
+                new_age = c1.number_input("Age", 16, 40, 20)
+                new_height = c2.number_input("Height (cm)", 150, 220, 175)
+                new_weight = c3.number_input("Weight (kg)", 50, 120, 70)
+
+                # Performance metrics
+                new_agility = st.slider("Agility", 0, 5, 3)
+                new_power = st.slider("Power", 0, 5, 3)
+                new_speed = st.slider("Speed", 0, 5, 3)
+
+                # Extra fields
+                new_bio = st.text_area("Bio")
+                new_video_links = st.text_input("Video Links (comma-separated)")
+                new_email = st.text_input("Email (optional or required, your choice)")
+                new_lft = st.checkbox("Looking For A Team", value=True)
+
+                if st.form_submit_button("Add Player"):
+                    if new_first_name.strip() and new_last_name.strip():
+                        success, msg = admin_add_player(
+                            new_first_name, new_last_name, new_position, 
+                            new_age, new_height, new_weight, new_email,
+                            new_agility, new_power, new_speed,
+                            new_bio, new_video_links, new_lft
+                        )
+                        if success:
+                            st.success(msg)
+                        else:
+                            st.error("Failed to add player.")
+                    else:
+                        st.warning("First and Last Name are required.")       
+
             st.subheader("Existing Players")
 
             all_players = get_all_players()
@@ -613,7 +689,7 @@ def main():
                 st.info("No players found.")
             else:
                 for player in all_players:
-                    p_id = player["UserID"]  # or int if you prefer
+                    p_id = player["UserID"]
                     first_name = player["First Name"]
                     last_name = player["Last Name"]
                     position = player["Position"]
@@ -627,129 +703,68 @@ def main():
                     bio = player["Bio"]
                     video_links = player["Video Links"]
                     looking_for_team = (
-                        str(player["Looking For A Team"]).lower() == "true" 
-                        or str(player["Looking For A Team"]).lower() == "yes"
+                        str(player["Looking For A Team"]).lower() in ["true", "1", "yes"]
                     )
 
-                    # Put each player's info in an expander or container
+                    # Each player's details in an expander
                     with st.expander(f"Player {p_id}: {first_name} {last_name}", expanded=False):
-                        st.write(f"**Position:** {position}, **Age:** {age}, **Email:** {email}")
+                        st.write(f"**Position:** {position}, **Age:** {age}")
                         
-                        # Let admin edit these fields
-                        # (We can create separate columns or do them in one column, etc.)
-                        col1, col2, col3 = st.columns(3)
-                        new_first_name = col1.text_input(
+                        # Admin can override fields
+                        c1, c2, c3 = st.columns(3)
+                        new_first_name = c1.text_input(
                             "First Name",
                             value=first_name,
                             key=f"fname_{p_id}"
                         )
-                        new_last_name = col2.text_input(
+                        new_last_name = c2.text_input(
                             "Last Name",
                             value=last_name,
                             key=f"lname_{p_id}"
                         )
-                        new_position = col3.selectbox(
+                        new_position = c3.selectbox(
                             "Position",
                             ["Goalkeeper", "Defender", "Midfielder", "Forward"],
                             index=["Goalkeeper", "Defender", "Midfielder", "Forward"].index(position)
-                            if position in ["Goalkeeper", "Defender", "Midfielder", "Forward"] else 0,
+                            if position in ["Goalkeeper", "Defender", "Midfielder", "Forward"]
+                            else 0,
                             key=f"pos_{p_id}"
                         )
 
-                        col4, col5, col6 = st.columns(3)
-                        new_age = col4.number_input(
-                            "Age",
-                            min_value=16, max_value=50,
-                            value=int(age) if str(age).isdigit() else 20,
-                            key=f"age_{p_id}"
-                        )
-                        new_height = col5.number_input(
-                            "Height (cm)",
-                            min_value=100, max_value=250,
-                            value=int(height) if str(height).isdigit() else 170,
-                            key=f"height_{p_id}"
-                        )
-                        new_weight = col6.number_input(
-                            "Weight (kg)",
-                            min_value=30, max_value=150,
-                            value=int(weight) if str(weight).isdigit() else 70,
-                            key=f"weight_{p_id}"
-                        )
+                        colA, colB, colC = st.columns(3)
+                        new_age = colA.number_input("Age", 16, 50, int(age) if str(age).isdigit() else 20, key=f"age_{p_id}")
+                        new_height = colB.number_input("Height (cm)", 100, 250, int(height) if str(height).isdigit() else 170, key=f"height_{p_id}")
+                        new_weight = colC.number_input("Weight (kg)", 30, 150, int(weight) if str(weight).isdigit() else 70, key=f"weight_{p_id}")
 
-                        new_email = st.text_input(
-                            "Email",
-                            value=email,
-                            key=f"email_{p_id}"
-                        )
+                        new_email = st.text_input("Email", value=email, key=f"email_{p_id}")
+                        new_agility = st.slider("Agility", 0, 5, int(agility), key=f"agility_{p_id}")
+                        new_power = st.slider("Power", 0, 5, int(power), key=f"power_{p_id}")
+                        new_speed = st.slider("Speed", 0, 5, int(speed), key=f"speed_{p_id}")
 
-                        # Sliders for agility, power, speed
-                        new_agility = st.slider(
-                            "Agility",
-                            min_value=0, max_value=5,
-                            value=int(agility),
-                            key=f"agility_{p_id}"
-                        )
-                        new_power = st.slider(
-                            "Power",
-                            min_value=0, max_value=5,
-                            value=int(power),
-                            key=f"power_{p_id}"
-                        )
-                        new_speed = st.slider(
-                            "Speed",
-                            min_value=0, max_value=5,
-                            value=int(speed),
-                            key=f"speed_{p_id}"
-                        )
+                        new_bio = st.text_area("Bio", value=bio, key=f"bio_{p_id}")
+                        new_video_links = st.text_input("Video Links", value=video_links, key=f"videos_{p_id}")
+                        new_lft = st.checkbox("Looking For A Team?", value=looking_for_team, key=f"lft_{p_id}")
 
-                        new_bio = st.text_area(
-                            "Bio",
-                            value=bio,
-                            key=f"bio_{p_id}"
-                        )
-                        new_video_links = st.text_input(
-                            "Video Links (comma-separated)",
-                            value=video_links,
-                            key=f"videolinks_{p_id}"
-                        )
-                        new_looking_for_team = st.checkbox(
-                            "Looking For A Team",
-                            value=looking_for_team,
-                            key=f"looking_{p_id}"
-                        )
-
-                        # Buttons
-                        col_update, col_delete = st.columns(2)
-                        if col_update.button(f"Update Player {p_id}", key=f"update_{p_id}"):
+                        # The update & delete buttons
+                        update_col, delete_col = st.columns([1,1])
+                        if update_col.button(f"Update Player {p_id}", key=f"update_{p_id}"):
                             success, msg = admin_update_player(
-                                player_id=p_id,
-                                first_name=new_first_name,
-                                last_name=new_last_name,
-                                position=new_position,
-                                age=new_age,
-                                height=new_height,
-                                weight=new_weight,
-                                email=new_email,
-                                agility=new_agility,
-                                power=new_power,
-                                speed=new_speed,
-                                bio=new_bio,
-                                video_links=new_video_links,
-                                looking_for_team=new_looking_for_team
+                                p_id, new_first_name, new_last_name, new_position, new_age,
+                                new_height, new_weight, new_email, new_agility, new_power,
+                                new_speed, new_bio, new_video_links, new_lft
                             )
                             if success:
                                 st.success(msg)
-                                st.rerun(scope="app")
+                                st.experimental_rerun()
                             else:
                                 st.error(msg)
 
-                        if col_delete.button(f"Delete Player {p_id}", key=f"delete_{p_id}"):
+                        if delete_col.button(f"Delete Player {p_id}", key=f"delete_{p_id}"):
                             if admin_delete_player(p_id):
                                 st.warning(f"Player {first_name} {last_name} deleted.")
-                                st.rerun(scope="app")
+                                st.experimental_rerun()
                             else:
                                 st.error("Could not delete. Player not found?")
-
 
             # ------------------------- Manage Teams -------------------------
             st.subheader("Add New Team")
