@@ -129,7 +129,7 @@ else:
         st.session_state.user = None
         st.rerun(scope="app")
     
-    menu = st.sidebar.selectbox("Menu", ["Dashboard", "My Profile", "Find Players"])
+    menu = st.sidebar.radio("Menu", ["Dashboard", "My Profile", "Find Players"])
 
     if menu == "Dashboard":
         st.header(f"Welcome {st.session_state.user['Role']} {st.session_state.user['Email']}!")
