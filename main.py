@@ -815,14 +815,14 @@ def main():
                                 )
                                 if success:
                                     st.success(msg)
-                                    st.experimental_rerun()
+                                    st.rerun(scope="app")
                                 else:
                                     st.error(msg)
 
                             if delete_col.button(f"Delete Player {p_id}", key=f"delete_{p_id}"):
                                 if admin_delete_player(p_id):
                                     st.warning(f"Player {first_name} {last_name} deleted.")
-                                    st.experimental_rerun()
+                                    st.rerun(scope="app")
                                 else:
                                     st.error("Could not delete. Player not found?")
 
