@@ -171,7 +171,7 @@ def plot_radar_chart(player):
     ax.plot(angles, values, marker='o')
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(categories)
-    ax.set_yticks([25, 50, 75, 100])
+    ax.set_yticks([0, 2, 4, 5])
     return fig
 
 # -----------------------------------------------------------------------------
