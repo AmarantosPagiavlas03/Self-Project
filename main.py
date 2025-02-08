@@ -211,6 +211,18 @@ def delete_user(user_id):
     # 3. (Optional) remove from Chats (if you want to fully scrub data)
     # Here, we'd do repeated row deletion. For brevity, not shown.
 
+def update_user_email(user_id, new_email):
+    """Example function to update email by user ID."""
+    users = get_all_users()
+    row_idx = next((i for i, u in enumerate(users) if str(u["UserID"]) == str(user_id)), None)
+    if row_idx is None:
+        return False, f"No user with ID {user_id}"
+    row_number = row_idx + 2
+    # Column 2 is 'Email' in your original setup: [UserID, Email, PasswordHash, Role, ...]
+    st.session_state["users_sheet"].update_cell(row_number, 2, new_email)
+    get_all_users.clear()
+    return True, f"Email updated to {new_email}"
+
 def admin_add_team(team_name, city, founded_year, coach_name):
     """
     Inserts a new team row into the Teams sheet.
@@ -857,7 +869,7 @@ def main():
                                     st.rerun(scope="app")
 
                         # Example: update email
-                        new_email = st.text_input("Email", value=user_email, key=f"email_{user_id}")
+                        new_email = st.text_input("Email", value=user_email, key=f"user_email_{user_id}")
                         if new_email != user_email:
                             if st.button(f"Update Email for User {user_id}", key=f"email_btn_{user_id}"):
                                 success, msg = update_user_email(user_id, new_email)
