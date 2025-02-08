@@ -493,7 +493,7 @@ def send_email_code(to_email, code):
     Sends an email with the 2FA code using SendGrid.
     Requires a valid SENDGRID_API_KEY in your environment or st.secrets.
     """
-    api_key = st.secrets["sendgrid_api_key"]
+    api_key = st.secrets["SENDGRID_API_KEY"]
     # Usually you'd store the API key in st.secrets["SENDGRID_API_KEY"] or os.environ["SENDGRID_API_KEY"]
     SENDGRID_API_KEY = api_key
 
@@ -513,7 +513,7 @@ def send_email_code(to_email, code):
     )
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
-        print("SENDGRID_API_KEY =", SENDGRID_API_KEY[:10], "...")
+        print(st.secrets["SENDGRID_API_KEY"][:10])
         response = sg.send(message)
         # Optional: You can log response.status_code or response.body if needed
     except Exception as e:
