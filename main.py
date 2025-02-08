@@ -569,14 +569,14 @@ def main():
                 # Existing filters
                 cols = st.columns(3)
                 position_filter = cols[0].selectbox("Position", ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"])
-                min_age, max_age = cols[1].slider("Age Range", 16, 40, (18, 30))
-                min_height, max_height = cols[2].slider("Height (cm)", 150, 220, (160, 200))
+                min_age, max_age = cols[1].slider("Age Range", 16, 40, (16, 40))
+                min_height, max_height = cols[2].slider("Height (cm)", 150, 220, (150, 220))
 
                 st.subheader("Performance Metrics")
                 cols = st.columns(3)
-                min_agility = cols[0].slider("Min Agility", 0, 5, 3)
-                min_power = cols[1].slider("Min Power", 0, 5, 3)
-                min_speed = cols[2].slider("Min Speed", 0, 5, 3)
+                min_agility = cols[0].slider("Min Agility", 0, 5, 0)
+                min_power = cols[1].slider("Min Power", 0, 5, 0)
+                min_speed = cols[2].slider("Min Speed", 0, 5, 0)
 
             if st.button("Search Players"):
                 # Pass the name_filter as the first argument
