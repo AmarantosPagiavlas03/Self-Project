@@ -892,7 +892,6 @@ def main():
 
                 if st.form_submit_button("Save Team Profile"):
                     # Build the data dict to pass into update_team_profile
-                    from datetime import datetime
                     profile_data = {
                         "Team Name": team_name,
                         "City": city,
