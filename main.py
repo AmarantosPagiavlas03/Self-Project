@@ -513,7 +513,7 @@ def send_email_code(to_email, code):
     )
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
-        st.write(st.secrets["SENDGRID_API_KEY"][0])
+        st.write(st.secrets["SENDGRID_API_KEY"])
         response = sg.send(message)
         # Optional: You can log response.status_code or response.body if needed
     except Exception as e:
