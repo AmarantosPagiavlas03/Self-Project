@@ -4,6 +4,11 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 
+# Load custom CSS
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_dict = st.secrets["gcp_service_account"]
@@ -34,6 +39,9 @@ def search_players(position, min_agility, min_power, min_speed):
            player["Speed"] >= min_speed:
             filtered_players.append(player)
     return filtered_players
+
+# Load custom CSS
+load_css("style.css")
 
 # Initialize database
 init_db()
