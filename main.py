@@ -16,7 +16,6 @@ import random
 import string
 import json
 import streamlit.components.v1 as components
-from datetime import datetime 
 
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
@@ -237,7 +236,7 @@ def get_chat_between_users(user_a_id, user_b_id):
 
 def get_users_by_role(role):
     all_users = get_all_users()
-    return [u for u in all_users if u['Role'] == role]
+    return [u for u in all_users]
 
 def get_user_by_id(user_id):
     all_users = get_all_users()
