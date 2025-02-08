@@ -608,7 +608,7 @@ def main():
 
 
     # Check for session token - Add this section
-    params = st.experimental_get_query_params()
+    params = st.query_params()
     token_param = params.get("token", [None])[0]
 
     # Auto-login via token if not logged in
