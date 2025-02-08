@@ -11,7 +11,9 @@ import random
 from streamlit_autorefresh import st_autorefresh
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-
+import time
+import random
+import string
 
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
@@ -554,6 +556,65 @@ def generate_complex_captcha():
         question = f"{x} {op1} ({y} {op2} {z})"
 
     return question, str(final_answer)
+
+def login_flow():
+    # Initialize which step we are on
+    if "login_step" not in st.session_state:
+        st.session_state.login_step = "credentials"
+
+    if st.session_state.login_step == "credentials":
+        st.subheader("Login - Step 1: Enter Credentials")
+        with st.form("LoginForm"):
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+            if st.form_submit_button("Next"):
+                success, user_record = login_user(email, password)
+                if success:
+                    # Password is correct, but let's do 2FA
+                    st.session_state["temp_user"] = user_record
+                    # Generate a one-time code
+                    code = generate_2fa_code(6)
+                    st.session_state["2fa_code"] = code
+                    st.session_state["2fa_code_time"] = time.time()
+                    
+                    # Here is where you actually USE send_email_code
+                    send_email_code(user_record["Email"], code)  # <--- (1)
+
+                    # Move to step 2
+                    st.session_state.login_step = "2fa"
+                else:
+                    st.error("Invalid credentials")
+
+    elif st.session_state.login_step == "2fa":
+        st.subheader("Login - Step 2: 2FA Code")
+        code_input = st.text_input("Check your email for the verification code:")
+        if st.button("Verify"):
+            now = time.time()
+            code_generated_at = st.session_state["2fa_code_time"]
+            
+            # Expire code after 5 minutes (300s)
+            if now - code_generated_at > 300:
+                st.error("2FA code expired. Please try logging in again.")
+                # Reset to Step 1
+                st.session_state.login_step = "credentials"
+            else:
+                correct_code = st.session_state["2fa_code"]
+                if code_input.strip() == correct_code:
+                    # 2FA passed; finalize login
+                    st.session_state.user = st.session_state["temp_user"]
+                    st.success("You are now logged in!")
+
+                    # Clear temp states
+                    st.session_state.pop("temp_user", None)
+                    st.session_state.pop("2fa_code", None)
+                    st.session_state.pop("2fa_code_time", None)
+                    
+                    # Reset login step if you want to reuse logic
+                    st.session_state.login_step = "credentials"
+                    st.experimental_rerun()
+                else:
+                    st.error("Incorrect code, please try again.")
+
 # -----------------------------------------------------------------------------
 # 7. Streamlit UI
 # -----------------------------------------------------------------------------
@@ -577,37 +638,63 @@ def main():
         
         if auth_action == "Login":
             with st.form("Login"):
-                email = st.text_input("Email")
-                password = st.text_input("Password", type="password")
 
-                # 1) Generate a captcha if not yet done or you want to regenerate every time
-                if "login_captcha_question" not in st.session_state:
-                    q, a = generate_complex_captcha()
-                    st.session_state.login_captcha_question = q
-                    st.session_state.login_captcha_answer = a
+                if "login_step" not in st.session_state:
+                    st.session_state.login_step = "credentials"
 
-                st.write("Please solve this to prove you are human:")
-                st.markdown(f"**What is {st.session_state.login_captcha_question}?**")
+                if st.session_state.login_step == "credentials":
+                    st.subheader("Login - Step 1: Enter Credentials")
+                    with st.form("LoginForm"):
+                        email = st.text_input("Email")
+                        password = st.text_input("Password", type="password")
+                        if st.form_submit_button("Next"):
+                            success, user_record = login_user(email, password)
+                            if success:
+                                # Password is correct, but let's do 2FA
+                                st.session_state["temp_user"] = user_record
+                                # Generate a one-time code
+                                code = generate_2fa_code(6)
+                                st.session_state["2fa_code"] = code
+                                st.session_state["2fa_code_time"] = time.time()
+                                
+                                # Here is where you actually USE send_email_code
+                                send_email_code(user_record["Email"], code)  # <--- (1)
 
-                captcha_input = st.text_input("Answer:")
+                                # Move to step 2
+                                st.session_state.login_step = "2fa"
+                            else:
+                                st.error("Invalid credentials")
 
-                if st.form_submit_button("Sign In"):
-                    # 2) Validate captcha
-                    if captcha_input.strip() != st.session_state.login_captcha_answer:
-                        st.warning("Incorrect captcha answer. Please try again.")
-                        # Regenerate a new question
-                        q, a = generate_complex_captcha()
-                        st.session_state.login_captcha_question = q
-                        st.session_state.login_captcha_answer = a
-                    else:
-                        # Captcha is correct; proceed with normal login logic
-                        success, result = login_user(email, password)
-                        if success:
-                            st.session_state.user = result
-                            st.rerun(scope="app")
+                elif st.session_state.login_step == "2fa":
+                    st.subheader("Login - Step 2: 2FA Code")
+                    code_input = st.text_input("Check your email for the verification code:")
+                    if st.button("Verify"):
+                        now = time.time()
+                        code_generated_at = st.session_state["2fa_code_time"]
+                        
+                        # Expire code after 5 minutes (300s)
+                        if now - code_generated_at > 300:
+                            st.error("2FA code expired. Please try logging in again.")
+                            # Reset to Step 1
+                            st.session_state.login_step = "credentials"
                         else:
-                            st.error(result)
-        
+                            correct_code = st.session_state["2fa_code"]
+                            if code_input.strip() == correct_code:
+                                # 2FA passed; finalize login
+                                st.session_state.user = st.session_state["temp_user"]
+                                st.success("You are now logged in!")
+
+                                # Clear temp states
+                                st.session_state.pop("temp_user", None)
+                                st.session_state.pop("2fa_code", None)
+                                st.session_state.pop("2fa_code_time", None)
+                                
+                                # Reset login step if you want to reuse logic
+                                st.session_state.login_step = "credentials"
+                                st.experimental_rerun()
+                            else:
+                                st.error("Incorrect code, please try again.")        
+
         elif auth_action == "Register":
             with st.form("Register"):
                 email = st.text_input("Email")
