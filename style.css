@@ -8,7 +8,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton>button {
-    background-color: #4550a0;
+    background-color: #4CAF50;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -22,7 +22,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton>button:hover {
-    background-color: #4550a0;
+    background-color: #45a049;
 }
 
 .stSidebar .css-1d391kg {
