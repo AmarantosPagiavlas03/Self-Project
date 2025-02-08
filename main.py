@@ -161,7 +161,7 @@ if not st.session_state.user:
                 success, result = login_user(email, password)
                 if success:
                     st.session_state.user = result
-                    st.experimental_rerun()
+                    st.rerun(scope="app")
                 else:
                     st.error(result)
     
@@ -181,7 +181,7 @@ else:
     # If user is logged in, show logout and main menu
     if st.sidebar.button("Logout"):
         st.session_state.user = None
-        st.experimental_rerun()
+        st.rerun(scope="app")()
     
     # Sidebar menu
     st.sidebar.markdown("### Menu")
@@ -355,6 +355,6 @@ else:
                 if st.form_submit_button("Send"):
                     if new_msg.strip():
                         send_message(current_user_id, selected_user_id, new_msg.strip())
-                        st.experimental_rerun()  # refresh to show new message
+                        st.rerun(scope="app")()  # refresh to show new message
                     else:
                         st.warning("Cannot send an empty message!")
