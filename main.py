@@ -639,9 +639,9 @@ def main():
     # ------------------- Auth Flow ------------------------
     if not st.session_state.user:
         if st.sidebar.button("Login"):
-            st.session_state.menu = "Login"
+            st.session_state.login_menu = "Login"
         if st.sidebar.button("Register"):
-            st.session_state.menu = "Register"
+            st.session_state.login_menu = "Register"
         auth_action = st.session_state.login_menu
         
         if auth_action == "Login":
