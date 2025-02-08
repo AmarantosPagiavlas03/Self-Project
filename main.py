@@ -902,7 +902,7 @@ def main():
             sessions = get_all_sessions()
             rows_to_delete = [i+2 for i,s in enumerate(sessions) if str(s["UserID"]) == str(user_id)]
             for row in reversed(rows_to_delete):
-                st.session_state["sessions_sheet"].delete_row(row)
+                st.session_state["sessions_sheet"].delete_rows(row)
             
             # Client-side cleanup
             components.html("""
