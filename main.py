@@ -730,6 +730,7 @@ def main():
                         if success:
                             # Bypass 2FA for Admin
                             if user_record.get("Role") == "Admin":
+                                st.cache_data(ttl=60)
                                 st.session_state.user = user_record
                                 st.success("Logged in as Admin!")
                                 
