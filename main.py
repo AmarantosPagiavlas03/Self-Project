@@ -734,6 +734,7 @@ def main():
                                 
                                 token = generate_session_token()
                                 expiration = datetime.now(timezone.utc) + timedelta(days=7)
+                                user_id = user_record.get("UserID")
                                 st.session_state["sessions_sheet"].append_row([
                                     token,
                                     user_id,
@@ -782,6 +783,7 @@ def main():
 
                             # Generate and store session token
                             token = generate_session_token()
+                            user_id = user_record.get("UserID")
                             expiration = datetime.now(timezone.utc) + timedelta(days=7)
                             st.session_state["sessions_sheet"].append_row([
                                 token,
@@ -860,6 +862,7 @@ def main():
 
                             # Generate and store session token
                             token = generate_session_token()
+                            user_id = user_record.get("UserID")
                             expiration = datetime.now(timezone.utc) + timedelta(days=7)
                             st.session_state["sessions_sheet"].append_row([
                                 token,
