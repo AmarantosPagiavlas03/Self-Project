@@ -19,12 +19,13 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("SoccerScoutDB")
 
-# Initialize worksheets
+# 1. Initialize worksheets ----------------------------------------------------
 try:
     players_sheet = spreadsheet.worksheet("Players")
 except gspread.exceptions.WorksheetNotFound:
     players_sheet = spreadsheet.add_worksheet(title="Players", rows=100, cols=20)
-    players_sheet.append_row(["UserID", "First Name", "Last Name", "Position", "Age", "Height (cm)", "Weight (kg)", "Email", "Agility", "Power", "Speed", "Bio", "Video Links"])
+    players_sheet.append_row(["UserID", "First Name", "Last Name", "Position", "Age", "Height (cm)", "Weight (kg)",
+                              "Email", "Agility", "Power", "Speed", "Bio", "Video Links"])
 
 try:
     users_sheet = spreadsheet.worksheet("Users")
@@ -32,11 +33,19 @@ except gspread.exceptions.WorksheetNotFound:
     users_sheet = spreadsheet.add_worksheet(title="Users", rows=100, cols=10)
     users_sheet.append_row(["UserID", "Email", "PasswordHash", "Role", "DateJoined"])
 
-# Auth functions
+# Create/Initialize a "Chats" sheet for messages
+try:
+    chats_sheet = spreadsheet.worksheet("Chats")
+except gspread.exceptions.WorksheetNotFound:
+    chats_sheet = spreadsheet.add_worksheet(title="Chats", rows=100, cols=5)
+    chats_sheet.append_row(["ChatID", "SenderID", "ReceiverID", "Message", "Timestamp"])
+
+
+# 2. Authentication and Data Functions ---------------------------------------
 def register_user(email, password, role):
     users = users_sheet.get_all_records()
     if any(user['Email'] == email for user in users):
-        return False, "Email exists!"
+        return False, "Email already exists!"
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     user_id = len(users) + 1
     users_sheet.append_row([user_id, email, hashed.decode(), role, datetime.now().strftime("%Y-%m-%d")])
@@ -49,30 +58,71 @@ def login_user(email, password):
             return True, user
     return False, "Invalid credentials!"
 
-# Player profile management
 def update_player_profile(user_id, data):
     records = players_sheet.get_all_records()
-    row_num = next((i+2 for i, r in enumerate(records) if r['UserID'] == user_id), None)
+    # Because get_all_records returns a list of dicts, we find the row offset by +2 (1-based indexing plus header)
+    row_num = next((i + 2 for i, r in enumerate(records) if str(r['UserID']) == str(user_id)), None)
     if row_num:
         players_sheet.update(f'A{row_num}', [[user_id] + list(data.values())])
     else:
         players_sheet.append_row([user_id] + list(data.values()))
 
-# Search with advanced filters
 def search_players(position, min_age, max_age, min_height, max_height, min_agility, min_power, min_speed):
     players = players_sheet.get_all_records()
     filtered = []
     for p in players:
-        # if (position == 'All' or p['Position'] == position) and \
-        #    min_age <= p['Age'] <= max_age and \
-        #    min_height <= p['Height (cm)'] <= max_height and \
-        #    p['Agility'] >= min_agility and \
-        #    p['Power'] >= min_power and \
-        #    p['Speed'] >= min_speed:
+        # Example actual filtering (uncomment for real usage):
+        # if (
+        #     (position is None or p['Position'] == position) and
+        #     min_age <= p['Age'] <= max_age and
+        #     min_height <= p['Height (cm)'] <= max_height and
+        #     p['Agility'] >= min_agility and
+        #     p['Power'] >= min_power and
+        #     p['Speed'] >= min_speed
+        # ):
+        #     filtered.append(p)
+        
+        # For now, always adding to demonstrate
         filtered.append(p)
     return filtered
 
-# Radar chart visualization
+# 3. Chat (Messages) Functions -----------------------------------------------
+def send_message(sender_id, receiver_id, message):
+    """Store a new message in the 'Chats' sheet."""
+    all_chats = chats_sheet.get_all_records()
+    new_id = len(all_chats) + 1
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    chats_sheet.append_row([new_id, sender_id, receiver_id, message, timestamp])
+
+def get_chat_between_users(user_a_id, user_b_id):
+    """Fetch messages between two users, sorted by timestamp ascending."""
+    all_chats = chats_sheet.get_all_records()
+    # Filter only messages where (sender == user_a and receiver == user_b) OR (sender == user_b and receiver == user_a)
+    chat_records = [
+        c for c in all_chats 
+        if (str(c['SenderID']) == str(user_a_id) and str(c['ReceiverID']) == str(user_b_id)) 
+           or (str(c['SenderID']) == str(user_b_id) and str(c['ReceiverID']) == str(user_a_id))
+    ]
+    # Sort by ChatID or by Timestamp if needed
+    # We stored the "ChatID" in ascending order, so sorting by that is effectively chronological
+    chat_records.sort(key=lambda x: x['ChatID'])
+    return chat_records
+
+def get_users_by_role(role):
+    """Return a list of user dicts that match the given role ('Player' or 'Scout')."""
+    all_users = users_sheet.get_all_records()
+    return [u for u in all_users if u['Role'] == role]
+
+def get_user_by_id(user_id):
+    """Helper to retrieve a single user dictionary from user ID."""
+    all_users = users_sheet.get_all_records()
+    for u in all_users:
+        if str(u['UserID']) == str(user_id):
+            return u
+    return None
+
+
+# 4. Radar chart visualization -----------------------------------------------
 def plot_radar_chart(player):
     categories = ['Agility', 'Power', 'Speed']
     values = [player[c] for c in categories]
@@ -88,13 +138,16 @@ def plot_radar_chart(player):
     ax.set_yticks([25, 50, 75, 100])
     return fig
 
-# UI Configuration
+
+# 5. Streamlit UI Configuration ----------------------------------------------
 load_css("style.css")
 st.title("⚽ Next-Gen Soccer Scout")
 
 # Session state initialization
 if 'user' not in st.session_state:
     st.session_state.user = None
+if 'menu' not in st.session_state:
+    st.session_state.menu = "Dashboard"
 
 # Authentication flow
 if not st.session_state.user:
@@ -108,7 +161,7 @@ if not st.session_state.user:
                 success, result = login_user(email, password)
                 if success:
                     st.session_state.user = result
-                    st.rerun(scope="app")
+                    st.experimental_rerun()
                 else:
                     st.error(result)
     
@@ -125,20 +178,28 @@ if not st.session_state.user:
                     st.error(result)
 
 else:
+    # If user is logged in, show logout and main menu
     if st.sidebar.button("Logout"):
         st.session_state.user = None
-        st.rerun(scope="app")
+        st.experimental_rerun()
     
+    # Sidebar menu
     st.sidebar.markdown("### Menu")
     if st.sidebar.button("Dashboard"):
         st.session_state.menu = "Dashboard"
-    if st.sidebar.button("My Profile"):
-        st.session_state.menu = "My Profile"
+    if st.session_state.user['Role'] == "Player":
+        if st.sidebar.button("My Profile"):
+            st.session_state.menu = "My Profile"
     if st.sidebar.button("Find Players"):
         st.session_state.menu = "Find Players"
+    # NEW: Chat button
+    if st.sidebar.button("Chat"):
+        st.session_state.menu = "Chat"
+    
+    # Main content switch
+    menu = st.session_state.menu
 
-    menu = st.session_state.get("menu", "Dashboard")
-
+    # ------------------ Dashboard -------------------------------------------
     if menu == "Dashboard":
         st.header(f"Welcome {st.session_state.user['Role']} {st.session_state.user['Email']}!")
         if st.session_state.user['Role'] == "Player":
@@ -146,28 +207,40 @@ else:
         else:
             st.write("Discover talented players and build your dream team!")
 
+    # ------------------ My Profile (for Players) ---------------------------
     elif menu == "My Profile" and st.session_state.user['Role'] == "Player":
         st.header("Player Profile")
-        existing_data = next((p for p in players_sheet.get_all_records() if p['UserID'] == st.session_state.user['UserID']), None)
+        existing_data = next(
+            (p for p in players_sheet.get_all_records() 
+             if str(p['UserID']) == str(st.session_state.user['UserID'])), 
+            None
+        )
         
         with st.form("ProfileForm"):
             cols = st.columns(3)
             first_name = cols[0].text_input("First Name", value=existing_data['First Name'] if existing_data else "")
             last_name = cols[1].text_input("Last Name", value=existing_data['Last Name'] if existing_data else "")
-            position = cols[2].selectbox("Position", ["Goalkeeper", "Defender", "Midfielder", "Forward"], 
-                                       index=3 if not existing_data else ["Goalkeeper", "Defender", "Midfielder", "Forward"].index(existing_data['Position']))
+            position = cols[2].selectbox(
+                "Position", 
+                ["Goalkeeper", "Defender", "Midfielder", "Forward"], 
+                index=(["Goalkeeper", "Defender", "Midfielder", "Forward"].index(existing_data['Position']))
+                       if existing_data else 3
+            )
             
             cols = st.columns(3)
             age = cols[0].number_input("Age", 16, 40, value=existing_data['Age'] if existing_data else 18)
-            height = cols[1].number_input("Height (cm)", 150, 220, value=existing_data['Height (cm)'] if existing_data else 175)
-            weight = cols[2].number_input("Weight (kg)", 50, 120, value=existing_data['Weight (kg)'] if existing_data else 70)
+            height = cols[1].number_input("Height (cm)", 150, 220, 
+                                          value=existing_data['Height (cm)'] if existing_data else 175)
+            weight = cols[2].number_input("Weight (kg)", 50, 120, 
+                                          value=existing_data['Weight (kg)'] if existing_data else 70)
             
             agility = st.slider("Agility", 0, 100, value=existing_data['Agility'] if existing_data else 50)
             power = st.slider("Power", 0, 100, value=existing_data['Power'] if existing_data else 50)
             speed = st.slider("Speed", 0, 100, value=existing_data['Speed'] if existing_data else 50)
             
             bio = st.text_area("Bio", value=existing_data['Bio'] if existing_data else "")
-            video_links = st.text_input("Highlight Video Links (comma-separated)", value=existing_data['Video Links'] if existing_data else "")
+            video_links = st.text_input("Highlight Video Links (comma-separated)", 
+                                        value=existing_data['Video Links'] if existing_data else "")
             
             if st.form_submit_button("Save Profile"):
                 profile_data = {
@@ -187,6 +260,7 @@ else:
                 update_player_profile(st.session_state.user['UserID'], profile_data)
                 st.success("Profile saved!")
 
+    # ------------------ Find Players ---------------------------------------
     elif menu == "Find Players":
         st.header("🔍 Advanced Player Search")
         with st.expander("Search Filters"):
@@ -226,8 +300,61 @@ else:
                         st.caption(f"**Position:** {player['Position']} | **Height:** {player['Height (cm)']}cm")
                         st.write(player['Bio'])
                         if player['Video Links']:
+                            # Show first video link if multiple are provided
                             st.video(player['Video Links'].split(",")[0])
-                        if st.button("Contact", key=player['UserID']):
+                        if st.button(f"Contact {player['UserID']}", key=f"contact_{player['UserID']}"):
                             st.write(f"📧 Contact at: {player['Email']}")
         else:
-            st.warning("No players found matching criteria.")
+            st.warning("No players found matching criteria or please click 'Search Players'.")
+
+    # ------------------ Chat Menu -------------------------------------------
+    elif menu == "Chat":
+        st.header("💬 Chat")
+
+        current_user = st.session_state.user
+        current_user_id = current_user['UserID']
+        current_role = current_user['Role']
+
+        # Decide who the user can chat with (Scouts see Players, Players see Scouts)
+        if current_role == "Scout":
+            # get all players
+            other_users = get_users_by_role("Player")
+            role_label = "Select a Player to chat with:"
+        else:
+            # if user is a Player, we show all scouts
+            other_users = get_users_by_role("Scout")
+            role_label = "Select a Scout to chat with:"
+
+        # If there's no one in the opposite role, show a message
+        if not other_users:
+            st.info(f"No users with the opposite role found!")
+        else:
+            # Let the user pick from a dropdown
+            selected_user_email = st.selectbox(role_label, [u['Email'] for u in other_users])
+            # Find that user’s ID
+            selected_user = next(u for u in other_users if u['Email'] == selected_user_email)
+            selected_user_id = selected_user['UserID']
+
+            # Display existing chat
+            chat_records = get_chat_between_users(current_user_id, selected_user_id)
+            st.subheader(f"Chat with {selected_user_email}")
+            
+            # Show messages in ascending order
+            for c in chat_records:
+                sender = get_user_by_id(c['SenderID'])
+                sender_email = sender['Email'] if sender else "Unknown"
+                timestamp = c['Timestamp']
+                message_text = c['Message']
+                
+                # Simple formatting: show "[timestamp] sender: message"
+                st.write(f"**[{timestamp}] {sender_email}:** {message_text}")
+
+            # Text input to send a new message
+            with st.form("send_message_form", clear_on_submit=True):
+                new_msg = st.text_area("Type your message:")
+                if st.form_submit_button("Send"):
+                    if new_msg.strip():
+                        send_message(current_user_id, selected_user_id, new_msg.strip())
+                        st.experimental_rerun()  # refresh to show new message
+                    else:
+                        st.warning("Cannot send an empty message!")
