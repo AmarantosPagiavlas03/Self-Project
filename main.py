@@ -641,7 +641,7 @@ def main():
     load_css("style.css")
     st.title("⚽ Next-Gen Soccer Scout ")
 
-
+    st.write(st.session_state.user)
     if 'user' not in st.session_state:
         # Get token from URL parameters (if exists)
         token_param = st._get_query_params().get("token", [None])[0]
