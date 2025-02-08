@@ -129,6 +129,60 @@ def update_player_profile(user_id, data):
         st.session_state["players_sheet"].append_row([user_id] + list(data.values()))
     get_all_players.clear()
 
+def update_team_profile(user_id, data):
+    """
+    Creates or updates a team's row in the Teams sheet, keyed by user_id.
+    data should be a dict with keys matching your columns, except UserID.
+    """
+    teams = get_all_teams()  # e.g. list of dict
+    row_num = next(
+        (i + 2 for i, t in enumerate(teams) if str(t["UserID"]) == str(user_id)), 
+        None
+    )
+
+    # Build row data in the correct column order
+    # Assuming columns: [UserID, Team Name, City, Founded Year, Stadium, Coach, Description, Website, CreatedOn]
+    # `data` might look like: {
+    #     "Team Name": ...,
+    #     "City": ...,
+    #     ...
+    # }
+    if row_num:
+        # Update existing row
+        # For example, we update columns B..I (2..9) if A=UserID
+        row_values = [
+            data["Team Name"],
+            data["City"],
+            data["Founded Year"],
+            data["Stadium"],
+            data["Coach"],
+            data["Description"],
+            data["Website"],
+            data.get("CreatedOn", "")
+        ]
+        st.session_state["teams_sheet"].update(
+            f"B{row_num}:I{row_num}",
+            [row_values]
+        )
+    else:
+        # Append a new row
+        new_row = [
+            user_id,
+            data["Team Name"],
+            data["City"],
+            data["Founded Year"],
+            data["Stadium"],
+            data["Coach"],
+            data["Description"],
+            data["Website"],
+            data.get("CreatedOn", "")
+        ]
+        st.session_state["teams_sheet"].append_row(new_row)
+
+    get_all_teams.clear()  # invalidate cache
+
+    return True
+
 def search_players(name_filter, position, min_age, max_age, 
                    min_height, max_height, 
                    min_agility, min_power, min_speed):
