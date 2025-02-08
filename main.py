@@ -613,7 +613,7 @@ def login_flow():
                     
                     # Reset login step if you want to reuse logic
                     st.session_state.login_step = "credentials"
-                    st.experimental_rerun()
+                    st.rerun(scope="app")
                 else:
                     st.error("Incorrect code, please try again.")
 
@@ -693,7 +693,7 @@ def main():
                             
                             # Reset login step if you want to reuse logic
                             st.session_state.login_step = "credentials"
-                            st.experimental_rerun()
+                            st.rerun(scope="app")
                         else:
                             st.error("Incorrect code, please try again.")        
 
