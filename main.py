@@ -129,9 +129,23 @@ else:
         st.session_state.user = None
         st.rerun(scope="app")
     
-    menu = st.sidebar.selectbox("Menu", ["Dashboard", "My Profile", "Find Players"])
+    st.sidebar.markdown("### Menu")
+    if st.sidebar.button("Dashboard"):
+        st.session_state.menu = "Dashboard"
+    if st.sidebar.button("My Profile"):
+        st.session_state.menu = "My Profile"
+    if st.sidebar.button("Find Players"):
+        st.session_state.menu = "Find Players"
+
+    menu = st.session_state.get("menu", "Dashboard")
 
     if menu == "Dashboard":
+        st.header(f"Welcome {st.session_state.user['Role']} {st.session_state.user['Email']}!")
+        if st.session_state.user['Role'] == "Player":
+            st.write("Manage your profile and get discovered by scouts!")
+        else:
+            st.write("Discover talented players and build your dream team!")
+
         st.header(f"Welcome {st.session_state.user['Role']} {st.session_state.user['Email']}!")
         if st.session_state.user['Role'] == "Player":
             st.write("Manage your profile and get discovered by scouts!")
