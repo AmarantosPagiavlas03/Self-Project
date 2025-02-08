@@ -1484,7 +1484,8 @@ def main():
                             "Role", 
                             ["Player", "Scout", "Team", "Admin"], 
                             index=["Player", "Scout", "Team", "Admin"].index(user_role)
-                            if user_role in ["Player", "Scout", "Team", "Admin"] else 0
+                            if user_role in ["Player", "Scout", "Team", "Admin"] else 0,
+                            key=f"role_select_{user_id}"
                         )
 
                         if new_role != user_role:
