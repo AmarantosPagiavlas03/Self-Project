@@ -9,6 +9,9 @@ import numpy as np
 import random
 # Optional: If you need the auto-refresh from 'streamlit_autorefresh'
 from streamlit_autorefresh import st_autorefresh
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
@@ -423,6 +426,46 @@ def plot_radar_chart(player):
 # -----------------------------------------------------------------------------
 # 6. Captcha
 # -----------------------------------------------------------------------------
+def generate_2fa_code(length=6):
+    """
+    Returns a random numeric string of given length, e.g. '123456'.
+    """
+    return "".join(str(random.randint(0, 9)) for _ in range(length))
+
+def send_email_code(to_email, code):
+    """
+    Sends an email with the 2FA code using SendGrid.
+    Requires a valid SENDGRID_API_KEY in your environment or st.secrets.
+    """
+    api_key = st.secrets["sendgrid_api_key"]
+    # Usually you'd store the API key in st.secrets["SENDGRID_API_KEY"] or os.environ["SENDGRID_API_KEY"]
+    SENDGRID_API_KEY = api_key
+
+    if not SENDGRID_API_KEY:
+        raise ValueError("No SendGrid API key found. Set 'SENDGRID_API_KEY' as an environment variable.")
+
+    message = Mail(
+        from_email="noreply@yourapp.com",
+        to_emails=to_email,
+        subject="Your 2FA Code",
+        html_content=f"""
+        <p>Hello,</p>
+        <p>Your 2FA code is: <strong>{code}</strong>.</p>
+        <p>It will expire in 5 minutes.</p>
+        <p>Thank you,<br>Your App Team</p>
+        """
+    )
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        # Optional: You can log response.status_code or response.body if needed
+    except Exception as e:
+        print(str(e))
+        # In production, log the exception or notify developers
+        raise
+
+ 
+
 def generate_complex_captcha():
     """
     Returns a tuple: (question_string, answer_string).
