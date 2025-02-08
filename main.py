@@ -17,6 +17,7 @@ import string
 import json
 import streamlit.components.v1 as components
 from datetime import timedelta
+import token_manager
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
 # -----------------------------------------------------------------------------
@@ -628,8 +629,8 @@ def main():
 
 
     if 'token_validated' not in st.session_state:
-        # Hidden component to read localStorage token
-        token = components.declare_component("token_manager", url="").get_token()
+        # Initialize the custom component
+        token = token_manager.get_token(key="token_manager")
         
         if token:
             user_id = validate_session_token(token)
@@ -643,13 +644,13 @@ def main():
                         <script>
                             localStorage.removeItem('session_token');
                         </script>
-                    """)
+                    """, height=0)
             else:
                 components.html("""
                     <script>
                         localStorage.removeItem('session_token');
-                    </Script>
-                """)
+                    </script>
+                """, height=0)
         st.session_state.token_validated = True
 
     if 'user' not in st.session_state:
@@ -815,7 +816,7 @@ def main():
                                 </script>
                             """, height=0)
                             st.stop()
-                            
+
                             # Clear temp states
                             st.session_state.pop("temp_user", None)
                             st.session_state.pop("2fa_code", None)
