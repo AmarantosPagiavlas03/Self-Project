@@ -266,7 +266,7 @@ def delete_team(team_id):
     teams = get_all_teams()
     row_num = next((i + 2 for i, t in enumerate(teams) if str(t["TeamID"]) == str(team_id)), None)
     if row_num:
-        st.session_state["teams_sheet"].delete_row(row_num)
+        st.session_state["teams_sheet"].delete_rows(row_num)
         get_all_teams.clear()
         return True
     return False
