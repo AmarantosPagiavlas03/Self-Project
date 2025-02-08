@@ -1,10 +1,13 @@
+# filepath: /c:/Users/amara/Documents/Python/self_project/main.py
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import json
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("any1-23c1c-88328b4a8bca.json", scope)
+creds_dict = st.secrets["gcp_service_account"]
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open("SoccerScoutDB").sheet1  # Open the first sheet
 
