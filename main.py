@@ -6,6 +6,7 @@ import bcrypt
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
+from streamlit_autorefresh import st_autorefresh
 
 # Load custom CSS
 def load_css(file_name):
@@ -309,6 +310,7 @@ else:
 
     # ------------------ Chat Menu -------------------------------------------
     elif menu == "Chat":
+        st_autorefresh(interval=2000, limit=100, key="fizzbuzzcounter")
         st.header("💬 Chat")
 
         current_user = st.session_state.user

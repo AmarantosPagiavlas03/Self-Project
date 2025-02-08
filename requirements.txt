@@ -6,3 +6,4 @@ gspread
 oauth2client
 matplotlib
 bcrypt
+streamlit_autorefresh
