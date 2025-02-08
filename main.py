@@ -126,19 +126,30 @@ def update_player_profile(user_id, data):
         st.session_state["players_sheet"].append_row([user_id] + list(data.values()))
     get_all_players.clear()
 
-def search_players(position, min_age, max_age, min_height, max_height, min_agility, min_power, min_speed):
-    """
-    Filters players based on position, age, height, agility, power, speed.
-    """
+def search_players(name_filter, position, min_age, max_age, 
+                   min_height, max_height, 
+                   min_agility, min_power, min_speed):
     players = get_all_players()
     filtered = []
     for p in players:
+        # 1) Check name match (if name_filter is provided)
+        #    We'll check if the typed string is in "FirstName LastName" (case-insensitive).
+        if name_filter:
+            full_name = (p['First Name'] + " " + p['Last Name']).lower()
+            if name_filter.lower() not in full_name:
+                continue  # Skip this player if name doesn't match
+
+        # 2) Position check
         if position is None or position == "All" or p['Position'] == position:
+            # 3) Age check
             if min_age <= p['Age'] <= max_age:
+                # 4) Height check
                 if min_height <= p['Height (cm)'] <= max_height:
+                    # 5) Performance checks
                     if p['Agility'] >= min_agility and p['Power'] >= min_power and p['Speed'] >= min_speed:
                         filtered.append(p)
     return filtered
+
 
 
 # -----------------------------------------------------------------------------
