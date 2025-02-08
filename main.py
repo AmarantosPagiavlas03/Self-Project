@@ -628,30 +628,40 @@ def main():
     st.title("⚽ Next-Gen Soccer Scout ")
 
 
-    if 'token_validated' not in st.session_state:
-        # Initialize the custom component
-        token = token_manager.get_token(key="token_manager")
-        
-        if token:
-            user_id = validate_session_token(token)
-            if user_id:
-                user = get_user_by_id(user_id)
-                if user:
-                    st.session_state.user = user
-                    update_session_activity(token)
-                else:
-                    components.html("""
-                        <script>
-                            localStorage.removeItem('session_token');
-                        </script>
-                    """, height=0)
-            else:
-                components.html("""
-                    <script>
-                        localStorage.removeItem('session_token');
-                    </script>
-                """, height=0)
-        st.session_state.token_validated = True
+    if 'user' not in st.session_state:
+        # Check for token in localStorage and validate
+        if 'token_checked' not in st.session_state:
+            # Inject JavaScript to check localStorage
+            components.html("""
+                <script>
+                const token = localStorage.getItem('session_token');
+                if(token) {
+                    window.parent.postMessage({
+                        type: 'streamlit:setComponentValue',
+                        value: token
+                    }, '*');
+                }
+                </script>
+            """, height=0)
+            st.session_state.token_checked = True
+        else:
+            # Check if we received a token from JS
+            if 'js_token' in st.session_state:
+                token = st.session_state.js_token
+                user_id = validate_session_token(token)
+                if user_id:
+                    user = get_user_by_id(user_id)
+                    if user:
+                        st.session_state.user = user
+                        update_session_activity(token)
+                # Clear the temporary token storage
+                del st.session_state.js_token
+
+    if 'user' not in st.session_state:
+        # Create a listener component
+        token_data = components.declare_component("token_listener", url="")()
+        if token_data:
+            st.session_state.js_token = token_data['value']
 
     if 'user' not in st.session_state:
         st.session_state.user = None
@@ -729,7 +739,7 @@ def main():
                             ])
                             get_all_sessions.clear()
 
-                            # Store in localStorage
+                            # Store in localStorage and reload
                             components.html(f"""
                                 <script>
                                     localStorage.setItem('session_token', '{token}');
@@ -737,6 +747,7 @@ def main():
                                 </script>
                             """, height=0)
                             st.stop()
+
 
                             # Clear temp states
                             st.session_state.pop("temp_user", None)
@@ -808,7 +819,7 @@ def main():
                             ])
                             get_all_sessions.clear()
 
-                            # Store in localStorage
+                            # Store in localStorage and reload
                             components.html(f"""
                                 <script>
                                     localStorage.setItem('session_token', '{token}');
@@ -816,6 +827,7 @@ def main():
                                 </script>
                             """, height=0)
                             st.stop()
+
 
                             # Clear temp states
                             st.session_state.pop("temp_user", None)
@@ -842,10 +854,10 @@ def main():
             components.html("""
                 <script>
                     localStorage.removeItem('session_token');
-                </Script>
+                </script>
             """, height=0)
             
-            st.session_state.user = None
+            st.session_state.clear()
             st.rerun()
 
         st.sidebar.markdown("### Menu")
