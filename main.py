@@ -479,6 +479,10 @@ def main():
         if st.session_state.user['Role'] == "Player":
             if st.sidebar.button("My Profile"):
                 st.session_state.menu = "My Profile"
+
+        if st.session_state.user and st.session_state.user['Role'] == "Team":
+            if st.sidebar.button("My Team Profile"):
+                st.session_state.menu = "My Team Profile"
         
         if st.sidebar.button("Find Players"):
             st.session_state.menu = "Find Players"
@@ -557,6 +561,55 @@ def main():
                     }
                     update_player_profile(st.session_state.user['UserID'], profile_data)
                     st.success("Profile saved!")
+
+        elif menu == "My Team Profile" and st.session_state.user['Role'] == "Team":
+            st.header("Team Profile")
+
+            user_id = st.session_state.user["UserID"]
+            teams_data = get_all_teams()
+            existing_team = next(
+                (t for t in teams_data if str(t['UserID']) == str(user_id)), 
+                None
+            )
+
+            # Pre-fill form values if the team row exists:
+            default_team_name = existing_team["Team Name"] if existing_team else ""
+            default_city = existing_team["City"] if existing_team else ""
+            default_founded = existing_team["Founded Year"] if existing_team else 2020
+            default_stadium = existing_team["Stadium"] if existing_team else ""
+            default_coach = existing_team["Coach"] if existing_team else ""
+            default_desc = existing_team["Description"] if existing_team else ""
+            default_website = existing_team["Website"] if existing_team else ""
+
+            with st.form("TeamProfileForm"):
+                st.subheader("Basic Info")
+                c1, c2 = st.columns(2)
+                team_name = c1.text_input("Team Name", value=default_team_name)
+                city = c2.text_input("City", value=default_city)
+
+                founded_year = st.number_input("Founded Year", 1800, 2100, value=int(default_founded) if str(default_founded).isdigit() else 2020)
+                stadium = st.text_input("Stadium", value=default_stadium)
+                coach = st.text_input("Coach Name", value=default_coach)
+                description = st.text_area("Description", value=default_desc)
+                website = st.text_input("Website", value=default_website)
+
+                if st.form_submit_button("Save Team Profile"):
+                    # Build the data dict to pass into update_team_profile
+                    from datetime import datetime
+                    profile_data = {
+                        "Team Name": team_name,
+                        "City": city,
+                        "Founded Year": founded_year,
+                        "Stadium": stadium,
+                        "Coach": coach,
+                        "Description": description,
+                        "Website": website,
+                        # Optionally store a CreatedOn if it's a new entry
+                        "CreatedOn": datetime.now().strftime("%Y-%m-%d") if not existing_team else existing_team.get("CreatedOn", "")
+                    }
+                    success = update_team_profile(user_id, profile_data)
+                    if success:
+                        st.success("Team profile updated!")
 
         # --------------- Find Players ---------------
         elif menu == "Find Players":
