@@ -395,3 +395,6 @@ def main():
                             st.rerun(scope="app")()  # refresh to show new message
                         else:
                             st.warning("Cannot send an empty message!")
+
+if __name__ == "__main__":
+    main()
