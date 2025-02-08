@@ -629,7 +629,7 @@ def main():
                 user = get_user_by_id(user_id)
                 if user:
                     st.session_state.user = user
-                    st.experimental_set_query_params()  # Clear token from URL
+                    st._set_query_params()  # Clear token from URL
                     st.rerun()
             else:
                 components.html("""
@@ -637,7 +637,7 @@ def main():
                     localStorage.removeItem('session_token');
                     </script>
                 """, height=0)
-                st.experimental_set_query_params()
+                st._set_query_params()
 
     if 'user' not in st.session_state:
         st.session_state.user = None
