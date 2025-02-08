@@ -54,6 +54,13 @@ if "chats_sheet" not in st.session_state:
         ws.append_row(["ChatID", "SenderID", "ReceiverID", "Message", "Timestamp"])
         st.session_state["chats_sheet"] = ws
 
+if "teams_sheet" not in st.session_state:
+    try:
+        st.session_state["teams_sheet"] = st.session_state["spreadsheet"].worksheet("Teams")
+    except gspread.exceptions.WorksheetNotFound:
+        ws = st.session_state["spreadsheet"].add_worksheet(title="Teams", rows=100, cols=10)
+        ws.append_row(["TeamID", "TeamName", "City", "FoundedYear", "CoachName", "CreatedOn"])
+        st.session_state["teams_sheet"] = ws
 
 # -----------------------------------------------------------------------------
 # 2. Caching Data Reads to Lower Quota Usage
@@ -71,6 +78,10 @@ def get_all_players():
 def get_all_chats():
     return st.session_state["chats_sheet"].get_all_records()
 
+@st.cache_data(ttl=60)
+def get_all_teams():
+    """Returns all Teams from the Teams sheet as a list of dicts."""
+    return st.session_state["teams_sheet"].get_all_records()
 
 # -----------------------------------------------------------------------------
 # 3. Functions (Write to Sheets, Filter, etc.)
@@ -198,6 +209,67 @@ def delete_user(user_id):
 
     # 3. (Optional) remove from Chats (if you want to fully scrub data)
     # Here, we'd do repeated row deletion. For brevity, not shown.
+
+def admin_add_team(team_name, city, founded_year, coach_name):
+    """
+    Inserts a new team row into the Teams sheet.
+    Returns (success_boolean, message).
+    """
+    teams = get_all_teams()
+    new_id = len(teams) + 1
+    created_on = datetime.now().strftime("%Y-%m-%d")
+
+    row_data = [
+        new_id,
+        team_name,
+        city,
+        founded_year,
+        coach_name,
+        created_on
+    ]
+
+    st.session_state["teams_sheet"].append_row(row_data)
+    # Invalidate cache so next get_all_teams() will reflect new data
+    get_all_teams.clear()
+
+    return True, f"Team '{team_name}' added (TeamID={new_id})."
+
+def admin_add_player(
+    first_name, last_name, position, age, height, weight, email, 
+    agility, power, speed, bio, video_links, looking_for_team
+):
+    """
+    Admin-only function that adds a new row to the Players sheet
+    without creating an associated login user account. 
+    (If you DO want a user account, see extra note below.)
+    """
+    players = get_all_players()
+    new_id = len(players) + 1  # new 'UserID'
+    
+    # Convert bool to string if needed for storage
+    lft_value = "TRUE" if looking_for_team else "FALSE"
+    
+    row_data = [
+        new_id,              # UserID
+        first_name,
+        last_name,
+        position,
+        age,
+        height,
+        weight,
+        email,
+        agility,
+        power,
+        speed,
+        bio,
+        video_links,
+        lft_value
+    ]
+
+    st.session_state["players_sheet"].append_row(row_data)
+    get_all_players.clear()  # Invalidate cache
+    return True, f"Player '{first_name} {last_name}' added (ID={new_id})."
+
 
 def is_admin(user):
     """
@@ -463,41 +535,60 @@ def main():
         # --------------- Admin Panel ---------------
         elif menu == "Admin Panel" and is_admin(st.session_state.user):
             st.header("🔑 Admin Panel")
-            st.write("Manage users, roles, and more here.")
+            st.write("Manage users, roles, teams, and more here.")
 
-            # List all users
-            users = get_all_users()
-            st.subheader("All Users")
-            for user in users:
-                user_id = user['UserID']
-                user_email = user['Email']
-                user_role = user['Role']
-                user_date = user.get("DateJoined", "")
-
-                col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
-                col1.write(f"**ID:** {user_id}")
-                col2.write(f"**Email:** {user_email}")
-                col3.write(f"**Role:** {user_role}")
-                col4.write(f"**Joined:** {user_date}")
+            # ------------------------- Add Team -------------------------
+            st.subheader("Add New Team")
+            with st.form("AddTeamForm"):
+                team_name = st.text_input("Team Name")
+                city = st.text_input("City")
+                founded_year = st.number_input("Founded Year", 1800, 2050, 2022)
+                coach_name = st.text_input("Coach Name", "")
                 
-                # Manage role
-                new_role = st.selectbox(
-                    f"Change Role (UserID={user_id})",
-                    ["Player", "Scout", "Admin"],
-                    index=["Player", "Scout", "Admin"].index(user_role) if user_role in ["Player","Scout","Admin"] else 0,
-                    key=f"role_{user_id}"
-                )
-                if new_role != user_role:
-                    if st.button(f"Update Role for User {user_id}", key=f"update_{user_id}"):
-                        if update_user_role(user_id, new_role):
-                            st.success(f"Role updated for user {user_email} to {new_role}")
-                            st.rerun(scope="app")
+                if st.form_submit_button("Add Team"):
+                    if team_name.strip():
+                        success, msg = admin_add_team(team_name, city, founded_year, coach_name)
+                        if success:
+                            st.success(msg)
+                        else:
+                            st.error(msg)
+                    else:
+                        st.warning("Team Name is required.")
 
-                # Delete user
-                if st.button(f"Delete User {user_id}", key=f"delete_{user_id}"):
-                    delete_user(user_id)
-                    st.warning(f"User {user_email} deleted.")
-                    st.rerun(scope="app")
+            # ------------------------- Add Player -------------------------
+            st.subheader("Add New Player")
+            with st.form("AddPlayerForm"):
+                first_name = st.text_input("First Name")
+                last_name = st.text_input("Last Name")
+                position = st.selectbox("Position", ["Goalkeeper", "Defender", "Midfielder", "Forward"])
+                
+                cols = st.columns(3)
+                age = cols[0].number_input("Age", 16, 40, 20)
+                height = cols[1].number_input("Height (cm)", 150, 220, 175)
+                weight = cols[2].number_input("Weight (kg)", 50, 120, 70)
+                
+                agility = st.slider("Agility", 0, 5, 3)
+                power = st.slider("Power", 0, 5, 3)
+                speed = st.slider("Speed", 0, 5, 3)
+
+                bio = st.text_area("Bio")
+                video_links = st.text_input("Video Links (comma-separated)")
+                looking_for_team = st.checkbox("Looking For A Team", value=True)
+
+                if st.form_submit_button("Add Player"):
+                    if first_name.strip() and last_name.strip():
+                        success, msg = admin_add_player(
+                            first_name, last_name, position, age, height, weight, 
+                            email="",  # or an optional email
+                            agility=agility, power=power, speed=speed, 
+                            bio=bio, video_links=video_links, looking_for_team=looking_for_team
+                        )
+                        if success:
+                            st.success(msg)
+                        else:
+                            st.error("Failed to add player.")
+                    else:
+                        st.warning("First and Last Name are required.")
 
         else:
             # If user tries to access Admin Panel but is not admin
