@@ -1,6 +1,33 @@
 import streamlit as st
-from db_utils import init_db, add_player, search_players
-import pulp
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+# Google Sheets setup
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("any1-23c1c-88328b4a8bca.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("SoccerScoutDB").sheet1  # Open the first sheet
+
+# Initialize database (Google Sheets)
+def init_db():
+    # Assuming the first row is the header
+    if not sheet.get_all_records():
+        sheet.append_row(["First Name", "Last Name", "Position", "Agility", "Power", "Speed"])
+
+def add_player(first_name, last_name, position, agility, power, speed):
+    sheet.append_row([first_name, last_name, position, agility, power, speed])
+
+def search_players(position, min_agility, min_power, min_speed):
+    players = sheet.get_all_records()
+    filtered_players = []
+    for player in players:
+        if (position is None or player["Position"] == position) and \
+           player["Agility"] >= min_agility and \
+           player["Power"] >= min_power and \
+           player["Speed"] >= min_speed:
+            filtered_players.append(player)
+    return filtered_players
+
 # Initialize database
 init_db()
 
@@ -33,7 +60,7 @@ elif menu == "Scout Players":
         players = search_players(position_filter, min_agility, min_power, min_speed)
         if players:
             for player in players:
-                st.write(f"Name: {player[1]} {player[2]}, Position: {player[3]}, "
-                         f"Agility: {player[4]}, Power: {player[5]}, Speed: {player[6]}")
+                st.write(f"Name: {player['First Name']} {player['Last Name']}, Position: {player['Position']}, "
+                         f"Agility: {player['Agility']}, Power: {player['Power']}, Speed: {player['Speed']}")
         else:
             st.warning("No players found matching criteria.")
