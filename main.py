@@ -308,9 +308,9 @@ def main():
                 
                 st.subheader("Performance Metrics")
                 cols = st.columns(3)
-                min_agility = cols[0].slider("Min Agility", 0, 100, 30)
-                min_power = cols[1].slider("Min Power", 0, 100, 30)
-                min_speed = cols[2].slider("Min Speed", 0, 100, 30)
+                min_agility = cols[0].slider("Min Agility", 0, 5, 3)
+                min_power = cols[1].slider("Min Power", 0, 5, 3)
+                min_speed = cols[2].slider("Min Speed", 0, 5, 3)
 
             if st.button("Search Players"):
                 st.session_state.search_results = search_players(
