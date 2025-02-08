@@ -270,9 +270,9 @@ def main():
                 weight = cols[2].number_input("Weight (kg)", 50, 120, 
                                             value=existing_data['Weight (kg)'] if existing_data else 70)
                 
-                agility = st.slider("Agility", 0, 100, value=existing_data['Agility'] if existing_data else 50)
-                power = st.slider("Power", 0, 100, value=existing_data['Power'] if existing_data else 50)
-                speed = st.slider("Speed", 0, 100, value=existing_data['Speed'] if existing_data else 50)
+                agility = st.slider("Agility", 0, 5, value=existing_data['Agility'] if existing_data else 50)
+                power = st.slider("Power", 0, 5, value=existing_data['Power'] if existing_data else 50)
+                speed = st.slider("Speed", 0, 5, value=existing_data['Speed'] if existing_data else 50)
                 
                 bio = st.text_area("Bio", value=existing_data['Bio'] if existing_data else "")
                 video_links = st.text_input("Highlight Video Links (comma-separated)", 
