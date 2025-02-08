@@ -503,7 +503,7 @@ def send_email_code(to_email, code):
         raise ValueError("No SendGrid API key found. Set 'SENDGRID_API_KEY' as an environment variable.")
 
     message = Mail(
-        from_email="noreply@yourapp.com",
+        from_email="amarantosp@gmail.com",
         to_emails=to_email,
         subject="Your 2FA Code",
         html_content=f"""
@@ -515,8 +515,6 @@ def send_email_code(to_email, code):
     )
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
-        st.write(st.secrets["SENDGRID_API_KEY"])
-        st.write(SENDGRID_API_KEY)
         response = sg.send(message)
         # Optional: You can log response.status_code or response.body if needed
     except Exception as e:
