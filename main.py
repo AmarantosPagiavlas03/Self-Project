@@ -880,7 +880,7 @@ def main():
                                     st.error(msg)
 
                         # Delete user
-                        if st.button(f"Delete User {user_id}", key=f"delete_{user_id}"):
+                        if st.button(f"Delete User {user_id}", key=f"delete_user_{user_id}"):
                             delete_user(user_id)
                             st.warning(f"User {user_email} deleted.")
                             st.rerun(scope="app")
