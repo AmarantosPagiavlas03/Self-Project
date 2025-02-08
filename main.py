@@ -15,6 +15,7 @@ import time
 import random
 import string
 import json
+import streamlit.components.v1 as components
 
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
@@ -967,52 +968,120 @@ def main():
 
         # --------------- Chat ---------------
         elif menu == "Chat":
-            st_autorefresh(interval=2000, limit=100, key="fizzbuzzcounter")
+            st_autorefresh(interval=2000, limit=100, key="chat_refresher")
             st.header("💬 Chat")
 
             current_user = st.session_state.user
             current_user_id = current_user['UserID']
             current_role = current_user['Role']
 
-            if current_role == "Scout":
-                other_users = get_users_by_role("Player")
-                role_label = "Select a Player to chat with:"
-            elif current_role == "Player":
-                other_users = get_users_by_role("Scout")
-                role_label = "Select a Scout to chat with:"
-            else:
-                # Admin can choose to chat with either role
-                all_other_users = [u for u in get_all_users() if str(u['UserID']) != str(current_user_id)]
-                other_users = sorted(all_other_users, key=lambda x: x['Email'])
-                role_label = "Select a user to chat with:"
+            # Get potential chat partners with caching
+            @st.cache_data(ttl=60)
+            def get_chat_partners(current_role, current_user_id):
+                if current_role == "Scout":
+                    return get_users_by_role("Player")
+                elif current_role == "Player":
+                    return get_users_by_role("Scout")
+                else:  # Admin
+                    all_users = get_all_users()
+                    return [u for u in all_users if str(u['UserID']) != str(current_user_id)]
 
+            other_users = get_chat_partners(current_role, current_user_id)
+            
             if not other_users:
-                st.info("No users available to chat with.")
-            else:
-                selected_user_email = st.selectbox(role_label, [u['Email'] for u in other_users])
-                selected_user = next(u for u in other_users if u['Email'] == selected_user_email)
-                selected_user_id = selected_user['UserID']
+                st.info("🚫 No users available to chat with.")
+                return
 
+            # User selection with search capability
+            selected_user_email = st.selectbox(
+                "Select user to chat with:",
+                options=[u['Email'] for u in other_users],
+                help="Start typing to search for users"
+            )
+            selected_user = next(u for u in other_users if u['Email'] == selected_user_email)
+            selected_user_id = selected_user['UserID']
+
+            # Chat container styling
+            chat_container = st.container()
+            
+            # Get and display messages with loading state
+            with st.spinner("Loading messages..."):
                 chat_records = get_chat_between_users(current_user_id, selected_user_id)
-                st.subheader(f"Chat with {selected_user_email}")
+                # Sort messages by timestamp
+                chat_records = sorted(chat_records, key=lambda x: x['Timestamp'])
+
+            with chat_container:
+                st.subheader(f"💬 Conversation with {selected_user_email}")
                 
-                for c in chat_records:
-                    sender = get_user_by_id(c['SenderID'])
-                    sender_email = sender['Email'] if sender else "Unknown"
-                    timestamp = c['Timestamp']
-                    message_text = c['Message']
-                    st.write(f"**[{timestamp}] {sender_email}:** {message_text}")
-
-                with st.form("send_message_form", clear_on_submit=True):
-                    new_msg = st.text_area("Type your message:")
-                    if st.form_submit_button("Send"):
-                        if new_msg.strip():
-                            send_message(current_user_id, selected_user_id, new_msg.strip())
-                            st.rerun(scope="app")
+                if not chat_records:
+                    st.markdown("---")
+                    st.info("No messages yet. Start the conversation!")
+                    st.markdown("---")
+                else:
+                    for c in chat_records:
+                        is_current_user = str(c['SenderID']) == str(current_user_id)
+                        sender = get_user_by_id(c['SenderID'])
+                        timestamp = datetime.strptime(c['Timestamp'], "%Y-%m-%d %H:%M:%S").strftime("%b %d, %H:%M")
+                        
+                        # Message bubble styling
+                        if is_current_user:
+                            st.markdown(f"""
+                            <div style="display: flex; justify-content: flex-end; margin: 5px 0;">
+                                <div style="background: #007bff; color: white; border-radius: 15px; padding: 8px 12px; max-width: 70%;">
+                                    <div style="font-size: 0.8em; opacity: 0.7;">You • {timestamp}</div>
+                                    {c['Message']}
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
                         else:
-                            st.warning("Cannot send an empty message!")
+                            st.markdown(f"""
+                            <div style="display: flex; justify-content: flex-start; margin: 5px 0;">
+                                <div style="background: #e9ecef; color: black; border-radius: 15px; padding: 8px 12px; max-width: 70%;">
+                                    <div style="font-size: 0.8em; opacity: 0.7;">{sender['Email']} • {timestamp}</div>
+                                    {c['Message']}
+                                </div>
+                            </div>
+                            """, unsafe_html=True)
 
+            # Message input with enhanced features
+            with st.form("send_message_form", clear_on_submit=True):
+                new_msg = st.text_area(
+                    "Type your message:",
+                    key="message_input",
+                    height=100,
+                    placeholder="Write your message here... (Shift+Enter for new line)"
+                )
+                
+                cols = st.columns([5, 1])
+                with cols[1]:
+                    send_clicked = st.form_submit_button(
+                        "✈️ Send",
+                        help="Send message (Ctrl/Cmd + Enter)"
+                    )
+                    
+                if send_clicked and new_msg.strip():
+                    # Show sending status
+                    with st.spinner("Sending..."):
+                        send_message(current_user_id, selected_user_id, new_msg.strip())
+                        # Auto-scroll to bottom after sending
+                        st.rerun(scope="app")
+                        
+                elif send_clicked and not new_msg.strip():
+                    st.warning("Message cannot be empty!")
+
+            # JavaScript for auto-scroll to bottom
+            components.html(
+                """
+                <script>
+                window.addEventListener('load', function() {
+                    window.parent.document.querySelectorAll('[data-testid="stVerticalBlock"]')[5].scrollTop = 999999;
+                });
+                </script>
+                """,
+                height=0
+            )
                 # --------------- Admin Panel ---------------
+       
         elif menu == "Admin Panel" and is_admin(st.session_state.user):
             st.header("🔑 Admin Panel")
             st.write("Manage users, roles, teams, **and players** here.")
