@@ -39,7 +39,7 @@ if "players_sheet" not in st.session_state:
         ws = st.session_state["spreadsheet"].add_worksheet(title="Players", rows=100, cols=20)
         ws.append_row(["UserID", "First Name", "Last Name", "Position", "Age",
                        "Height (cm)", "Weight (kg)", "Email", "Agility",
-                       "Power", "Speed", "Bio", "Video Links"])
+                       "Power", "Speed", "Bio", "Video Links","Looking For A Team"])
         st.session_state["players_sheet"] = ws
 
 if "users_sheet" not in st.session_state:
@@ -277,7 +277,7 @@ def main():
                 bio = st.text_area("Bio", value=existing_data['Bio'] if existing_data else "")
                 video_links = st.text_input("Highlight Video Links (comma-separated)", 
                                             value=existing_data['Video Links'] if existing_data else "")
-                
+                looking_for_team = st.checkbox("Looking For A Team")
                 if st.form_submit_button("Save Profile"):
                     profile_data = {
                         'First Name': first_name,
@@ -291,7 +291,8 @@ def main():
                         'Power': power,
                         'Speed': speed,
                         'Bio': bio,
-                        'Video Links': video_links
+                        'Video Links': video_links,
+                        'Looking For A Team': looking_for_team
                     }
                     update_player_profile(st.session_state.user['UserID'], profile_data)
                     st.success("Profile saved!")
