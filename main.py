@@ -328,7 +328,7 @@ def main():
                 
                 for player in results:
                     with st.container():
-                        cols = st.columns([3,1])
+                        cols = st.columns([1.5,1.5])
                         with cols[0]:
                             fig = plot_radar_chart(player)
                             st.pyplot(fig)
