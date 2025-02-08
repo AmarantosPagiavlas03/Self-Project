@@ -976,16 +976,11 @@ def main():
 
             # Get potential chat partners with caching
             @st.cache_data(ttl=60)
-            def get_chat_partners(current_role, current_user_id):
-                if current_role == "Scout":
-                    return get_users_by_role("Player")
-                elif current_role == "Player":
-                    return get_users_by_role("Scout")
-                else:  # Admin
-                    all_users = get_all_users()
-                    return [u for u in all_users if str(u['UserID']) != str(current_user_id)]
+            def get_chat_partners( current_user_id):
+                all_users = get_all_users()
+                return [u for u in all_users if str(u['UserID']) != str(current_user_id)]
 
-            other_users = get_chat_partners(current_role, current_user_id)
+            other_users = get_chat_partners(current_user_id)
             
             if not other_users:
                 st.info("🚫 No users available to chat with.")
