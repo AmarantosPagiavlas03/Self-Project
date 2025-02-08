@@ -14,6 +14,7 @@ from sendgrid.helpers.mail import Mail
 import time
 import random
 import string
+import json
 
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
@@ -494,8 +495,9 @@ def send_email_code(to_email, code):
     Requires a valid SENDGRID_API_KEY in your environment or st.secrets.
     """
     api_key = st.secrets["SENDGRID_API_KEY"]
+    data = json.loads(api_key)
     # Usually you'd store the API key in st.secrets["SENDGRID_API_KEY"] or os.environ["SENDGRID_API_KEY"]
-    SENDGRID_API_KEY = api_key
+    SENDGRID_API_KEY = data["SENDGRID_API_KEY"]
 
     if not SENDGRID_API_KEY:
         raise ValueError("No SendGrid API key found. Set 'SENDGRID_API_KEY' as an environment variable.")
@@ -514,6 +516,7 @@ def send_email_code(to_email, code):
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         st.write(st.secrets["SENDGRID_API_KEY"])
+        st.write(SENDGRID_API_KEY)
         response = sg.send(message)
         # Optional: You can log response.status_code or response.body if needed
     except Exception as e:
