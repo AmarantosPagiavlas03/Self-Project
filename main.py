@@ -847,45 +847,61 @@ def main():
 
             st.subheader("Existing Teams")
             teams = get_all_teams()
+
             if not teams:
                 st.info("No teams found.")
             else:
-                for t in teams:
-                    # Display each team in a collapsible expander or row
-                    with st.expander(f"Team ID {t['TeamID']}: {t['TeamName']}", expanded=False):
-                        # Show current info
-                        st.write(f"**City:** {t['City']} | **Founded:** {t['FoundedYear']} | **Coach:** {t['CoachName']}")
-                        
-                        # Let admin modify
-                        new_name = st.text_input("Team Name", value=t['TeamName'], key=f"name_{t['TeamID']}")
-                        new_city = st.text_input("City", value=t['City'], key=f"city_{t['TeamID']}")
-                        new_founded = st.number_input(
-                            "Founded Year", 1800, 2050, int(t['FoundedYear']),
-                            key=f"founded_{t['TeamID']}"
-                        )
-                        new_coach = st.text_input("Coach Name", value=t['CoachName'], key=f"coach_{t['TeamID']}")
+                # 1) Name-based search
+                name_search = st.text_input("Search teams by name (partial or full)")
 
-                        col1, col2 = st.columns(2)
-                        if col1.button(f"Update Team {t['TeamID']}", key=f"update_{t['TeamID']}"):
-                            success, msg = update_team(
-                                team_id=t["TeamID"],
-                                new_name=new_name,
-                                new_city=new_city,
-                                new_founded_year=new_founded,
-                                new_coach=new_coach
+                # 2) Filter teams if there's a search query
+                if name_search:
+                    query_lower = name_search.lower()
+                    filtered_teams = [team for team in teams if query_lower in team["TeamName"].lower()]
+                else:
+                    filtered_teams = teams
+
+                # 3) If no matches, warn. Otherwise, show results as before.
+                if not filtered_teams:
+                    st.warning("No teams match your search.")
+                else:
+                    for t in filtered_teams:
+                        # Display each team in a collapsible expander
+                        with st.expander(f"Team ID {t['TeamID']}: {t['TeamName']}", expanded=False):
+                            # Show current info
+                            st.write(f"**City:** {t['City']} | **Founded:** {t['FoundedYear']} | **Coach:** {t['CoachName']}")
+
+                            # Let admin modify
+                            new_name = st.text_input("Team Name", value=t['TeamName'], key=f"name_{t['TeamID']}")
+                            new_city = st.text_input("City", value=t['City'], key=f"city_{t['TeamID']}")
+                            new_founded = st.number_input(
+                                "Founded Year", 1800, 2050, int(t['FoundedYear']),
+                                key=f"founded_{t['TeamID']}"
                             )
-                            if success:
-                                st.success(msg)
-                                st.rerun(scope="app")
-                            else:
-                                st.error(msg)
+                            new_coach = st.text_input("Coach Name", value=t['CoachName'], key=f"coach_{t['TeamID']}")
 
-                        if col2.button(f"Delete Team {t['TeamID']}", key=f"delete_{t['TeamID']}"):
-                            if delete_team(t["TeamID"]):
-                                st.warning(f"Team {t['TeamName']} deleted.")
-                                st.rerun(scope="app")
-                            else:
-                                st.error("Deletion failed or Team not found.")
+                            col1, col2 = st.columns(2)
+                            if col1.button(f"Update Team {t['TeamID']}", key=f"update_{t['TeamID']}"):
+                                success, msg = update_team(
+                                    team_id=t["TeamID"],
+                                    new_name=new_name,
+                                    new_city=new_city,
+                                    new_founded_year=new_founded,
+                                    new_coach=new_coach
+                                )
+                                if success:
+                                    st.success(msg)
+                                    st.rerun(scope="app")
+                                else:
+                                    st.error(msg)
+
+                            if col2.button(f"Delete Team {t['TeamID']}", key=f"delete_{t['TeamID']}"):
+                                if delete_team(t["TeamID"]):
+                                    st.warning(f"Team {t['TeamName']} deleted.")
+                                    st.rerun(scope="app")
+                                else:
+                                    st.error("Deletion failed or Team not found.")
+
 
             # ------------------------- Manage Users -------------------------
             st.subheader("All Users")
