@@ -446,7 +446,7 @@ def main():
             with st.form("Register"):
                 email = st.text_input("Email")
                 password = st.text_input("Password", type="password")
-                role = st.selectbox("Role", ["Player", "Scout", "Admin"])  # Admin now possible
+                role = st.selectbox("Role", ["Player", "Scout"])  # Admin now possible
                 if st.form_submit_button("Create Account"):
                     success, result = register_user(email, password, role)
                     if success:
