@@ -705,7 +705,6 @@ def main():
     if 'login_menu' not in st.session_state:
         st.session_state.login_menu = "Login"
 
-    st.write(st.session_state.user)
     # ------------------- Auth Flow ------------------------
     if not st.session_state.user:
         if st.sidebar.button("Login"):
