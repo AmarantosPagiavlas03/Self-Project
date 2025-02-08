@@ -1042,7 +1042,7 @@ def main():
                                     {c['Message']}
                                 </div>
                             </div>
-                            """, unsafe_html=True)
+                            """, unsafe_allow_html=True)
 
             # Message input with enhanced features
             with st.form("send_message_form", clear_on_submit=True):
