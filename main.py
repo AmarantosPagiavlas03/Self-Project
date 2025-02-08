@@ -3,6 +3,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
+import matplotlib.pyplot as plt
 
 # Load custom CSS
 def load_css(file_name):
@@ -40,6 +41,23 @@ def search_players(position, min_agility, min_power, min_speed):
             filtered_players.append(player)
     return filtered_players
 
+# Example of adding a chart
+def plot_player_stats(players):
+    names = [f"{player['First Name']} {player['Last Name']}" for player in players]
+    agility = [player['Agility'] for player in players]
+    power = [player['Power'] for player in players]
+    speed = [player['Speed'] for player in players]
+
+    fig, ax = plt.subplots()
+    ax.barh(names, agility, label='Agility')
+    ax.barh(names, power, left=agility, label='Power')
+    ax.barh(names, speed, left=[i+j for i,j in zip(agility, power)], label='Speed')
+    ax.set_xlabel('Stats')
+    ax.set_title('Player Stats')
+    ax.legend()
+
+    st.pyplot(fig)
+
 # Load custom CSS
 load_css("style.css")
 
@@ -48,7 +66,7 @@ init_db()
 
 # App UI
 st.title("Soccer Scout App")
-menu = st.sidebar.selectbox("Menu", ["Register Player", "Scout Players"])
+menu = st.sidebar.selectbox("Menu", ["Register Player", "Scout Players", "Player Statistics", "About"])
 
 if menu == "Register Player":
     st.header("Register a New Player")
@@ -74,8 +92,22 @@ elif menu == "Scout Players":
         position_filter = None if position == "All" else position
         players = search_players(position_filter, min_agility, min_power, min_speed)
         if players:
+            plot_player_stats(players)
             for player in players:
                 st.write(f"Name: {player['First Name']} {player['Last Name']}, Position: {player['Position']}, "
                          f"Agility: {player['Agility']}, Power: {player['Power']}, Speed: {player['Speed']}")
         else:
             st.warning("No players found matching criteria.")
+
+elif menu == "Player Statistics":
+    st.header("Player Statistics")
+    players = sheet.get_all_records()
+    if players:
+        plot_player_stats(players)
+    else:
+        st.warning("No players found.")
+
+elif menu == "About":
+    st.header("About")
+    st.write("This app helps you scout and manage soccer players efficiently.")
+    st.write("Developed by [Your Name].")
