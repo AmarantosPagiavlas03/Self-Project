@@ -129,23 +129,15 @@ else:
         st.session_state.user = None
         st.rerun(scope="app")
     
-    if st.sidebar.button("Home"):
-        menu = "Dashboard"
-    elif st.sidebar.button("My Profile"):
-        menu = "My Profile"
-    elif st.sidebar.button("Find Players"):
-        menu = "Find Players"
-    else:
-        menu = "Dashboard"
 
-    if menu == "Dashboard":
+    if st.sidebar.button("Dashboard"):
         st.header(f"Welcome {st.session_state.user['Role']} {st.session_state.user['Email']}!")
         if st.session_state.user['Role'] == "Player":
             st.write("Manage your profile and get discovered by scouts!")
         else:
             st.write("Discover talented players and build your dream team!")
 
-    elif menu == "My Profile" and st.session_state.user['Role'] == "Player":
+    elif st.sidebar.button("My Profile") and st.session_state.user['Role'] == "Player":
         st.header("Player Profile")
         existing_data = next((p for p in players_sheet.get_all_records() if p['UserID'] == st.session_state.user['UserID']), None)
         
@@ -186,7 +178,7 @@ else:
                 update_player_profile(st.session_state.user['UserID'], profile_data)
                 st.success("Profile saved!")
 
-    elif menu == "Find Players":
+    elif st.sidebar.button("Find Players"):
         st.header("🔍 Advanced Player Search")
         with st.expander("Search Filters"):
             cols = st.columns(3)
