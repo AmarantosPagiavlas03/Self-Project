@@ -717,7 +717,7 @@ def main():
                             if user_record.get("Role") == "Admin":
                                 st.session_state.user = user_record
                                 st.success("Logged in as Admin!")
-                                st.rerun()
+                                
                                 token = generate_session_token()
                                 expiration = datetime.now() + timedelta(days=7)
                                 expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
@@ -737,7 +737,8 @@ def main():
                                     window.location.search = `token={token}`;
                                     </script>
                                 """, height=0)
-                                st.stop()                                
+ 
+                                st.rerun()                              
                             else:
                                 st.session_state["temp_user"] = user_record
                                 code = generate_2fa_code(6)
@@ -787,7 +788,7 @@ def main():
                                 window.location.search = `token={token}`;
                                 </script>
                             """, height=0)
-                            st.stop()
+
 
 
                             # Clear temp states
