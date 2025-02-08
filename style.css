@@ -45,6 +45,14 @@ p {
     background-color: #2980b9;
 }
 
+/* Special styling for Logout button (assumed to be the first button in the sidebar) */
+.stSidebar .stButton button:first-of-type {
+    background-color: #e74c3c;
+}
+.stSidebar .stButton button:first-of-type:hover {
+    background-color: #c0392b;
+}
+
 /* Button Styles */
 .stButton>button {
     background-color: #3498db;
