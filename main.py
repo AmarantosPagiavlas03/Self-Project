@@ -146,12 +146,6 @@ else:
         else:
             st.write("Discover talented players and build your dream team!")
 
-        st.header(f"Welcome {st.session_state.user['Role']} {st.session_state.user['Email']}!")
-        if st.session_state.user['Role'] == "Player":
-            st.write("Manage your profile and get discovered by scouts!")
-        else:
-            st.write("Discover talented players and build your dream team!")
-
     elif menu == "My Profile" and st.session_state.user['Role'] == "Player":
         st.header("Player Profile")
         existing_data = next((p for p in players_sheet.get_all_records() if p['UserID'] == st.session_state.user['UserID']), None)
