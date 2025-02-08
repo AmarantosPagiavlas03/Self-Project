@@ -63,13 +63,13 @@ def search_players(position, min_age, max_age, min_height, max_height, min_agili
     players = players_sheet.get_all_records()
     filtered = []
     for p in players:
-        if (position == 'All' or p['Position'] == position) and \
-           min_age <= p['Age'] <= max_age and \
-           min_height <= p['Height (cm)'] <= max_height and \
-           p['Agility'] >= min_agility and \
-           p['Power'] >= min_power and \
-           p['Speed'] >= min_speed:
-            filtered.append(p)
+        # if (position == 'All' or p['Position'] == position) and \
+        #    min_age <= p['Age'] <= max_age and \
+        #    min_height <= p['Height (cm)'] <= max_height and \
+        #    p['Agility'] >= min_agility and \
+        #    p['Power'] >= min_power and \
+        #    p['Speed'] >= min_speed:
+        filtered.append(p)
     return filtered
 
 # Radar chart visualization
