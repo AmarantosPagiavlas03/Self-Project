@@ -729,7 +729,6 @@ def main():
                         if success:
                             # Bypass 2FA for Admin
                             if user_record.get("Role") == "Admin":
-                                st.experimental_singleton()
                                 st.session_state.user = user_record
                                 st.success("Logged in as Admin!")
                                 
