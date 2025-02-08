@@ -6,7 +6,7 @@ import bcrypt
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-
+import random
 # Optional: If you need the auto-refresh from 'streamlit_autorefresh'
 from streamlit_autorefresh import st_autorefresh
 
@@ -421,6 +421,43 @@ def plot_radar_chart(player):
     return fig
 
 # -----------------------------------------------------------------------------
+# 6. Captcha
+# -----------------------------------------------------------------------------
+def generate_complex_captcha():
+    """
+    Returns a tuple: (question_string, answer_string).
+    E.g. ("(4 + 3) * 2", "14")
+    """
+    # Helper function to do an operation on two numbers
+    def do_op(a, b, op):
+        if op == '+':
+            return a + b
+        elif op == '-':
+            return a - b
+        else:  # '*'
+            return a * b
+
+    x = random.randint(1, 10)
+    y = random.randint(1, 10)
+    z = random.randint(1, 10)
+    ops = ['+', '-', '*']
+    op1 = random.choice(ops)
+    op2 = random.choice(ops)
+
+    # 50% chance to do (x op1 y) op2 z, or x op1 (y op2 z)
+    if random.random() < 0.5:
+        # (x op1 y) op2 z
+        intermediate = do_op(x, y, op1)
+        final_answer = do_op(intermediate, z, op2)
+        question = f"({x} {op1} {y}) {op2} {z}"
+    else:
+        # x op1 (y op2 z)
+        intermediate = do_op(y, z, op2)
+        final_answer = do_op(x, intermediate, op1)
+        question = f"{x} {op1} ({y} {op2} {z})"
+
+    return question, str(final_answer)
+# -----------------------------------------------------------------------------
 # 7. Streamlit UI
 # -----------------------------------------------------------------------------
 
@@ -445,25 +482,63 @@ def main():
             with st.form("Login"):
                 email = st.text_input("Email")
                 password = st.text_input("Password", type="password")
+
+                # 1) Generate a captcha if not yet done or you want to regenerate every time
+                if "login_captcha_question" not in st.session_state:
+                    q, a = generate_complex_captcha()
+                    st.session_state.login_captcha_question = q
+                    st.session_state.login_captcha_answer = a
+
+                st.write("Please solve this to prove you are human:")
+                st.markdown(f"**What is {st.session_state.login_captcha_question}?**")
+
+                captcha_input = st.text_input("Answer:")
+
                 if st.form_submit_button("Sign In"):
-                    success, result = login_user(email, password)
-                    if success:
-                        st.session_state.user = result
-                        st.rerun(scope="app")
+                    # 2) Validate captcha
+                    if captcha_input.strip() != st.session_state.login_captcha_answer:
+                        st.warning("Incorrect captcha answer. Please try again.")
+                        # Regenerate a new question
+                        q, a = generate_complex_captcha()
+                        st.session_state.login_captcha_question = q
+                        st.session_state.login_captcha_answer = a
                     else:
-                        st.error(result)
+                        # Captcha is correct; proceed with normal login logic
+                        success, result = login_user(email, password)
+                        if success:
+                            st.session_state.user = result
+                            st.experimental_rerun()
+                        else:
+                            st.error(result)
         
         elif auth_action == "Register":
             with st.form("Register"):
                 email = st.text_input("Email")
                 password = st.text_input("Password", type="password")
-                role = st.selectbox("Role", ["Player", "Scout", "Team"])
+                role = st.selectbox("Role", ["Player", "Scout", "Team", "Admin"])
+
+                if "register_captcha_question" not in st.session_state:
+                    q, a = generate_complex_captcha()
+                    st.session_state.register_captcha_question = q
+                    st.session_state.register_captcha_answer = a
+
+                st.write("Please solve this to prove you are human:")
+                st.markdown(f"**What is {st.session_state.register_captcha_question}?**")
+
+                captcha_input = st.text_input("Answer:")
+
                 if st.form_submit_button("Create Account"):
-                    success, result = register_user(email, password, role)
-                    if success:
-                        st.success("Account created! Please login.")
+                    if captcha_input.strip() != st.session_state.register_captcha_answer:
+                        st.warning("Incorrect captcha answer. Please try again.")
+                        q, a = generate_complex_captcha()
+                        st.session_state.register_captcha_question = q
+                        st.session_state.register_captcha_answer = a
                     else:
-                        st.error(result)
+                        success, msg = register_user(email, password, role)
+                        if success:
+                            st.success("Account created! Please login.")
+                        else:
+                            st.error(msg)
 
     # ------------------- Main App -------------------------
     else:
