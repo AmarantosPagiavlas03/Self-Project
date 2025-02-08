@@ -194,31 +194,32 @@ else:
             min_speed = cols[2].slider("Min Speed", 0, 100, 30)
 
         if st.button("Search Players"):
-            results = search_players(
+            st.session_state.search_results = search_players(
                 position_filter if position_filter != "All" else None,
                 min_age, max_age,
                 min_height, max_height,
                 min_agility, min_power, min_speed
             )
+        
+        if 'search_results' in st.session_state and st.session_state.search_results:
+            results = st.session_state.search_results
+            st.subheader(f"🎯 Found {len(results)} Players")
+            sort_by = st.selectbox("Sort By", ["Agility", "Power", "Speed", "Age"], index=0)
+            results = sorted(results, key=lambda x: x[sort_by], reverse=True)
             
-            if results:
-                st.subheader(f"🎯 Found {len(results)} Players")
-                sort_by = st.selectbox("Sort By", ["Agility", "Power", "Speed", "Age"], index=0)
-                results = sorted(results, key=lambda x: x[sort_by], reverse=True)
-                
-                for player in results:
-                    with st.container():
-                        cols = st.columns([1,3])
-                        with cols[0]:
-                            fig = plot_radar_chart(player)
-                            st.pyplot(fig)
-                        with cols[1]:
-                            st.markdown(f"**{player['First Name']} {player['Last Name']}** ({player['Age']} yrs)")
-                            st.caption(f"**Position:** {player['Position']} | **Height:** {player['Height (cm)']}cm")
-                            st.write(player['Bio'])
-                            if player['Video Links']:
-                                st.video(player['Video Links'].split(",")[0])
-                            if st.button("Contact", key=player['UserID']):
-                                st.write(f"📧 Contact at: {player['Email']}")
-            else:
-                st.warning("No players found matching criteria.")
+            for player in results:
+                with st.container():
+                    cols = st.columns([1,3])
+                    with cols[0]:
+                        fig = plot_radar_chart(player)
+                        st.pyplot(fig)
+                    with cols[1]:
+                        st.markdown(f"**{player['First Name']} {player['Last Name']}** ({player['Age']} yrs)")
+                        st.caption(f"**Position:** {player['Position']} | **Height:** {player['Height (cm)']}cm")
+                        st.write(player['Bio'])
+                        if player['Video Links']:
+                            st.video(player['Video Links'].split(",")[0])
+                        if st.button("Contact", key=player['UserID']):
+                            st.write(f"📧 Contact at: {player['Email']}")
+        else:
+            st.warning("No players found matching criteria.")
