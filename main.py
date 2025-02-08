@@ -739,14 +739,14 @@ def main():
                             )
                             if success:
                                 st.success(msg)
-                                st.experimental_rerun()
+                                st.rerun(scope="app")
                             else:
                                 st.error(msg)
 
                         if col_delete.button(f"Delete Player {p_id}", key=f"delete_{p_id}"):
                             if admin_delete_player(p_id):
                                 st.warning(f"Player {first_name} {last_name} deleted.")
-                                st.experimental_rerun()
+                                st.rerun(scope="app")
                             else:
                                 st.error("Could not delete. Player not found?")
 
@@ -800,14 +800,14 @@ def main():
                             )
                             if success:
                                 st.success(msg)
-                                st.experimental_rerun()
+                                st.rerun(scope="app")
                             else:
                                 st.error(msg)
 
                         if col2.button(f"Delete Team {t['TeamID']}", key=f"delete_{t['TeamID']}"):
                             if delete_team(t["TeamID"]):
                                 st.warning(f"Team {t['TeamName']} deleted.")
-                                st.experimental_rerun()
+                                st.rerun(scope="app")
                             else:
                                 st.error("Deletion failed or Team not found.")
 
@@ -839,7 +839,7 @@ def main():
                             if st.button(f"Update Role for User {user_id}", key=f"role_btn_{user_id}"):
                                 if update_user_role(user_id, new_role):
                                     st.success(f"Role updated for user {user_email} to {new_role}")
-                                    st.experimental_rerun()
+                                    st.rerun(scope="app")
 
                         # Example: update email
                         new_email = st.text_input("Email", value=user_email, key=f"email_{user_id}")
@@ -848,7 +848,7 @@ def main():
                                 success, msg = update_user_email(user_id, new_email)
                                 if success:
                                     st.success(msg)
-                                    st.experimental_rerun()
+                                    st.rerun(scope="app")
                                 else:
                                     st.error(msg)
 
@@ -856,7 +856,7 @@ def main():
                         if st.button(f"Delete User {user_id}", key=f"delete_{user_id}"):
                             delete_user(user_id)
                             st.warning(f"User {user_email} deleted.")
-                            st.experimental_rerun()
+                            st.rerun(scope="app")
 
 
         else:
