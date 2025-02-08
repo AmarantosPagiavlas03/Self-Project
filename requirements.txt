@@ -4,3 +4,4 @@ numpy
 pulp
 gspread
 oauth2client
+matplotlib
