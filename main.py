@@ -704,33 +704,61 @@ def main():
                             st.error("Incorrect code, please try again.")        
 
         elif auth_action == "Register":
-            with st.form("Register"):
-                email = st.text_input("Email")
-                password = st.text_input("Password", type="password")
-                role = st.selectbox("Role", ["Player", "Scout", "Team", "Admin"])
-
-                if "register_captcha_question" not in st.session_state:
-                    q, a = generate_complex_captcha()
-                    st.session_state.register_captcha_question = q
-                    st.session_state.register_captcha_answer = a
-
-                st.write("Please solve this to prove you are human:")
-                st.markdown(f"**What is {st.session_state.register_captcha_question}?**")
-
-                captcha_input = st.text_input("Answer:")
-
-                if st.form_submit_button("Create Account"):
-                    if captcha_input.strip() != st.session_state.register_captcha_answer:
-                        st.warning("Incorrect captcha answer. Please try again.")
-                        q, a = generate_complex_captcha()
-                        st.session_state.register_captcha_question = q
-                        st.session_state.register_captcha_answer = a
-                    else:
-                        success, msg = register_user(email, password, role)
+            if "register_step" not in st.session_state:
+                st.session_state.register_step = "credentials"
+            if st.session_state.register_step == "credentials":
+                st.subheader("Register - Step 1: Enter Credentials")
+                with st.form("Register"):
+                    email = st.text_input("Email")
+                    password = st.text_input("Password", type="password")
+                    role = st.selectbox("Role", ["Player", "Scout", "Team", "Admin"])
+                    if st.form_submit_button("Next"):
+                        success, user_record = register_user(email, password,role)
                         if success:
-                            st.success("Account created! Please login.")
+                            # Password is correct, but let's do 2FA
+                            st.session_state["temp_user"] = user_record
+                            # Generate a one-time code
+                            code = generate_2fa_code(6)
+                            st.session_state["2fa_code"] = code
+                            st.session_state["2fa_code_time"] = time.time()
+                            
+                            # Here is where you actually USE send_email_code
+                            send_email_code(user_record["Email"], code)  # <--- (1)
+
+                            # Move to step 2
+                            st.session_state.register_step = "2fa"
                         else:
-                            st.error(msg)
+                            st.error("Invalid credentials")
+
+            elif st.session_state.register_step == "2fa":
+                st.subheader("Register - Step 2: 2FA Code")
+                code_input = st.text_input("Check your email for the verification code:")
+                if st.button("Verify"):
+                    now = time.time()
+                    code_generated_at = st.session_state["2fa_code_time"]
+                    
+                    # Expire code after 5 minutes (300s)
+                    if now - code_generated_at > 300:
+                        st.error("2FA code expired. Please try logging in again.")
+                        # Reset to Step 1
+                        st.session_state.register_step = "credentials"
+                    else:
+                        correct_code = st.session_state["2fa_code"]
+                        if code_input.strip() == correct_code:
+                            # 2FA passed; finalize login
+                            st.session_state.user = st.session_state["temp_user"]
+                            st.success("You are now logged in!")
+
+                            # Clear temp states
+                            st.session_state.pop("temp_user", None)
+                            st.session_state.pop("2fa_code", None)
+                            st.session_state.pop("2fa_code_time", None)
+                            
+                            # Reset login step if you want to reuse logic
+                            st.session_state.register_step = "credentials"
+                            st.rerun(scope="app")
+                        else:
+                            st.error("Incorrect code, please try again.")     
 
     # ------------------- Main App -------------------------
     else:
