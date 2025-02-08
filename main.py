@@ -550,12 +550,17 @@ def main():
         # --------------- Find Players ---------------
         elif menu == "Find Players":
             st.header("🔍 Advanced Player Search")
+
             with st.expander("Search Filters"):
+                # ---- NEW: Name filter ----
+                name_filter = st.text_input("Player Name (partial or full)")
+
+                # Existing filters
                 cols = st.columns(3)
                 position_filter = cols[0].selectbox("Position", ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"])
                 min_age, max_age = cols[1].slider("Age Range", 16, 40, (18, 30))
                 min_height, max_height = cols[2].slider("Height (cm)", 150, 220, (160, 200))
-                
+
                 st.subheader("Performance Metrics")
                 cols = st.columns(3)
                 min_agility = cols[0].slider("Min Agility", 0, 5, 3)
@@ -563,13 +568,16 @@ def main():
                 min_speed = cols[2].slider("Min Speed", 0, 5, 3)
 
             if st.button("Search Players"):
+                # Pass the name_filter as the first argument
                 st.session_state.search_results = search_players(
+                    name_filter, 
                     position_filter if position_filter != "All" else None,
                     min_age, max_age,
                     min_height, max_height,
                     min_agility, min_power, min_speed
                 )
-            
+
+            # ... The rest of your code to display st.session_state.search_results ...
             if 'search_results' in st.session_state and st.session_state.search_results:
                 results = st.session_state.search_results
                 st.subheader(f"🎯 Found {len(results)} Players")
