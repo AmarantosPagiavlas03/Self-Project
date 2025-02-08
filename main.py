@@ -507,7 +507,7 @@ def main():
                         success, result = login_user(email, password)
                         if success:
                             st.session_state.user = result
-                            st.experimental_rerun()
+                            st.rerun(scope="app")
                         else:
                             st.error(result)
         
