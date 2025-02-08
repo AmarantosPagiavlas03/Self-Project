@@ -166,7 +166,7 @@ def plot_radar_chart(player):
     values += values[:1]
     angles += angles[:1]
     
-    fig, ax = plt.subplots(subplot_kw={'polar': True})
+    fig, ax = plt.subplots(figsize=(8, 8),subplot_kw={'polar': True})
     ax.fill(angles, values, alpha=0.25)
     ax.plot(angles, values, marker='o')
     ax.set_xticks(angles[:-1])
