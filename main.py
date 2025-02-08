@@ -125,24 +125,9 @@ if not st.session_state.user:
                     st.error(result)
 
 else:
-    st.sidebar.markdown(
-        """
-        <style>
-            .red-button button {
-                background-color: red !important;
-                color: white !important;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    with st.sidebar:
-        with st.container():
-            st.markdown('<div class="red-button">', unsafe_allow_html=True)
-            if st.button("Logout"):
-                st.session_state.user = None
-                st.rerun(scope="app")
-            st.markdown('</div>', unsafe_allow_html=True)
+    if st.sidebar.button("Logout"):
+        st.session_state.user = None
+        st.rerun(scope="app")
     
     st.sidebar.markdown("### Menu")
     if st.sidebar.button("Dashboard"):
