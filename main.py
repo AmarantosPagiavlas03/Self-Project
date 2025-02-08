@@ -13,8 +13,12 @@ sheet = client.open("SoccerScoutDB").sheet1  # Open the first sheet
 
 # Initialize database (Google Sheets)
 def init_db():
-    # Assuming the first row is the header
-    if not sheet.get_all_records():
+    # Check if the header row is unique
+    try:
+        sheet.get_all_records()
+    except gspread.exceptions.GSpreadException:
+        # Clear the sheet and set the header row
+        sheet.clear()
         sheet.append_row(["First Name", "Last Name", "Position", "Agility", "Power", "Speed"])
 
 def add_player(first_name, last_name, position, agility, power, speed):
