@@ -16,7 +16,7 @@ import random
 import string
 import json
 import streamlit.components.v1 as components
-
+from datetime import timedelta
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
 # -----------------------------------------------------------------------------
@@ -70,6 +70,14 @@ if "teams_sheet" not in st.session_state:
         ws.append_row(["TeamID", "TeamName", "City", "FoundedYear", "CoachName", "CreatedOn"])
         st.session_state["teams_sheet"] = ws
 
+if "sessions_sheet" not in st.session_state:
+    try:
+        st.session_state["sessions_sheet"] = st.session_state["spreadsheet"].worksheet("Sessions")
+    except gspread.exceptions.WorksheetNotFound:
+        ws = st.session_state["spreadsheet"].add_worksheet(title="Sessions", rows=100, cols=10)
+        ws.append_row(["Token", "UserID", "Expiration"])
+        st.session_state["sessions_sheet"] = ws
+
 # -----------------------------------------------------------------------------
 # 2. Caching Data Reads to Lower Quota Usage
 # -----------------------------------------------------------------------------
@@ -90,6 +98,32 @@ def get_all_chats():
 def get_all_teams():
     """Returns all Teams from the Teams sheet as a list of dicts."""
     return st.session_state["teams_sheet"].get_all_records()
+
+# -----------------------------------------------------------------------------
+# 3. Session Management Functions
+# -----------------------------------------------------------------------------
+
+@st.cache_data(ttl=60)
+def get_all_sessions():
+    return st.session_state["sessions_sheet"].get_all_records()
+
+def generate_session_token():
+    """Generate a random 32-character token."""
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+
+def validate_session_token(token):
+    """Check if token exists and is not expired. Returns user ID if valid."""
+    sessions = get_all_sessions()
+    now = datetime.now()
+    for session in sessions:
+        if session['Token'] == token:
+            try:
+                exp = datetime.strptime(session['Expiration'], "%Y-%m-%d %H:%M:%S")
+                if exp > now:
+                    return session['UserID']
+            except:
+                pass
+    return None
 
 # -----------------------------------------------------------------------------
 # 3. Functions (Write to Sheets, Filter, etc.)
@@ -559,65 +593,7 @@ def generate_complex_captcha():
         question = f"{x} {op1} ({y} {op2} {z})"
 
     return question, str(final_answer)
-
-def login_flow():
-    # Initialize which step we are on
-    if "login_step" not in st.session_state:
-        st.session_state.login_step = "credentials"
-
-    if st.session_state.login_step == "credentials":
-        st.subheader("Login - Step 1: Enter Credentials")
-        with st.form("LoginForm"):
-            email = st.text_input("Email")
-            password = st.text_input("Password", type="password")
-            if st.form_submit_button("Next"):
-                success, user_record = login_user(email, password)
-                if success:
-                    # Password is correct, but let's do 2FA
-                    st.session_state["temp_user"] = user_record
-                    # Generate a one-time code
-                    code = generate_2fa_code(6)
-                    st.session_state["2fa_code"] = code
-                    st.session_state["2fa_code_time"] = time.time()
-                    
-                    # Here is where you actually USE send_email_code
-                    send_email_code(user_record["Email"], code)  # <--- (1)
-
-                    # Move to step 2
-                    st.session_state.login_step = "2fa"
-                else:
-                    st.error("Invalid credentials")
-
-    elif st.session_state.login_step == "2fa":
-        st.subheader("Login - Step 2: 2FA Code")
-        code_input = st.text_input("Check your email for the verification code:")
-        if st.button("Verify"):
-            now = time.time()
-            code_generated_at = st.session_state["2fa_code_time"]
-            
-            # Expire code after 5 minutes (300s)
-            if now - code_generated_at > 300:
-                st.error("2FA code expired. Please try logging in again.")
-                # Reset to Step 1
-                st.session_state.login_step = "credentials"
-            else:
-                correct_code = st.session_state["2fa_code"]
-                if code_input.strip() == correct_code:
-                    # 2FA passed; finalize login
-                    st.session_state.user = st.session_state["temp_user"]
-                    st.success("You are now logged in!")
-
-                    # Clear temp states
-                    st.session_state.pop("temp_user", None)
-                    st.session_state.pop("2fa_code", None)
-                    st.session_state.pop("2fa_code_time", None)
-                    
-                    # Reset login step if you want to reuse logic
-                    st.session_state.login_step = "credentials"
-                    st.rerun(scope="app")
-                else:
-                    st.error("Incorrect code, please try again.")
-
+ 
 # -----------------------------------------------------------------------------
 # 7. Streamlit UI
 # -----------------------------------------------------------------------------
@@ -629,6 +605,39 @@ def load_css(file_name):
 def main():
     load_css("style.css")
     st.title("⚽ Next-Gen Soccer Scout ")
+
+
+    # Check for session token - Add this section
+    params = st.experimental_get_query_params()
+    token_param = params.get("token", [None])[0]
+
+    # Auto-login via token if not logged in
+    if 'user' not in st.session_state:
+        # JavaScript to check localStorage and redirect
+        components.html("""
+            <script>
+            const token = localStorage.getItem('session_token');
+            if (token && !window.location.search.includes('token=')) {
+                window.location.search = `token=${token}`;
+            }
+            </script>
+        """, height=0)
+
+        if token_param:
+            user_id = validate_session_token(token_param)
+            if user_id:
+                user = get_user_by_id(user_id)
+                if user:
+                    st.session_state.user = user
+                    st.experimental_set_query_params()  # Clear token from URL
+                    st.rerun()
+            else:
+                components.html("""
+                    <script>
+                    localStorage.removeItem('session_token');
+                    </script>
+                """, height=0)
+                st.experimental_set_query_params()
 
     if 'user' not in st.session_state:
         st.session_state.user = None
@@ -693,6 +702,24 @@ def main():
                             st.session_state.user = st.session_state["temp_user"]
                             st.success("You are now logged in!")
 
+                            # Generate and store session token
+                            token = generate_session_token()
+                            expiration = datetime.now() + timedelta(days=7)
+                            expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")                            
+
+                            # Save to Sessions sheet
+                            st.session_state["sessions_sheet"].append_row([token, st.session_state.user["UserID"], expiration_str])
+                            get_all_sessions.clear()  # Invalidate cache
+
+                            # Set token in localStorage and reload
+                            components.html(f"""
+                                <script>
+                                    localStorage.setItem('session_token', '{token}');
+                                    window.location.search = `token={token}`;
+                                </script>
+                            """, height=0)
+                            st.stop()
+
                             # Clear temp states
                             st.session_state.pop("temp_user", None)
                             st.session_state.pop("2fa_code", None)
@@ -750,6 +777,23 @@ def main():
                             st.session_state.user = st.session_state["temp_user"]
                             st.success("You are now logged in!")
 
+                            # Generate and store session token
+                            token = generate_session_token()
+                            expiration = datetime.now() + timedelta(days=7)
+                            expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
+
+                            # Save to Sessions sheet
+                            st.session_state["sessions_sheet"].append_row([token, st.session_state.user["UserID"], expiration_str])
+                            get_all_sessions.clear()  # Invalidate cache
+
+                            # Set token in localStorage and reload
+                            components.html(f"""
+                                <script>
+                                    localStorage.setItem('session_token', '{token}');
+                                    window.location.search = `token={token}`;
+                                </script>
+                            """, height=0)
+                            st.stop()
                             # Clear temp states
                             st.session_state.pop("temp_user", None)
                             st.session_state.pop("2fa_code", None)
@@ -764,6 +808,27 @@ def main():
     # ------------------- Main App -------------------------
     else:
         if st.sidebar.button("Logout"):
+            # Remove all sessions for this user
+            if 'user' in st.session_state:
+                user_id = st.session_state.user["UserID"]
+                sessions = get_all_sessions()
+                rows_to_delete = []
+                for i, session in enumerate(sessions):
+                    if str(session["UserID"]) == str(user_id):
+                        rows_to_delete.append(i + 2)  # +2 for header offset
+                
+                # Delete in reverse order
+                for row in reversed(rows_to_delete):
+                    st.session_state["sessions_sheet"].delete_row(row)
+                get_all_sessions.clear()
+
+            # Clear client-side storage
+            components.html("""
+                <script>
+                localStorage.removeItem('session_token');
+                </script>
+            """, height=0)
+            
             st.session_state.user = None
             st.rerun(scope="app")
 
