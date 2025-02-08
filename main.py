@@ -18,6 +18,7 @@ import json
 import streamlit.components.v1 as components
 from datetime import timedelta
 import token_manager
+from datetime import datetime, timezone, timedelta
 # -----------------------------------------------------------------------------
 # 1. Google Sheets and Caching Setup
 # -----------------------------------------------------------------------------
@@ -114,38 +115,51 @@ def generate_session_token():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
 
 def validate_session_token(token):
+    """Validate session token with proper timezone handling."""
     ws = st.session_state["sessions_sheet"]
     
     try:
-        cell = ws.find(token, in_column=1)
+        # Case-sensitive exact match search
+        cell = ws.find(token, in_column=1, case_sensitive=True)
         record = ws.row_values(cell.row)
-        expires_at = datetime.fromisoformat(record[2])  # Index 2 is Expiration
         
-        if datetime.utcnow() < expires_at:
-            return record[1]  # Return UserID from index 1
-        return None
+        # Ensure UTC timezone for comparison
+        expires_at = datetime.fromisoformat(record[2]).replace(tzinfo=timezone.utc)
+        current_time = datetime.now(timezone.utc)
+        
+        if current_time < expires_at:
+            return record[1]  # Return UserID
+        else:
+            # Auto-clean expired tokens
+            ws.delete_row(cell.row)
+            return None
+            
     except gspread.exceptions.CellNotFound:
         return None
     except Exception as e:
-        st.error(f"Session validation error: {str(e)}")
+        # Use proper logging instead of st.error for background ops
+        print(f"Session validation error: {str(e)}")  
         return None
 
 def update_session_activity(token):
-    # Get the cached worksheet
+    """Update session expiration with consistent TTL."""
     ws = st.session_state["sessions_sheet"]
     
-    # Calculate new expiration time (1 hour from now)
-    new_expiration = (datetime.utcnow() + timedelta(hours=1)).isoformat()
-    
     try:
-        # Find the token in column 1 (Token column)
-        cell = ws.find(token, in_column=1)
-        # Update expiration in column 3 (Expiration column)
-        ws.update_cell(cell.row, 3, new_expiration)
+        # Find token with exact match
+        cell = ws.find(token, in_column=1, case_sensitive=True)
+        record = ws.row_values(cell.row)
+        
+        # Maintain original TTL duration (7 days from initial login)
+        new_expiration = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+        
+        # Update both expiration and last activity time
+        ws.update(f"C{cell.row}:D{cell.row}", [[new_expiration, datetime.now(timezone.utc).isoformat()]])
+        
     except gspread.exceptions.CellNotFound:
-        st.error("Session token not found in sheet")
+        print(f"Token not found during update: {token}")
     except Exception as e:
-        st.error(f"Error updating session: {str(e)}")
+        print(f"Session update error: {str(e)}")
 # -----------------------------------------------------------------------------
 # 3. Functions (Write to Sheets, Filter, etc.)
 # -----------------------------------------------------------------------------
@@ -719,14 +733,12 @@ def main():
                                 st.success("Logged in as Admin!")
                                 
                                 token = generate_session_token()
-                                expiration = datetime.now() + timedelta(days=7)
-                                expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
-                                
-                                # Store in database
+                                expiration = datetime.now(timezone.utc) + timedelta(days=7)
                                 st.session_state["sessions_sheet"].append_row([
-                                    token, 
-                                    st.session_state.user["UserID"], 
-                                    expiration_str
+                                    token,
+                                    user_id,
+                                    expiration.isoformat(),
+                                    datetime.now(timezone.utc).isoformat()  # LastActivity
                                 ])
                                 get_all_sessions.clear()
 
@@ -770,14 +782,12 @@ def main():
 
                             # Generate and store session token
                             token = generate_session_token()
-                            expiration = datetime.now() + timedelta(days=7)
-                            expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
-                            
-                            # Store in database
+                            expiration = datetime.now(timezone.utc) + timedelta(days=7)
                             st.session_state["sessions_sheet"].append_row([
-                                token, 
-                                st.session_state.user["UserID"], 
-                                expiration_str
+                                token,
+                                user_id,
+                                expiration.isoformat(),
+                                datetime.now(timezone.utc).isoformat()  # LastActivity
                             ])
                             get_all_sessions.clear()
 
@@ -850,14 +860,12 @@ def main():
 
                             # Generate and store session token
                             token = generate_session_token()
-                            expiration = datetime.now() + timedelta(days=7)
-                            expiration_str = expiration.strftime("%Y-%m-%d %H:%M:%S")
-                            
-                            # Store in database
+                            expiration = datetime.now(timezone.utc) + timedelta(days=7)
                             st.session_state["sessions_sheet"].append_row([
-                                token, 
-                                st.session_state.user["UserID"], 
-                                expiration_str
+                                token,
+                                user_id,
+                                expiration.isoformat(),
+                                datetime.now(timezone.utc).isoformat()  # LastActivity
                             ])
                             get_all_sessions.clear()
 
