@@ -91,3 +91,12 @@ body {
 .is-invalid {
     border-color: #dc3545;
 }
+
+#performanceChart {
+    max-width: 300px;  /* Adjust width */
+    max-height: 300px; /* Adjust height */
+}
+
+#chartContainer {
+    text-align: center; /* Ensures the chart stays centered */
+}

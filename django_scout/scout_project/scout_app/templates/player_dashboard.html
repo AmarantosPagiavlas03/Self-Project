@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="row g-4">
+                <div class="row g-4 mb-4 mt-4">
                     <!-- Performance Card -->
                     <div class="col-md-6">
                         <div class="card bg-success text-white shadow-lg">
@@ -61,7 +61,8 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
+                <div class="row g-4 mt-4"> 
                     <!-- Training Card -->
                     <div class="col-md-6">
                         <div class="card bg-info text-white shadow-lg">
@@ -84,14 +85,20 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Charts -->
-                <div class="row g-4 mt-4">
-                    <div class="col-md-12">
+                <div class="row g-4 mt-4"> 
+                    <div class="col-md-6">
                         <div class="card bg-light shadow-lg">
                             <div class="card-body p-4" id="chartContainer"> 
                                 <h5 class="card-title">Performance Overview</h5>
                                 <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light shadow-lg">
+                            <div class="card-body p-4" id="chartContainer"> 
+                                <h5 class="card-title">Statistics Barplot</h5>
+                                <canvas id="performanceBarPlot"></canvas>
                             </div>
                         </div>
                     </div>
@@ -129,15 +136,67 @@
                     }]
                 },
                 options: {
-                    scale: {
-                        ticks: {
-                            beginAtZero: true,  // ensures the scale starts at zero
-                            suggestedMax: 5
+                    plugins: {
+                        legend: {
+                            display: false // **Disable the legend**
+                        }
+                    },
+                    scales: {
+                        r: {  // Use 'r' for radial axis in Chart.js v3+
+                            min: 0,
+                            max: 4,  // Force correct scaling
+                            ticks: {
+                                stepSize: 1,  // Ensures evenly spaced grid lines
+                                backdropColor: "transparent",  // Keeps labels visible
+                            }
                         }
                     }
                 }
             });
         }
+    </script>
+    <script>
+        // Parse the JSON data passed from the view.
+        const bar_plot_labels = JSON.parse('{{ bar_plot_data.labels|escapejs }}');
+        const bar_plot_data = JSON.parse('{{ bar_plot_data.data|escapejs }}');
+        if (data.length === 0) {
+            // If no data, replace the chart container's contents.
+            document.getElementById('chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
+        } else {
+        // Bar Plot - Performance Statistics
+        const barCtx = document.getElementById('performanceBarPlot').getContext('2d');
+
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: bar_plot_labels, // Same labels from the radar chart
+                datasets: [{
+                    label: 'Performance Stats',
+                    data: bar_plot_data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)', // Light blue with transparency
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                        legend: {
+                            display: false // **Disable the legend**
+                        }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
     </script>
 </body>
 </html>

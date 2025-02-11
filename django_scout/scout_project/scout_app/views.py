@@ -55,8 +55,6 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect('scout_app:login')
     
     user = request.user
     context = {"user": user}
@@ -81,15 +79,19 @@ def dashboard(request):
 
             # Normalize to percentage values:
             normalized_data = [
-                (profile_data['agility'] / max_values['agility']) * 100,
-                (profile_data['power'] / max_values['power']) * 100,
-                (profile_data['speed'] / max_values['speed']) * 100,
-                (profile_data['strategy'] / max_values['strategy']) * 100,
+                (profile_data['agility'] / max_values['agility']) * 100 if max_values['agility'] else 0,
+                (profile_data['power'] / max_values['power']) * 100 if max_values['power'] else 0,
+                (profile_data['speed'] / max_values['speed']) * 100 if max_values['speed'] else 0,
+                (profile_data['strategy'] / max_values['strategy']) * 100 if max_values['strategy'] else 0,
             ]
 
             context["performance_data"] = {
                 "labels": json.dumps(['Agility', 'Power', 'Speed', 'Strategy']),
                 "data": json.dumps(normalized_data)
+            }
+            context["bar_plot_data"] = {
+                "labels": json.dumps(['Matches Played', 'Goals Scored', 'Assists', 'Tackles']),
+                "data": json.dumps([profile.matches_played, profile.goals_scored, profile.assists, profile.tackles])
             }
 
             return render(request, "player_dashboard.html", context)
