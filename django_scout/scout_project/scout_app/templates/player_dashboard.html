@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Player Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'home' %}">Scout Project</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                  aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Profile Card -->
+                <div class="card mb-4 bg-info text-white shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <h2>Player Profile</h2>
+                        <p>Welcome, {{ user.username }}</p>
+                        <a href="{% url 'view_profile' %}" class="btn btn-primary">View Full Profile</a>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-4">
+                    <!-- Performance Card -->
+                    <div class="col-md-6">
+                        <div class="card bg-success text-white shadow-lg">
+                            <div class="card-body p-4">
+                                <h5 class="card-title">Performance</h5>
+                                <p>Check your stats and progress</p>
+                                <a href="{% url 'statistics' %}" class="btn btn-primary">View Stats</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Match History Card -->
+                    <div class="col-md-6">
+                        <div class="card bg-warning text-white shadow-lg">
+                            <div class="card-body p-4">
+                                <h5 class="card-title">Recent Matches</h5>
+                                <p>Review your last matches</p>
+                                <a href="#" class="btn btn-primary">View History</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Training Card -->
+                    <div class="col-md-6">
+                        <div class="card bg-info text-white shadow-lg">
+                            <div class="card-body p-4">
+                                <h5 class="card-title">Upcoming Events</h5>
+                                <p>Trainings and fixtures</p>
+                                <a href="#" class="btn btn-primary">View Schedule</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- News Card -->
+                    <div class="col-md-6">
+                        <div class="card bg-danger text-white shadow-lg">
+                            <div class="card-body p-4">
+                                <h5 class="card-title">Latest News</h5>
+                                <p>Stay updated with team news</p>
+                                <a href="#" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row g-4 mt-4">
+                    <div class="col-md-12">
+                        <div class="card bg-light shadow-lg">
+                            <div class="card-body p-4">
+                                <h5 class="card-title">Performance Overview</h5>
+                                <div id="performanceChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Add chart.js functionality here
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Matches Played', 'Goals Scored', 'Assists', 'Tackles'],
+                datasets: [{
+                    label: 'Performance Metrics',
+                    data: [10, 8, 6, 4],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+        });
+    </script>
+</body>
+</html>
