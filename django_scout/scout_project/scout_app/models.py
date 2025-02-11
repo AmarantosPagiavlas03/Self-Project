@@ -31,9 +31,15 @@ class PlayerProfile(models.Model):
     agility = models.IntegerField()
     power = models.IntegerField()
     speed = models.IntegerField()
+    strategy = models.IntegerField()
+
     bio = models.TextField()
     video_links = models.TextField(blank=True, null=True)
     looking_for_team = models.BooleanField(default=True)
+    matches_played = models.IntegerField(default=0)
+    goals_scored = models.IntegerField(default=0)
+    assists = models.IntegerField(default=0)
+    tackles = models.IntegerField(default=0)
 
 class TeamProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)

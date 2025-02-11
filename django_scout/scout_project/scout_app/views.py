@@ -12,6 +12,8 @@ from django.views.decorators.csrf import csrf_protect
 from .models import PlayerProfile
 from .forms import PlayerProfileForm
 from django.contrib import messages
+from django.http import JsonResponse
+import json
 
 def home(request):
     if not request.user.is_authenticated:
@@ -62,7 +64,34 @@ def dashboard(request):
     if user.role == 'Player':
         try:
             profile = PlayerProfile.objects.get(user=user)
-            context["profile"] = profile
+            # Example normalization: assume maximum possible values are known
+            max_values = {
+                'agility': 100,
+                'power': 100,
+                'speed': 100,
+                'strategy': 100,
+            }
+
+            profile_data = {
+                'agility': profile.agility,
+                'power': profile.power,
+                'speed': profile.speed,
+                'strategy': profile.strategy,
+            }
+
+            # Normalize to percentage values:
+            normalized_data = [
+                (profile_data['agility'] / max_values['agility']) * 100,
+                (profile_data['power'] / max_values['power']) * 100,
+                (profile_data['speed'] / max_values['speed']) * 100,
+                (profile_data['strategy'] / max_values['strategy']) * 100,
+            ]
+
+            context["performance_data"] = {
+                "labels": json.dumps(['Agility', 'Power', 'Speed', 'Strategy']),
+                "data": json.dumps(normalized_data)
+            }
+
             return render(request, "player_dashboard.html", context)
         except PlayerProfile.DoesNotExist:
             pass

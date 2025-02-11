@@ -89,9 +89,10 @@
                 <div class="row g-4 mt-4">
                     <div class="col-md-12">
                         <div class="card bg-light shadow-lg">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4" id="chartContainer"> 
                                 <h5 class="card-title">Performance Overview</h5>
-                                <div id="performanceChart"></div>
+                                <canvas id="performanceChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,20 +102,42 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Add chart.js functionality here
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Matches Played', 'Goals Scored', 'Assists', 'Tackles'],
-                datasets: [{
-                    label: 'Performance Metrics',
-                    data: [10, 8, 6, 4],
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            }
-        });
+        // Parse the JSON data passed from the view.
+        const labels = JSON.parse('{{ performance_data.labels|escapejs }}');
+        const data = JSON.parse('{{ performance_data.data|escapejs }}');
+    
+        // Check if there's any data.
+        if (data.length === 0) {
+            // If no data, replace the chart container's contents.
+            document.getElementById('chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
+        } else {
+            // Get the canvas context and create a radar chart.
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Performance Metrics',
+                        data: data,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',  // semi-transparent fill
+                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(75, 192, 192)'
+                    }]
+                },
+                options: {
+                    scale: {
+                        ticks: {
+                            beginAtZero: true,  // ensures the scale starts at zero
+                            suggestedMax: 5
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
