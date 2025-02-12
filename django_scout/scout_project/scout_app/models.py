@@ -46,17 +46,17 @@ class PlayerStatistics(models.Model):
     season = models.CharField(max_length=10)
     
     # Main stats
-    fkoa = models.IntegerField(default=0)
-    autogkol = models.IntegerField(default=0)
-    kitrines = models.IntegerField(default=0)
-    kokkines = models.IntegerField(default=0)
-    lepta_symmetoxis = models.CharField(max_length=10)  # Store as string with '
+    goals = models.IntegerField(default=0)
+    own_goals = models.IntegerField(default=0)
+    yellow_cards = models.IntegerField(default=0)
+    red_cards = models.IntegerField(default=0)
+    minutes_played = models.CharField(max_length=10)  # Store as string with '
     
     # Additional stats
-    fkoa_kathe = models.CharField(max_length=10, default='--')
-    autogkol_kathe = models.CharField(max_length=10, default='--')
-    kitrini_kathe = models.CharField(max_length=10, default='--')
-    kokkini_kathe = models.CharField(max_length=10, default='--')
+    goal_every = models.CharField(max_length=10, default='--')
+    own_goal_every = models.CharField(max_length=10, default='--')
+    yellow_card_every = models.CharField(max_length=10, default='--')
+    red_card_every = models.CharField(max_length=10, default='--')
     
     class Meta:
         unique_together = ('player_profile', 'season')

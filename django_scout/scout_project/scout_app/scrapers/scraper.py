@@ -43,10 +43,10 @@ def scrape_players():
                     }
                 )
                 players.append(player_profile)
-                
                 # Scrape detailed stats for the player
                 scrape_player_stats(player_profile, player_id)
-    
+
+
     return players
 
 def scrape_player_stats(player_profile, player_id):
@@ -58,25 +58,26 @@ def scrape_player_stats(player_profile, player_id):
     soup = BeautifulSoup(response.content, 'html.parser')
     
     # Find the statistics table
-    stats_table = soup.find('table', {'class': 'stats-table'})  # Update with actual class
+    stats_table = soup.find('div', {'class': 'table'})  # Update with actual class
     
     if stats_table:
+        season = soup.find('h4').text.strip().split(' ')[-1]
         stats = parse_player_stats_table(stats_table)
         
         # Create or update PlayerStatistics
         PlayerStatistics.objects.update_or_create(
             player_profile=player_profile,
-            season='2023-2024',  # Adjust season as needed
+            season=season,  # Adjust season as needed
             defaults={
-                'fkoa': int(stats.get('fkoa', 0)),
-                'autogkol': int(stats.get('autogkol', 0)),
-                'kitrines': int(stats.get('kitrines', 0)),
-                'kokkines': int(stats.get('kokkines', 0)),
-                'lepta_symmetoxis': stats.get('lepta_symmetoxis', "0'"),
-                'fkoa_kathe': stats.get('fkoa_kathe', '--'),
-                'autogkol_kathe': stats.get('autogkol_kathe', '--'),
-                'kitrini_kathe': stats.get('kitrini_kathe', '--'),
-                'kokkini_kathe': stats.get('kokkini_kathe', '--'),
+                'goals': int(stats.get('fkoa', 0)),
+                'own_goals': int(stats.get('autogkol', 0)),
+                'yellow_cards': int(stats.get('kitrines', 0)),
+                'red_cards': int(stats.get('kokkines', 0)),
+                'minutes_played': stats.get('lepta_symmetoxis', "0'"),
+                'goal_every': stats.get('fkoa_kathe', '--'),
+                'own_goal_every': stats.get('autogkol_kathe', '--'),
+                'yellow_card_every': stats.get('kitrini_kathe', '--'),
+                'red_card_every': stats.get('kokkini_kathe', '--'),
             }
         )
 
@@ -85,33 +86,25 @@ def parse_player_stats_table(table):
     Parse the player statistics table from the HTML content.
     Returns a dictionary with the extracted stats.
     """
+    # print(table)
     stats = {}
-    
+
     # Find all rows in the table body
     rows = table.find_all('tr')
-    
-    # First row contains the main stats headers
-    headers = [th.text.strip() for th in rows[0].find_all('th')]
-    
     # Second row contains the corresponding values
-    values = [td.text.strip() for td in rows[1].find_all('td')]
-    
-    # Map headers to values
-    for header, value in zip(headers, values):
-        # Clean up the header names
-        clean_header = header.lower().replace(' ', '_').replace('ά', 'a').replace('έ', 'e')
-        stats[clean_header] = value
-    
-    # Third row contains additional stats headers
-    additional_headers = [th.text.strip() for th in rows[2].find_all('th')]
-    
-    # Fourth row contains the corresponding additional values
-    additional_values = [td.text.strip() for td in rows[3].find_all('td')]
-    
-    # Map additional headers to values
-    for header, value in zip(additional_headers, additional_values):
-        # Clean up the header names
-        clean_header = header.lower().replace(' ', '_').replace('ά', 'a').replace('έ', 'e')
-        stats[clean_header] = value
+    values_row_0 = [td.text.strip() for td in rows[0].find_all('td')]
+    values_row_1 = [td.text.strip() for td in rows[1].find_all('td')]
+
+    # Extract stats based on column index
+    stats['fkoa'] = values_row_0[0]
+    stats['autogkol'] = values_row_0[1]
+    stats['kitrines'] = values_row_0[2]
+    stats['kokkines'] = values_row_0[3]
+    stats['lepta_symmetoxis'] =values_row_0[4]
+    stats['fkoa_kathe'] = values_row_1[0]
+    stats['autogkol_kathe'] = values_row_1[1]
+    stats['kitrini_kathe'] = values_row_1[2]
+    stats['kokkini_kathe'] = values_row_1[3]
+
     
     return stats
