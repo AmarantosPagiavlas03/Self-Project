@@ -20,20 +20,20 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
 class PlayerProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     position = models.CharField(max_length=20, choices=[('Goalkeeper', 'Goalkeeper'), ('Defender', 'Defender'),
                                                          ('Midfielder', 'Midfielder'), ('Forward', 'Forward')])
-    age = models.IntegerField()
-    height = models.IntegerField()
-    weight = models.IntegerField()
-    agility = models.IntegerField()
-    power = models.IntegerField()
-    speed = models.IntegerField()
-    strategy = models.IntegerField()
+    age = models.IntegerField(null=True, blank=True)
+    height = models.IntegerField(null=True, blank=True)
+    weight = models.IntegerField(null=True, blank=True)
+    agility = models.IntegerField(null=True, blank=True)
+    power = models.IntegerField(null=True, blank=True)
+    speed = models.IntegerField(null=True, blank=True)
+    strategy = models.IntegerField(null=True, blank=True)
 
-    bio = models.TextField()
+    bio = models.TextField(null=True, blank=True)
     video_links = models.TextField(blank=True, null=True)
     looking_for_team = models.BooleanField(default=True)
     matches_played = models.IntegerField(default=0)
@@ -41,6 +41,25 @@ class PlayerProfile(models.Model):
     assists = models.IntegerField(default=0)
     tackles = models.IntegerField(default=0)
 
+class PlayerStatistics(models.Model):
+    player_profile = models.ForeignKey(PlayerProfile, related_name='statistics', on_delete=models.CASCADE)
+    season = models.CharField(max_length=10)
+    
+    # Main stats
+    fkoa = models.IntegerField(default=0)
+    autogkol = models.IntegerField(default=0)
+    kitrines = models.IntegerField(default=0)
+    kokkines = models.IntegerField(default=0)
+    lepta_symmetoxis = models.CharField(max_length=10)  # Store as string with '
+    
+    # Additional stats
+    fkoa_kathe = models.CharField(max_length=10, default='--')
+    autogkol_kathe = models.CharField(max_length=10, default='--')
+    kitrini_kathe = models.CharField(max_length=10, default='--')
+    kokkini_kathe = models.CharField(max_length=10, default='--')
+    
+    class Meta:
+        unique_together = ('player_profile', 'season')
 class TeamProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     team_name = models.CharField(max_length=100)
