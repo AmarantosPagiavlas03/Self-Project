@@ -13,4 +13,5 @@ urlpatterns = [
     path('profile/', views.view_profile, name='view_profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('statistics/', views.statistics, name='statistics'),
+    path('chat/', include('chat_app.urls'))
 ]
