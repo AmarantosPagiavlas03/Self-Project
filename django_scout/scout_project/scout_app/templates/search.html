@@ -10,7 +10,8 @@
     {% include 'navbar.html' %}
     <div class="container mt-5">
         <h2 style="display: none;">Search Players</h2>
-        <form method="GET" action="{% url 'scout_app:search' %}" style="display: none;">
+        <form method="POST" action="{% url 'scout_app:search' %}" style="display: none;">
+            {% csrf_token %}
             <div class="form-group">
                 <input type="text" name="query" class="form-control" placeholder="Search by name or position">
             </div>
