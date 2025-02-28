@@ -15,7 +15,7 @@
                 <div class="card mb-4 bg-info text-white shadow-lg">
                     <div class="card-body text-center p-4">
                         <h2>Player Profile</h2>
-                        <p>Welcome, {{ user.username }}</p>
+                        <p>Welcome, {{ profile.first_name }} {{ profile.last_name }}</p>
                         <a href="{% url 'view_profile' %}" class="btn btn-primary">View Full Profile</a>
                     </div>
                 </div>

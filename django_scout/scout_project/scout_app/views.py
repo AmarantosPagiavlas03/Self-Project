@@ -27,6 +27,15 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # Attempt to find an existing profile to assign to this user
+            first_name = form.cleaned_data.get('first_name')
+            last_name = form.cleaned_data.get('last_name')
+            try:
+                profile = PlayerProfile.objects.get(first_name=first_name, last_name=last_name, user__isnull=True)
+                profile.user = user
+                profile.save()
+            except PlayerProfile.DoesNotExist:
+                pass
             login(request, user)
             return redirect('scout_app:dashboard')
     else:
@@ -126,12 +135,30 @@ def view_player_profile(request, player_id):
         'profile': player_profile
     }
     return render(request, 'view_profile.html', context)
-
+    
 @login_required
 def view_player_dashboard(request, player_id):
     player_profile = get_object_or_404(PlayerProfile, id=player_id)
     context = {
-        'profile': player_profile
+        'profile': player_profile,
+        'performance_data': {
+            'labels': ['Agility', 'Power', 'Speed', 'Strategy'],
+            'data': [
+                player_profile.agility,
+                player_profile.power,
+                player_profile.speed,
+                player_profile.strategy
+            ]
+        },
+        'bar_plot_data': {
+            'labels': ['Matches Played', 'Goals Scored', 'Assists', 'Tackles'],
+            'data': [
+                player_profile.matches_played,
+                player_profile.goals_scored,
+                player_profile.assists,
+                player_profile.tackles
+            ]
+        }
     }
     return render(request, 'player_dashboard.html', context)
 
@@ -189,6 +216,10 @@ def search(request):
         players = PlayerProfile.objects.filter(
             Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
         ) if query else None
+
+        if players and players.count() == 1:
+            player = players.first()
+            return redirect('scout_app:player_dashboard', player_id=player.id)
 
     context = {
         'query': query,

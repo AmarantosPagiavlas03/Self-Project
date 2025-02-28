@@ -23,7 +23,7 @@
                 <ul class="list-group">
                     {% for player in players %}
                         <li class="list-group-item">
-                            <a href="{% url 'scout_app:view_player_profile' player.id %}">
+                            <a href="{% url 'scout_app:player_dashboard' player.id %}">
                                 {{ player.first_name }} {{ player.last_name }} - {{ player.position }}
                             </a>
                         </li>
