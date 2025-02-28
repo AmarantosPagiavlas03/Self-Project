@@ -18,7 +18,7 @@ import json
 def home(request):
     if not request.user.is_authenticated:
         return redirect('scout_app:login')
-    return redirect('scout_app:dashboard')
+    return render(request, 'home.html')
 
 def register(request):
     if request.method == 'POST':
