@@ -100,3 +100,84 @@ body {
 #chartContainer {
     text-align: center; /* Ensures the chart stays centered */
 }
+
+
+
+/*  */
+.feed_container__image img {
+    width: 440px;
+    height: 600px;
+    object-fit: contain;
+  }
+
+  .feed_container__image{
+    width: fit-content;
+    height: fit-content;
+  }
+  
+  .feed_container{
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    margin: 10px auto 10px;
+    padding: 10px;
+    border-radius: 14px;
+    box-shadow: 7px 9px 25px -11px black;
+  }
+
+  .feed_container__title_gap{
+    margin-bottom: 20px;
+  }
+
+  .feed_container__interactions{
+    flex-direction: row;
+    display: flex;
+    gap: 20px;
+  }
+
+  .feed_container__description{
+    width: 440px;
+  }
+
+  .feed_container__description p {
+    line-height: 1.3;
+  }
+
+  .feed_container__likestotal{
+    margin: 5px 0;
+  }
+  .feed_container__likestotal p{
+    color: gray;
+    font-size: 0.9rem;
+    margin-bottom: 0 !important;
+  }
+
+  .excerpt3{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    display: -webkit-box; 
+  }
+
+  .feed_container__interactions_like{
+    cursor: pointer;
+  }
+  .feed_container__interactions_comment{
+    cursor: pointer;
+  }
+  .feed_container__interactions_share{
+    cursor: pointer;
+  }
+
+  .feed_container__profile {
+    display: flex;
+    gap: 5px;
+    align-items: baseline;
+  }
+
+  .feed_container__profile_date_posted {
+    font-size: 0.85rem;
+  }
