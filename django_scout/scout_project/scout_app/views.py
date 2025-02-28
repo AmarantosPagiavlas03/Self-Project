@@ -180,10 +180,15 @@ def statistics(request):
 def search(request):
     if not request.user.is_authenticated:
         return redirect('scout_app:login')
-    query = request.GET.get('query', '')
-    players = PlayerProfile.objects.filter(
-        Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
-    ) if query else None
+    
+    query = ''
+    players = None
+    
+    if request.method == 'POST':
+        query = request.POST.get('query', '')
+        players = PlayerProfile.objects.filter(
+            Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
+        ) if query else None
 
     context = {
         'query': query,
