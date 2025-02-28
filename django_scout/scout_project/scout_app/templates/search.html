@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Players</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-5">
+        <h2>Search Players</h2>
+        <form method="GET" action="{% url 'scout_app:search' %}">
+            <div class="form-group">
+                <input type="text" name="query" class="form-control" placeholder="Search by name or position">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+        <div class="mt-4">
+            {% if players %}
+                <h3>Search Results:</h3>
+                <ul class="list-group">
+                    {% for player in players %}
+                        <li class="list-group-item">
+                            <a href="{% url 'scout_app:view_player_profile' player.id %}">
+                                {{ player.first_name }} {{ player.last_name }} - {{ player.position }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elif query %}
+                <p>No players found for "{{ query }}".</p>
+            {% endif %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

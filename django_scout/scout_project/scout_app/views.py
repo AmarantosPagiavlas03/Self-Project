@@ -14,6 +14,8 @@ from .forms import PlayerProfileForm
 from django.contrib import messages
 from django.http import JsonResponse
 import json
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 def home(request):
     if not request.user.is_authenticated:
@@ -117,10 +119,21 @@ def view_profile(request):
     except PlayerProfile.DoesNotExist:
         profile = None
 
+@login_required
+def view_player_profile(request, player_id):
+    player_profile = get_object_or_404(PlayerProfile, id=player_id)
     context = {
-        'profile': profile
+        'profile': player_profile
     }
     return render(request, 'view_profile.html', context)
+
+@login_required
+def view_player_dashboard(request, player_id):
+    player_profile = get_object_or_404(PlayerProfile, id=player_id)
+    context = {
+        'profile': player_profile
+    }
+    return render(request, 'player_dashboard.html', context)
 
 @login_required
 def edit_profile(request):
@@ -161,3 +174,17 @@ def statistics(request):
     }
     
     return render(request, "statistics.html", {"statistics": statistics})
+
+
+@login_required
+def search(request):
+    query = request.GET.get('query', '')
+    players = PlayerProfile.objects.filter(
+        Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
+    ) if query else None
+
+    context = {
+        'query': query,
+        'players': players
+    }
+    return render(request, 'search.html', context)
