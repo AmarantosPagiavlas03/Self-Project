@@ -51,10 +51,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     if (data.success) {
-                        likeButton.setAttribute('data-liked', !isLiked);
+                        const newLikedState = !isLiked;
+                        likeButton.setAttribute('data-liked', newLikedState);
                         likesTotal.textContent = `${data.likes_count} likes`;
 
-                        if (!isLiked) {
+                        if (newLikedState) {
                             // change to filled heart
                             likeButton.innerHTML = `
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
