@@ -107,12 +107,14 @@ body {
 .feed_container__image img {
     width: 440px;
     height: 600px;
-    object-fit: contain;
+    object-fit: cover;
+    border-radius: 4px;
   }
 
   .feed_container__image{
     width: fit-content;
     height: fit-content;
+    padding: 15px 0;
   }
   
   .feed_container{
