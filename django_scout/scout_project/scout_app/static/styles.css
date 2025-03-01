@@ -238,6 +238,35 @@ body {
     transition: ease-in-out 0.3s;
   }
 
+
+.feed_container__profile_link {
+    text-decoration: none; 
+    color: inherit; 
+    display: flex;
+    align-items: center; 
+    gap: 8px; 
+    cursor: pointer; 
+}
+
+.feed_container__profile_link:hover {
+    text-decoration: none; 
+}
+
+.feed_container__profile_icon svg {
+    width: 36px;
+    height: 36px;
+    fill: currentColor; 
+}
+
+.feed_container__profile_name p {
+    margin: 0;
+    font-size: 1rem; 
+    color: inherit;
+}
+/*  */
+/*  */
+/*  */
+/*  */
 /* Comment Section Styles */
 .feed_container__comments {
     margin-top: 10px;
