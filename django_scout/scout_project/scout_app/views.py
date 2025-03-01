@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render
 from .models import PlayerProfile, TeamProfile, Post,Comment
-from .forms import CustomUserCreationForm, PlayerProfileForm, CommentCreateForm
+from .forms import CustomUserCreationForm, PlayerProfileForm, CommentCreateForm, PostForm
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from .models import PlayerProfile
@@ -28,11 +28,25 @@ def home(request):
     if not request.user.is_authenticated:
         return redirect('scout_app:login')
     
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, "Post created successfully!")
+            return redirect('scout_app:home')
+        else:
+            messages.error(request, "Error creating post. Please check the form.")
+    else:
+        form = PostForm()
+    
     posts = Post.objects.all().order_by('-timestamp')
     commentcreateform = CommentCreateForm()
     context = {
         'posts': posts,
-        'commentcreateform': commentcreateform
+        'commentcreateform': commentcreateform,
+        'post_form': form
     }
     return render(request, 'home.html', context)
 

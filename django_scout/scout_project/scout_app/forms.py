@@ -1,7 +1,7 @@
 # filepath: /c:/Users/amara/Documents/Python/self_project/django_scout/scout_project/scout_app/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, PlayerProfile, Comment
+from .models import CustomUser, PlayerProfile, Comment, Post
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
@@ -23,4 +23,16 @@ class CommentCreateForm(forms.ModelForm):
         }
         labels = {
             'content': '',
+        }
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['photo', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write a caption...'}),
+        }
+        labels = {
+            'photo': 'Upload Photo',
+            'description': '',
         }
