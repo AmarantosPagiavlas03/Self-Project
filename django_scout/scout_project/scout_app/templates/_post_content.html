@@ -45,13 +45,18 @@
         </div>
         {% endfor %}
     </div>
-    <button class="expand-comments-btn">Expand</button>
-    <div class="add-comment-form mt-3" data-post-id="{{ post.id }}" data-post-url="{% url 'scout_app:add_comment' post.id %}">
+    <button class="expand-comments-btn">View all {{ post.comment_count }} comments</button>
+    <div class="add-comment-section" data-post-id="{{ post.id }}" data-post-url="{% url 'scout_app:add_comment' post.id %}">
         <form method="post" action="{% url 'scout_app:add_comment' post.id %}" class="comment-form">
             {% csrf_token %}
-            {{ commentcreateform.as_p }}
-            <button type="submit" class="btn btn-primary">Add comment</button>
+            <div class="comment-input-wrapper">
+                <input type="text" name="content" placeholder="Add a comment..." class="comment-input" maxlength="500" required>
+                <button type="submit" class="comment-submit-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M2.01 21L23 12L2.01 3L2 10l15 2l-15 2z"/>
+                    </svg>
+                </button>
+            </div>
         </form>
     </div>
-    <p class="comment_count">{{ post.comment_count }} comments</p>
 </div>

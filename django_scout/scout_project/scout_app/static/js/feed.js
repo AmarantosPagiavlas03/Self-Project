@@ -8,12 +8,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (expandBtn && commentsList) {
             expandBtn.addEventListener('click', function() {
+                const commentCount = this.getAttribute('data-comment-count');
                 if (commentsList.style.display === 'none') {
                     commentsList.style.display = 'block';
-                    this.textContent = 'Collapse';
+                    this.textContent = 'Hide comments';
+                    this.classList.add('expanded');
                 } else {
                     commentsList.style.display = 'none';
-                    this.textContent = 'Expand';
+                    this.textContent = `View all ${commentCount} comments`;
+                    this.classList.remove('expanded');
                 }
             });
         }

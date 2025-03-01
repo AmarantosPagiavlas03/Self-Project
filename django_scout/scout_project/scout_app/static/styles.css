@@ -230,3 +230,134 @@ body {
     z-index: 1000;
     transition: ease-in-out 0.3s;
   }
+
+/* Comment Section Styles */
+.feed_container__comments {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.feed_container__comments_list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.feed_container__comments_list_comment {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.feed_container__comments_list_comment p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.expand-comments-btn {
+    background: none;
+    border: none;
+    color: #8e8e8e;
+    font-size: 0.9rem;
+    padding: 5px 0;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+
+.expand-comments-btn:hover {
+    color: #262626;
+}
+
+.add-comment-section {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.comment-form {
+    width: 100%;
+}
+
+.comment-input-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    border-radius: 24px;
+    padding: 10px 16px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.comment-input-wrapper:focus-within {
+    background-color: #fff;
+    border-color: #3498db;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    transform: translateY(-1px);
+}
+
+.comment-input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    padding: 8px 0;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    outline: none;
+    color: #2c3e50;
+    font-family: inherit;
+}
+
+.comment-input::placeholder {
+    color: #95a5a6;
+    transition: color 0.2s ease;
+}
+
+.comment-input:focus::placeholder {
+    color: #bdc3c7;
+}
+
+.comment-submit-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.comment-submit-btn:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+    transform: scale(1.1);
+}
+
+.comment-submit-btn svg {
+    width: 20px;
+    height: 20px;
+    color: #3498db;
+    transition: transform 0.2s ease;
+}
+
+.comment-submit-btn:hover svg {
+    transform: translateX(2px);
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Remove any remaining default form styles */
+.comment-form {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.comment-form input:focus {
+    outline: none;
+}
