@@ -352,6 +352,14 @@ body {
     background-color: transparent;
 }
 
+/* This aligns the text inside the textarea */
+.comment-input {
+    line-height: 1.5 !important;
+    padding-top: 10px !important;
+    height: 43.5px;
+    box-sizing: border-box;
+    }
+
 .comment-input {
     width: 100%;
     border: none;
@@ -363,7 +371,7 @@ body {
     line-height: 18px;
     max-height: 80px;
     min-height: 18px;
-    overflow-y: auto;
+    overflow-y: auto; 
 }
 
 .comment-input::placeholder {
