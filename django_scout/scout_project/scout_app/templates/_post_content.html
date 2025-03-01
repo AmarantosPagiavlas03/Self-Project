@@ -46,8 +46,15 @@
 <div class="feed_container__comments">
     <div class="feed_container__comments_list" style="display: none;">
         {% for comment in post.comments.all %}
-        <div class="feed_container__comments_list_comment">
+        <div class="feed_container__comments_list_comment" data-comment-id="{{ comment.id }}">
             <p><b>{{ comment.author.username }}:</b> {{ comment.content }}</p>
+            {% if user == comment.author and comment.timestamp|is_recent_comment %}
+            <button class="delete-comment-btn" data-comment-id="{{ comment.id }}" data-delete-url="{% url 'scout_app:delete_comment' comment.id %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41z"/>
+                </svg>
+            </button>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

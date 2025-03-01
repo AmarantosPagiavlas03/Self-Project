@@ -14,3 +14,9 @@ def custom_timesince(value):
     else:
         minutes = diff.seconds // 60
         return f"{minutes}m"
+
+@register.filter
+def is_recent_comment(value):
+    now = datetime.now(value.tzinfo)
+    diff = now - value
+    return diff < timedelta(hours=1)

@@ -16,13 +16,11 @@ from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
- 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from .models import Post
-import json
+from django.utils import timezone
+from datetime import timedelta
 import logging
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
@@ -323,3 +321,43 @@ def like_post(request, post_id):
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def delete_comment(request, comment_id):
+    try:
+        comment = get_object_or_404(Comment, id=comment_id)
+        
+        # Check if the user is the author of the comment
+        if comment.author != request.user:
+            return JsonResponse({
+                'success': False,
+                'error': 'You can only delete your own comments'
+            }, status=403)
+        
+        # Check if the comment is less than 1 hour old
+        time_threshold = timezone.now() - timedelta(hours=1)
+        if comment.timestamp < time_threshold:
+            return JsonResponse({
+                'success': False,
+                'error': 'Comments can only be deleted within 1 hour of posting'
+            }, status=403)
+        
+        # Get the parent post to update comment count
+        post = comment.parent_post
+        post.comment_count -= 1
+        post.save()
+        
+        # Delete the comment
+        comment.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'comment_count': post.comment_count
+        })
+    except Exception as e:
+        logger.error(f"Error deleting comment: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while deleting the comment'
+        }, status=500)

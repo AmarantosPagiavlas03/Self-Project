@@ -1,6 +1,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     const feedContainers = document.querySelectorAll('.feed_container');
 
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     feedContainers.forEach(feedContainer => {
         // Expand/collapse comments functionality
         const expandBtn = feedContainer.querySelector('.expand-comments-btn');
@@ -156,21 +172,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         }
+
+        // Delete comment functionality
+        if (commentsList) {
+            commentsList.addEventListener('click', function(event) {
+                const deleteBtn = event.target.closest('.delete-comment-btn');
+                if (!deleteBtn) return;
+                
+                const commentId = deleteBtn.dataset.commentId;
+                const deleteUrl = deleteBtn.dataset.deleteUrl;
+                const commentElement = deleteBtn.closest('.feed_container__comments_list_comment');
+                
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        commentElement.remove();
+                        if (expandCommentsBtn) {
+                            expandCommentsBtn.textContent = `View all ${data.comment_count} comments`;
+                        }
+                    } else {
+                        alert(data.error || 'Error deleting comment');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting comment');
+                });
+            });
+        }
     });
     
 });
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
