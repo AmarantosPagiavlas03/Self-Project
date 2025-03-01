@@ -72,3 +72,18 @@ class ChatMessage(models.Model):
     receiver = models.ForeignKey(CustomUser, related_name='received_messages', on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+class Post(models.Model):
+    author = models.ForeignKey(CustomUser, related_name='posts', on_delete=models.CASCADE)
+    comment_count = models.IntegerField(default=0)
+    like_count = models.IntegerField(default=0)
+    photo = models.ImageField(upload_to='post_photos/', blank=True, null=True)
+    description = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey(CustomUser, related_name='comments', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
