@@ -232,3 +232,11 @@ def search(request):
         'players': players
     }
     return render(request, 'search.html', context)
+
+@login_required
+def view_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    context = {
+        'post': post
+    }
+    return render(request, 'view_post.html', context)
