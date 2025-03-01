@@ -58,7 +58,9 @@
         </div>
         {% endfor %}
     </div>
+    {% if post.comment_count > 0 %}
     <button class="expand-comments-btn">View all {{ post.comment_count }} comments</button>
+    {% endif %}
     <div class="add-comment-section add-comment-form" data-post-id="{{ post.id }}" data-post-url="{% url 'scout_app:add_comment' post.id %}">
         <form method="post" action="{% url 'scout_app:add_comment' post.id %}" class="comment-form">
             {% csrf_token %}
