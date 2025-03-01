@@ -181,3 +181,18 @@ body {
   .feed_container__profile_date_posted {
     font-size: 0.85rem;
   }
+
+  .copied-message{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    z-index: 1000;
+    transition: ease-in-out 0.3s;
+  }
