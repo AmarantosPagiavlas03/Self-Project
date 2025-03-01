@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (data.comment_count > 0) {
                                     expandCommentsBtn.textContent = `View all ${data.comment_count} comments`;
                                 } else {
-                                    expandCommentsBtn.style.display = 'none'; // Hide the button if no comments are left
+                                    expandCommentsBtn.style.display = 'none'; // hide the button if no comments
                                 }
                             }
                         } else {

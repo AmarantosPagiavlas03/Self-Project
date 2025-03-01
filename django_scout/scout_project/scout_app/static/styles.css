@@ -186,24 +186,31 @@ body {
   }
 
   .feed_container__interactions_like svg {
-    color: #8e8e8e;
     transition: color 0.2s ease;
   }
 
-  .feed_container__interactions_like[data-liked="true"] svg {
+  /* .feed_container__interactions_like[data-liked="true"] svg {
     color: #ed4956;
     fill: #ed4956;
   }
 
   .feed_container__interactions_like:hover svg {
     color: #ed4956;
-  }
+  } */
 
   .feed_container__interactions_comment{
     cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .feed_container__interactions_comment:hover {
+    transform: scale(1.1);
   }
   .feed_container__interactions_share{
     cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .feed_container__interactions_share:hover {
+    transform: scale(1.1);
   }
 
   .feed_container__profile {
@@ -235,6 +242,7 @@ body {
 .feed_container__comments {
     margin-top: 10px;
     width: 100%;
+    transition: color 0.2s ease;
 }
 
 .feed_container__comments_list {
@@ -308,8 +316,8 @@ body {
 .comment-input-wrapper {
     display: flex;
     align-items: center;
-    border: 1px solid #dbdbdb;
-    border-radius: 22px;
+    border: 2px solid #dbdbdb;
+    border-radius: 14px;
     padding: 0 12px;
     margin: 8px 0;
     background-color: transparent;
