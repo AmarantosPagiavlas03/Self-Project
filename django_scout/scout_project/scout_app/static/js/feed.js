@@ -8,14 +8,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (expandBtn && commentsList) {
             expandBtn.addEventListener('click', function() {
-                const commentCount = this.getAttribute('data-comment-count');
                 if (commentsList.style.display === 'none') {
                     commentsList.style.display = 'block';
                     this.textContent = 'Hide comments';
                     this.classList.add('expanded');
                 } else {
                     commentsList.style.display = 'none';
-                    this.textContent = `View all ${commentCount} comments`;
+                    this.textContent = `View all ${feedContainer.querySelector('.feed_container__comments_list').children.length} comments`;
                     this.classList.remove('expanded');
                 }
             });
@@ -53,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         likeButton.setAttribute('data-liked', !isLiked);
-                        likesTotal.textContent = `${data.likes_count.toLocaleString()} likes`;
+                        likesTotal.textContent = `${data.likes_count} likes`;
 
                         if (!isLiked) {
                             // change to filled heart
@@ -108,18 +107,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-
         // comment functionality
-        const commentForm = feedContainer.querySelector('.add-comment-form form');
+        const commentForm = feedContainer.querySelector('.comment-form');
         const commentList = feedContainer.querySelector('.feed_container__comments_list');
-        const commentCount = feedContainer.querySelector('.feed_container__comments .comment_count');
+        const expandCommentsBtn = feedContainer.querySelector('.expand-comments-btn');
 
-        if (commentForm && commentList && commentCount) {
+        if (commentForm && commentList && expandCommentsBtn) {
             commentForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const postId = commentForm.closest('.add-comment-form').getAttribute('data-post-id');
                 const postUrl = commentForm.closest('.add-comment-form').getAttribute('data-post-url');
-                const commentInput = commentForm.querySelector('textarea[name="content"]');
+                const commentInput = commentForm.querySelector('.comment-input');
 
                 if (!postId || !postUrl || !commentInput) {
                     console.error('Post ID, URL, or comment input not found');
@@ -149,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         `;
                         commentList.appendChild(newComment);
                         commentInput.value = '';
-                        commentCount.textContent = `${data.comment_count} comments`;
+                        expandCommentsBtn.textContent = `View all ${data.comment_count} comments`;
                     }
                 })
                 .catch(error => {
