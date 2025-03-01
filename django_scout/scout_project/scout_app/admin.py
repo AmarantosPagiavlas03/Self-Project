@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, PlayerProfile, TeamProfile, PlayerStatistics
+from .models import *
 
 # Register CustomUser model with custom admin settings
 @admin.register(CustomUser)
@@ -12,3 +12,5 @@ class CustomUserAdmin(admin.ModelAdmin):
 admin.site.register(PlayerProfile)
 admin.site.register(PlayerStatistics)
 admin.site.register(TeamProfile)
+admin.site.register(Post)
+admin.site.register(Comment)
