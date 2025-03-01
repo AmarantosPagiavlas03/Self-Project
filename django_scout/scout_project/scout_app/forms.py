@@ -8,6 +8,11 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ('first_name', 'last_name', 'email', 'role', 'password1', 'password2')
 
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.fields['role'].widget = forms.Select(choices=CustomUser.ROLE_CHOICES)
+
+
 class PlayerProfileForm(forms.ModelForm):
     class Meta:
         model = PlayerProfile
