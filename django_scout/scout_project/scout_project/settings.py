@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'scout_app',  # Our app
     'rest_framework',  # For API (if needed)
+    # 'channels',  # For WebSockets
 ]
 INSTALLED_APPS += ['channels']
 ASGI_APPLICATION = "scout_project.asgi.application"
@@ -57,6 +58,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'scout_app/static'),
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ROOT_URLCONF = 'scout_project.urls'
 LOGIN_REDIRECT_URL = '/'

@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 from scout_app import views
-from django.contrib.auth import views as auth_views
-
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
@@ -14,3 +16,6 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('statistics/', views.statistics, name='statistics'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

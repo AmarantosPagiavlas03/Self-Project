@@ -5,7 +5,7 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render
-from .models import PlayerProfile, TeamProfile
+from .models import PlayerProfile, TeamProfile, Post,Comment
 from .forms import CustomUserCreationForm
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
@@ -16,11 +16,17 @@ from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+ 
 
 def home(request):
     if not request.user.is_authenticated:
         return redirect('scout_app:login')
-    return render(request, 'home.html')
+    
+    posts = Post.objects.all().order_by('-timestamp')
+    context = {
+        'posts': posts
+    }
+    return render(request, 'home.html', context)
 
 def register(request):
     if request.method == 'POST':
