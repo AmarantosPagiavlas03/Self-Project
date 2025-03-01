@@ -176,9 +176,29 @@ body {
     cursor: pointer;
   }
 
-  .feed_container__interactions_like{
+  .feed_container__interactions_like {
     cursor: pointer;
+    transition: transform 0.2s ease;
   }
+
+  .feed_container__interactions_like:hover {
+    transform: scale(1.1);
+  }
+
+  .feed_container__interactions_like svg {
+    color: #8e8e8e;
+    transition: color 0.2s ease;
+  }
+
+  .feed_container__interactions_like[data-liked="true"] svg {
+    color: #ed4956;
+    fill: #ed4956;
+  }
+
+  .feed_container__interactions_like:hover svg {
+    color: #ed4956;
+  }
+
   .feed_container__interactions_comment{
     cursor: pointer;
   }
