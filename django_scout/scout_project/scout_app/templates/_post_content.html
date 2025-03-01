@@ -36,14 +36,14 @@
     <p class="excerpt3"><b>{{ post.author.username }}:</b> {{ post.description }}</p>
 </div>
 <div class="feed_container__comments">
-    <div class="feed_container__comments_list"  >
+    <div class="feed_container__comments_list" style="display: none;">
         {% for comment in post.comments.all %}
         <div class="feed_container__comments_list_comment">
             <p><b>{{ comment.author.username }}:</b> {{ comment.content }}</p>
         </div>
         {% endfor %}
     </div>
-    
+    <button class="expand-comments-btn">Expand</button>
     <div class="add-comment-form mt-3">
         <form method="post" action="{% url 'scout_app:add_comment' post.id %}">
             {% csrf_token %}
@@ -53,4 +53,19 @@
     </div>
 </div>
 
- 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.expand-comments-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const commentsList = this.previousElementSibling;
+                if (commentsList.style.display === 'none') {
+                    commentsList.style.display = 'block';
+                    this.textContent = 'Collapse';
+                } else {
+                    commentsList.style.display = 'none';
+                    this.textContent = 'Expand';
+                }
+            });
+        });
+    });
+</script>
