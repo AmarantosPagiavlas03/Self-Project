@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
+    <title>{{ post.author.username }}'s Post</title>
     {% load static %}
-    {% load custom_filters %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 </head>
 <body>
     {% include 'navbar.html' %}
-    {% for post in posts %}
+    {% load custom_filters %}
     <div class="feed_container">
         <div class="feed_container__profile">
             <div class="feed_container__profile_icon">
@@ -48,8 +47,6 @@
             <p class="excerpt3"><b>{{ post.author.username }}:</b> {{ post.description }}</p>
         </div>
     </div>
-    {% endfor %}
-
     <script src="{% static 'js/feed.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
