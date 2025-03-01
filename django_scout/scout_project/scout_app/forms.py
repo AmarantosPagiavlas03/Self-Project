@@ -6,8 +6,7 @@ from .models import CustomUser, PlayerProfile, Comment, Post
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'role', 'password1', 'password2')
-
+        fields = ('first_name', 'last_name', 'email', 'role', 'password1', 'password2')
 
 class PlayerProfileForm(forms.ModelForm):
     class Meta:
