@@ -107,7 +107,7 @@ body {
 .feed_container__image img {
     width: 440px;
     height: 600px;
-    object-fit: contain;
+    object-fit: cover;
   }
 
   .feed_container__image{
