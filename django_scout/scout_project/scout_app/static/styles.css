@@ -117,18 +117,25 @@ body {
     padding: 15px 0;
   }
   
-  .feed_container{
+  .feed_container_wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .feed_container {
     width: fit-content;
     height: fit-content;
     display: flex;
     flex-direction: column;
-    margin: 10px auto 10px;
-    padding: 10px;
+    margin: 0 auto;
+    padding: 20px;
     border-radius: 14px;
-    box-shadow: 7px 9px 25px -11px black;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
   
-  .feed_container:not(:last-child){
+  .feed_container:not(:last-child) {
     margin-bottom: 25px;
   }
 

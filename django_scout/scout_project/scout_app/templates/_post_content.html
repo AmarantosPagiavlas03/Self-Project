@@ -44,28 +44,12 @@
         {% endfor %}
     </div>
     <button class="expand-comments-btn">Expand</button>
-    <div class="add-comment-form mt-3">
-        <form method="post" action="{% url 'scout_app:add_comment' post.id %}">
+    <div class="add-comment-form mt-3" data-post-id="{{ post.id }}" data-post-url="{% url 'scout_app:add_comment' post.id %}">
+        <form method="post" action="{% url 'scout_app:add_comment' post.id %}" class="comment-form">
             {% csrf_token %}
             {{ commentcreateform.as_p }}
             <button type="submit" class="btn btn-primary">Add comment</button>
         </form>
     </div>
+    <p class="comment_count">{{ post.comment_count }} comments</p>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.expand-comments-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const commentsList = this.previousElementSibling;
-                if (commentsList.style.display === 'none') {
-                    commentsList.style.display = 'block';
-                    this.textContent = 'Collapse';
-                } else {
-                    commentsList.style.display = 'none';
-                    this.textContent = 'Expand';
-                }
-            });
-        });
-    });
-</script>

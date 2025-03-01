@@ -255,9 +255,16 @@ def view_post(request, post_id):
 
 @login_required
 def add_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
     if request.method == 'POST':
-        form = CommentCreateForm(request.POST)
+        post = get_object_or_404(Post, id=post_id)
+        
+        # Check if it's a JSON request
+        if request.headers.get('content-type') == 'application/json':
+            data = json.loads(request.body)
+            form = CommentCreateForm({'content': data.get('content', '')})
+        else:
+            form = CommentCreateForm(request.POST)
+        
         if form.is_valid():
             comment = form.save(commit=False)
             comment.parent_post = post
@@ -265,7 +272,9 @@ def add_comment(request, post_id):
             comment.save()
             post.comment_count += 1
             post.save()
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            
+            # Return JSON response if it's an AJAX request
+            if request.headers.get('content-type') == 'application/json' or request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
                     'comment': comment.content,
@@ -273,14 +282,17 @@ def add_comment(request, post_id):
                     'timestamp': comment.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
                     'comment_count': post.comment_count
                 })
-            else:
-                return redirect('scout_app:view_post', post_id=post.id)
+            return redirect('scout_app:view_post', post_id=post.id)
         else:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'error': 'Invalid form'})
-            else:
-                return redirect('scout_app:view_post', post_id=post.id)
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+            if request.headers.get('content-type') == 'application/json' or request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': dict(form.errors.items())
+                })
+            messages.error(request, "Error adding comment. Please try again.")
+            return redirect('scout_app:view_post', post_id=post.id)
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @csrf_exempt
 @require_POST

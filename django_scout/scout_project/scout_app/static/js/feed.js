@@ -2,6 +2,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const feedContainers = document.querySelectorAll('.feed_container');
 
     feedContainers.forEach(feedContainer => {
+        // Expand/collapse comments functionality
+        const expandBtn = feedContainer.querySelector('.expand-comments-btn');
+        const commentsList = feedContainer.querySelector('.feed_container__comments_list');
+        
+        if (expandBtn && commentsList) {
+            expandBtn.addEventListener('click', function() {
+                if (commentsList.style.display === 'none') {
+                    commentsList.style.display = 'block';
+                    this.textContent = 'Collapse';
+                } else {
+                    commentsList.style.display = 'none';
+                    this.textContent = 'Expand';
+                }
+            });
+        }
+
         // like button functionality
         const likeButton = feedContainer.querySelector('.feed_container__interactions_like');
         const likesTotal = feedContainer.querySelector('.feed_container__likestotal p');

@@ -10,9 +10,11 @@
 <body>
     {% include 'navbar.html' %}
  
-    <div class="feed_container">
+    <div class="feed_container_wrapper">
         {% for post in posts %}
-            {% include '_post_content.html' %}
+            <div class="feed_container mb-4">
+                {% include '_post_content.html' %}
+            </div>
         {% endfor %}
     </div>
 
