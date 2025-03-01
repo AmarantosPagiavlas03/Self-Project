@@ -8,15 +8,19 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ('first_name', 'last_name', 'email', 'role', 'password1', 'password2')
 
-def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    self.fields['role'].widget = forms.Select(choices=CustomUser.ROLE_CHOICES)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['role'].widget = forms.Select(choices=CustomUser.ROLE_CHOICES)
 
 
 class PlayerProfileForm(forms.ModelForm):
     class Meta:
         model = PlayerProfile
-        fields = ['first_name', 'last_name', 'position', 'age', 'height', 'weight', 'agility', 'power', 'speed', 'bio', 'video_links', 'looking_for_team']
+        fields = ['first_name', 'last_name', 'position', 'age', 'height', 'weight', 'agility', 'power', 'speed', 'bio', 'video_links', 'looking_for_team', 'user']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = CustomUser.objects.all()
 
 class CommentCreateForm(forms.ModelForm):
     class Meta:

@@ -200,24 +200,26 @@ def edit_profile(request):
         else:
             profile = None
     except PlayerProfile.DoesNotExist:
-        pass
+        profile = None
 
     if request.method == 'POST' and require_POST(request.path):
-        form = PlayerProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
+        user_form = CustomUserCreationForm(request.POST, instance=user)
+        profile_form = PlayerProfileForm(request.POST, instance=profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
             messages.success(request, "Changes saved successfully.")
             return redirect('scout_app:dashboard')
         else:
             messages.error(request, "Error updating profile. Please check the fields.")
-            return render(request, 'edit_profile.html', {'form': form})
+            return render(request, 'edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
     else:
+        user_form = CustomUserCreationForm(instance=user)
         if profile:
-            form = PlayerProfileForm(instance=profile)
-            return render(request, 'edit_profile.html', {'form': form})
+            profile_form = PlayerProfileForm(instance=profile)
+            return render(request, 'edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
         else:
-            return render(request, 'edit_profile.html', {'message': "No profile found."})
-
+            return render(request, 'edit_profile.html', {'user_form': user_form, 'message': "No profile found."})
 
 @login_required
 def statistics(request):

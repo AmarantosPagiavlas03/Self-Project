@@ -1,41 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Profile</title>
-    {% load static %}
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+  <title>Edit Profile</title>
+  {% load static %}
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-          <a class="navbar-brand" href="{% url 'home' %}">Scout Project</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
-                  aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'home' %}">Home</a>
-              </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-    <div class="container mt-5">
-        <h2>Edit Profile</h2>
-        <form method="post" class="needs-validation" novalidate>
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  {% include 'navbar.html' %}
+  <div class="container mt-5">
+    <h2>Edit Profile</h2>
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+      <h4>User Information</h4>
+      <div class="form-group">
+        <label for="id_username">Username</label>
+        {{ user_form.username }}
+      </div>
+      <div class="form-group">
+        <label for="id_email">Email</label>
+        {{ user_form.email }}
+      </div>
+      <hr>
+      <h4>Profile Information</h4>
+      <div class="form-group">
+        <label for="id_first_name">First Name</label>
+        {{ profile_form.first_name }}
+      </div>
+      <div class="form-group">
+        <label for="id_last_name">Last Name</label>
+        {{ profile_form.last_name }}
+      </div>
+      <div class="form-group">
+        <label for="id_position">Position</label>
+        {{ profile_form.position }}
+      </div>
+      <div class="form-group">
+        <label for="id_role">Role</label>
+        {{ profile_form.role }}
+      </div>
+      <div class="form-group">
+        <label for="id_age">Age</label>
+        {{ profile_form.age }}
+      </div>
+      <div class="form-group">
+        <label for="id_height">Height</label>
+        {{ profile_form.height }}
+      </div>
+      <div class="form-group">
+        <label for="id_weight">Weight</label>
+        {{ profile_form.weight }}
+      </div>
+      <div class="form-group">
+        <label for="id_power">Power</label>
+        {{ profile_form.power }}
+      </div>
+      <div class="form-group">
+        <label for="id_speed">Speed</label>
+        {{ profile_form.speed }}
+      </div>
+      <div class="form-group">
+        <label for="id_looking_for_team">Looking for Team</label>
+        {{ profile_form.looking_for_team }}
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    {% if message %}
+      <div class="alert alert-info mt-3">{{ message }}</div>
+    {% endif %}
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
