@@ -13,13 +13,19 @@ class CustomUser(AbstractUser):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Player')
     email = models.EmailField(unique=True)
-
-    # Fix conflicts with Django’s default User model
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+ 
+    username = None
+ 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions", blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
+
+    def __str__(self):
+        return self.email
 
 class PlayerProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
