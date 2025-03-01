@@ -1,3 +1,4 @@
+{% load static %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">Scout Project</a>
@@ -10,13 +11,16 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'home' %}">Home</a>
                 </li>
+                <!-- hide navbar search on search.html -->
+                {% if not request.resolver_match.url_name == 'search' %}
                 <li class="nav-item">
-                    <form class="form-inline my-2 my-lg-0" method="POST" action="{% url 'scout_app:search' %}">
-                        {% csrf_token %}
-                        <input class="form-control mr-sm-2" type="search" name="query" placeholder="Search players..." aria-label="Search">
-                        <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+                    <form class="form-inline my-2 my-lg-0" id="searchForm">
+                        <input class="form-control mr-sm-2" type="search" id="searchInput" name="query" placeholder="Search players..." aria-label="Search">
                     </form>
+                    <div class="dropdown-menu" id="searchResultsDropdown" aria-labelledby="searchInput">
+                    </div>
                 </li>
+                {% endif %}
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                 </li>
@@ -24,3 +28,6 @@
         </div>
     </div>
 </nav>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/search.js' %}"></script>

@@ -9,11 +9,10 @@
 <body>
     {% include 'navbar.html' %}
     <div class="container mt-5">
-        <h2 style="display: none;">Search Players</h2>
-        <form method="POST" action="{% url 'scout_app:search' %}" style="display: none;">
-            {% csrf_token %}
+        <h2>Search Players</h2>
+        <form method="GET" action="{% url 'scout_app:search' %}">
             <div class="form-group">
-                <input type="text" name="query" class="form-control" placeholder="Search by name or position">
+                <input type="text" name="query" class="form-control" placeholder="Search by name or position" value="{{ query }}">
             </div>
             <button type="submit" class="btn btn-primary">Search</button>
         </form>

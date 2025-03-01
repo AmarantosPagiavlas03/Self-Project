@@ -231,29 +231,29 @@ def statistics(request):
     return render(request, "statistics.html", {"statistics": statistics})
 
 
-@login_required
-def search(request):
-    if not request.user.is_authenticated:
-        return redirect('scout_app:login')
+# @login_required
+# def search(request):
+#     if not request.user.is_authenticated:
+#         return redirect('scout_app:login')
     
-    query = ''
-    players = None
+#     query = ''
+#     players = None
     
-    if request.method == 'POST':
-        query = request.POST.get('query', '')
-        players = PlayerProfile.objects.filter(
-            Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
-        ) if query else None
+#     if request.method == 'POST':
+#         query = request.POST.get('query', '')
+#         players = PlayerProfile.objects.filter(
+#             Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
+#         ) if query else None
 
-        if players and players.count() == 1:
-            player = players.first()
-            return redirect('scout_app:player_dashboard', player_id=player.id)
+#         if players and players.count() == 1:
+#             player = players.first()
+#             return redirect('scout_app:player_dashboard', player_id=player.id)
 
-    context = {
-        'query': query,
-        'players': players
-    }
-    return render(request, 'search.html', context)
+#     context = {
+#         'query': query,
+#         'players': players
+#     }
+#     return render(request, 'search.html', context)
 
 @login_required
 def view_post(request, post_id):
@@ -305,6 +305,40 @@ def add_comment(request, post_id):
             return redirect('scout_app:view_post', post_id=post.id)
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+# dropdown search function
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.db.models import Q
+from .models import PlayerProfile
+
+@login_required
+def search(request):
+    query = request.GET.get('query', '')
+    players = PlayerProfile.objects.filter(
+        Q(first_name__icontains=query) | Q(last_name__icontains=query) | Q(position__icontains=query)
+    )
+
+    # Check if the request is for JSON (dropdown)
+    if request.headers.get('Accept') == 'application/json':
+        players = players[:3]  # Limit to 3 results for dropdown
+        players_data = [
+            {
+                'id': player.id,
+                'first_name': player.first_name,
+                'last_name': player.last_name,
+                'position': player.position
+            }
+            for player in players
+        ]
+        return JsonResponse({'players': players_data})
+
+    # Render the full search page
+    context = {
+        'query': query,
+        'players': players
+    }
+    return render(request, 'search.html', context)
 
 @csrf_exempt
 @require_POST
