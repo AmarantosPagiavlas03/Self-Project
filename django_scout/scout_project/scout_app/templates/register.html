@@ -45,12 +45,18 @@
                 <div class="form-group">
                     <label for="id_email">Email</label>
                     <input type="email" name="email" id="id_email" 
-                           class="form-control" 
+                           class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
                            placeholder="Enter your email" 
                            required>
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback" style="display: block;">
+                        {{ form.email.errors|join:", " }}
+                    </div>
+                    {% else %}
                     <div class="invalid-feedback" id="email_error" style="display: none;">
                         Please enter a valid email address.
                     </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group">

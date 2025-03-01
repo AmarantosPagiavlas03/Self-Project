@@ -12,6 +12,12 @@ class CustomUserCreationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['role'].widget = forms.Select(choices=CustomUser.ROLE_CHOICES)
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("A user with this email already exists. Please use a different email address.")
+        return email
+
 
 class PlayerProfileForm(forms.ModelForm):
     class Meta:
