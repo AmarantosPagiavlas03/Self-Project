@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const feedContainers = document.querySelectorAll('.feed_container');
 
     feedContainers.forEach(feedContainer => {
+        // like button functionality
         const likeButton = feedContainer.querySelector('.feed_container__interactions_like');
         const likesTotal = feedContainer.querySelector('.feed_container__likestotal p');
 
@@ -38,19 +39,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // copy link functionality
         const shareButton = feedContainer.querySelector('.feed_container__interactions_share');
         if (shareButton) {
-            const copiedMessage = document.createElement('span');
-            copiedMessage.className = 'copied-message';
-            copiedMessage.textContent = 'Link copied!';
-            copiedMessage.style.display = 'none';
-            document.body.appendChild(copiedMessage);
+            const copiedMessage = shareButton.querySelector('.copied-message');
 
             shareButton.addEventListener('click', function() {
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    copiedMessage.style.display = 'block';
-                    setTimeout(() => {
-                        copiedMessage.style.display = 'none';
-                    }, 2000); 
-                });
+                const postLink = feedContainer.querySelector('.feed_container__image a');
+
+                if (postLink) {
+                    // extract post url 
+                    const postUrl = postLink.getAttribute('href');
+                    const fullPostUrl = `${window.location.origin}${postUrl}`; // construct full url
+
+                    // copy to clipboard
+                    navigator.clipboard.writeText(fullPostUrl).then(() => {
+                        copiedMessage.style.display = 'block';
+                        setTimeout(() => {
+                            copiedMessage.style.display = 'none';
+                        }, 2000); // hide after 2s
+                    });
+                }
             });
         }
 
