@@ -17,59 +17,82 @@
                 <h1 class="h3 mt-3 font-weight-normal">Create Your Account</h1>
             </div>
 
-            <form method="post" class="needs-validation" novalidate style="max-width: 500px; margin: auto;">
+            <form method="post" class="needs-validation" novalidate style="max-width: 500px; margin: auto;" id="register-form">
                 {% csrf_token %}
                 
                 <div class="form-group">
                     <label for="id_first_name">First Name</label>
                     <input type="text" name="first_name" id="id_first_name" 
-                           class="form-control" placeholder="Enter your first name" 
+                           class="form-control" 
+                           placeholder="Enter your first name" 
                            required autofocus>
+                    <div class="invalid-feedback" id="first_name_error" style="display: none;">
+                        Please enter your first name.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="id_last_name">Last Name</label>
                     <input type="text" name="last_name" id="id_last_name" 
-                           class="form-control" placeholder="Enter your last name" 
+                           class="form-control" 
+                           placeholder="Enter your last name" 
                            required>
+                    <div class="invalid-feedback" id="last_name_error" style="display: none;">
+                        Please enter your last name.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="id_email">Email</label>
                     <input type="email" name="email" id="id_email" 
-                           class="form-control" placeholder="Enter your email" 
+                           class="form-control" 
+                           placeholder="Enter your email" 
                            required>
+                    <div class="invalid-feedback" id="email_error" style="display: none;">
+                        Please enter a valid email address.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="id_role">Role</label>
-                      <select name="role" id="id_role" class="form-control" required>
-                        <option value="" selected disabled>Role</option>
-                          {% for value, label in form.role.field.choices %}
+                    <select name="role" id="id_role" 
+                            class="form-control" 
+                            required>
+                        <option value="" selected disabled>Select your role</option>
+                        {% for value, label in form.role.field.choices %}
                             <option value="{{ value }}">{{ label }}</option>
-                            {% endfor %}
-                      </select>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback" id="role_error" style="display: none;">
+                        Please select a role.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="id_password1">Password</label>
                     <input type="password" name="password1" id="id_password1" 
-                           class="form-control" placeholder="Enter your password" required>
+                           class="form-control" 
+                           placeholder="Enter your password" 
+                           required>
+                    <div class="invalid-feedback" id="password1_error" style="display: none;">
+                        Please enter a password.
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="id_password2">Confirm Password</label>
                     <input type="password" name="password2" id="id_password2" 
-                           class="form-control" placeholder="Confirm your password" required>
+                           class="form-control" 
+                           placeholder="Confirm your password" 
+                           required>
+                    <div class="invalid-feedback" id="password2_error" style="display: none;">
+                        Passwords do not match.
+                    </div>
                 </div>
 
-                {% if messages %}
-                {% for message in messages %}
-                  <div class="alert alert-danger" role="alert">
-                    {{ message }}
-                  </div>
-                {% endfor %}
-                {% endif %}
+                <div class="alert alert-danger" role="alert" id="non_field_errors" style="display: none;">
+                    <!-- Non-field errors will be displayed here -->
+                </div>
 
                 <button type="submit" class="btn btn-primary btn-block btn-lg">
                     <i class="fa fa-user-plus"></i> Register
@@ -84,9 +107,9 @@
         </div>
     </main>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/register.js' %}"></script>
 </body>
 </html>
