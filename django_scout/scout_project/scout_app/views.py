@@ -17,6 +17,14 @@ import json
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
  
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from .models import Post
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 def home(request):
     if not request.user.is_authenticated:
@@ -240,3 +248,34 @@ def view_post(request, post_id):
         'post': post
     }
     return render(request, 'view_post.html', context)
+
+
+@csrf_exempt
+@require_POST
+def like_post(request, post_id):
+    try:
+        logger.info(f"Received like request for post id: {post_id}")
+        post = get_object_or_404(Post, id=post_id)
+        data = json.loads(request.body)
+        liked = data.get('liked', False)
+        
+        logger.info(f"Post found: {post_id}, liked: {liked}")
+        
+        if liked:
+            post.likes.add(request.user)
+            post.likes_count += 1
+        else:
+            post.likes.remove(request.user)
+            post.likes_count -= 1
+        
+        post.save()
+        
+        logger.info(f"Post {post_id} updated successfully. New likes count: {post.likes_count}")
+        
+        return JsonResponse({'success': True, 'likes_count': post.likes_count})
+    except Post.DoesNotExist:
+        logger.error(f"Post with id {post_id} does not exist.")
+        return JsonResponse({'success': False, 'error': 'Post not found'}, status=404)
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

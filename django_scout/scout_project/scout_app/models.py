@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
+from django.conf import settings
 
 # Custom User Model
 class CustomUser(AbstractUser):
@@ -74,12 +76,13 @@ class ChatMessage(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class Post(models.Model):
-    author = models.ForeignKey(CustomUser, related_name='posts', on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='posts', on_delete=models.CASCADE)
     comment_count = models.IntegerField(default=0)
-    like_count = models.IntegerField(default=0)
+    likes_count = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='post_photos/', blank=True, null=True)
     description = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_posts', blank=True)
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
