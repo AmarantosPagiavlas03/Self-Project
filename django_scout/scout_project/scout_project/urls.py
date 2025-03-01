@@ -15,6 +15,7 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('statistics/', views.statistics, name='statistics'),
     path('like-post/<int:post_id>/', views.like_post, name='like_post'),  # Moved here
+   
 ]
 
 

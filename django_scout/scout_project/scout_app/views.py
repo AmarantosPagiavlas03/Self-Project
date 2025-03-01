@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render
 from .models import PlayerProfile, TeamProfile, Post,Comment
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, PlayerProfileForm, CommentCreateForm
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from .models import PlayerProfile
@@ -31,8 +31,10 @@ def home(request):
         return redirect('scout_app:login')
     
     posts = Post.objects.all().order_by('-timestamp')
+    commentcreateform = CommentCreateForm()
     context = {
-        'posts': posts
+        'posts': posts,
+        'commentcreateform': commentcreateform
     }
     return render(request, 'home.html', context)
 
@@ -244,11 +246,41 @@ def search(request):
 @login_required
 def view_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+    commentcreateform = CommentCreateForm()
     context = {
-        'post': post
+        'post': post,
+        'commentcreateform': commentcreateform
     }
     return render(request, 'view_post.html', context)
 
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentCreateForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.parent_post = post
+            comment.author = request.user
+            comment.save()
+            post.comment_count += 1
+            post.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'comment': comment.content,
+                    'author': comment.author.username,
+                    'timestamp': comment.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    'comment_count': post.comment_count
+                })
+            else:
+                return redirect('scout_app:view_post', post_id=post.id)
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': 'Invalid form'})
+            else:
+                return redirect('scout_app:view_post', post_id=post.id)
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 @csrf_exempt
 @require_POST

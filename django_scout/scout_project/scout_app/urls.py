@@ -17,5 +17,6 @@ urlpatterns = [
     path('player_dashboard/<int:player_id>/', views.view_player_dashboard, name='player_dashboard'),
     path('post/<int:post_id>/', views.view_post, name='view_post'),
     path('like-post/<int:post_id>/', views.like_post, name='like_post'),
+    path('post/<int:post_id>/comment/', views.add_comment, name='add_comment'),
 ]
 

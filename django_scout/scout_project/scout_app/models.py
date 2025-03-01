@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django.conf import settings
-
+import uuid
 # Custom User Model
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
@@ -85,8 +85,14 @@ class Post(models.Model):
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_posts', blank=True)
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+    # id = models.CharField(max_length=100, default = uuid.uuid4,unique=True , editable = False, primary_key=True)
+    parent_post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
     author = models.ForeignKey(CustomUser, related_name='comments', on_delete=models.CASCADE)
-    content = models.TextField()
+    content = models.CharField(max_length=200)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        try:
+            return f'{self.author.username} : {self.content[:30]}'
+        except:
+            return f'No Author : {self.content[:30]}'
