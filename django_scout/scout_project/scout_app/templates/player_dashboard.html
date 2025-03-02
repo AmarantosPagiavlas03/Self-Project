@@ -8,13 +8,13 @@
 </head>
 <body>
     {% include 'navbar.html' %}
-    <div class="card_container">
+    <div class="dashboard_card__container">
  
-            <div class="card_container__wrapper"> 
+            <div class="dashboard_card_container__wrapper"> 
                 <!-- Profile Card -->
-                <div class="card_container__row">
-                    <div class="card_container__column">
-                        <div class="card_dashboard card_dashboard__main_card">
+                <div class="dashboard_card_container__row">
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card dashboard_card__main_card">
                             <div class="card-body text-center p-4">
                                 <h2>Player Profile</h2>
                                 <p>Welcome Player, {{ profile.first_name }} {{ profile.last_name }}</p>
@@ -28,12 +28,12 @@
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="card_container__row">
+                <div class="dashboard_card_container__row">
                     <!-- Performance Card -->
-                    <div class="card_container__column">
-                        <div class="card_dashboard">
-                            <div class="card_dashboard__only">
-                                <h5 class="card-title">Performance</h5>
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card">
+                            <div class="dashboard_card__card_content">
+                                <h5 class="card_dashboard__title">Performance</h5>
                                 <p>Check your stats and progress</p>
                                 <a href="{% url 'statistics' %}" class="btn btn-primary">View Stats</a>
                             </div>
@@ -41,10 +41,10 @@
                     </div>
 
                     <!-- Match History Card -->
-                    <div class="card_container__column">
-                        <div class="card_dashboard">
-                            <div class="card_dashboard__only">
-                                <h5 class="card-title">Recent Matches</h5>
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card">
+                            <div class="dashboard_card__card_content">
+                                <h5 class="card_dashboard__title">Recent Matches</h5>
                                 <p>Review your last matches</p>
                                 <a href="#" class="btn btn-primary">View History</a>
                             </div>
@@ -53,12 +53,12 @@
                 </div>
 
                 <!-- Upcoming Events and News Cards -->
-                <div class="card_container__row"> 
+                <div class="dashboard_card_container__row"> 
                     <!-- Training Card -->
-                    <div class="card_container__column">
-                        <div class="card_dashboard">
-                            <div class="card_dashboard__only">
-                                <h5 class="card-title">Upcoming Events</h5>
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card">
+                            <div class="dashboard_card__card_content">
+                                <h5 class="card_dashboard__title">Upcoming Events</h5>
                                 <p>Trainings and fixtures</p>
                                 <a href="#" class="btn btn-primary">View Schedule</a>
                             </div>
@@ -66,10 +66,10 @@
                     </div>
 
                     <!-- News Card -->
-                    <div class="card_container__column">
-                        <div class="card_dashboard">
-                            <div class="card_dashboard__only">
-                                <h5 class="card-title">Latest News</h5>
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card">
+                            <div class="dashboard_card__card_content">
+                                <h5 class="card_dashboard__title">Latest News</h5>
                                 <p>Stay updated with team news</p>
                                 <a href="#" class="btn btn-primary">Read More</a>
                             </div>
@@ -78,19 +78,19 @@
                 </div>
 
                 <!-- Performance Overview and Statistics Barplot Cards -->
-                <div class="card_container__row"> 
-                    <div class="card_container__column">
-                        <div class="card_dashboard">
-                            <div class="card_dashboard__chart_container"> 
-                                <h5 class="card-title">Performance Overview</h5>
+                <div class="dashboard_card_container__row"> 
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card">
+                            <div class="dashboard_card__card__chart_container"> 
+                                <h5 class="card_dashboard__title">Performance Overview</h5>
                                 <canvas id="performanceChart" width="300" height="300"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="card_container__column">
-                        <div class="card_dashboard">
-                            <div class="card_dashboard__chart_container"> 
-                                <h5 class="card-title">Statistics Barplot</h5>
+                    <div class="dashboard_card_container__column">
+                        <div class="dashboard_card__card">
+                            <div class="dashboard_card__card__chart_container"> 
+                                <h5 class="card_dashboard__title">Statistics Barplot</h5>
                                 <canvas id="performanceBarPlot" width="300" height="300"></canvas>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
             const data = JSON.parse('{{ performance_data.data|escapejs }}');
     
             if (data.length === 0) {
-                document.querySelector('.chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
+                document.querySelector('.chartContainer').innerHTML = '<h5 class="card_dashboard__title">Performance Overview</h5><p>No data available</p>';
             } else {
                 const ctx = document.getElementById('performanceChart').getContext('2d');
                 new Chart(ctx, {
@@ -155,7 +155,7 @@
             const bar_plot_data = JSON.parse('{{ bar_plot_data.data|escapejs }}');
     
             if (bar_plot_data.length === 0) {
-                document.querySelector('.chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
+                document.querySelector('.chartContainer').innerHTML = '<h5 class="card_dashboard__title">Performance Overview</h5><p>No data available</p>';
             } else {
                 const barCtx = document.getElementById('performanceBarPlot').getContext('2d');
                 new Chart(barCtx, {

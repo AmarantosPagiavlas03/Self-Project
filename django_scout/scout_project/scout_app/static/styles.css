@@ -535,7 +535,7 @@ body {
 }
 
 /* ------------------- Player DashBoard Styles  ----------------*/
-.card_container {
+.dashboard_card__container {
     margin-top: 3rem !important;
     display: flex;
     flex-wrap: wrap;
@@ -543,7 +543,7 @@ body {
     gap: 20px;
 }
 
-.card_container__wrapper {
+.dashboard_card_container__wrapper {
     max-width: 960px;
     display: flex;
     flex-wrap: wrap;
@@ -552,24 +552,20 @@ body {
     display: grid;
 }
 
-.card_container__column {
+.dashboard_card_container__column {
     width: 100%; /* Equivalent to col-md-8 */
     padding-right: 15px;
     padding-left: 15px;
 }
 
-.card_container__row {
+.dashboard_card_container__row {
     display: flex;
     min-width: 600px;
     justify-content: center;
 }
 
-.card_dashboard__main_card {
-    min-width: max-content;
-}
 
-
-.card_dashboard {
+.dashboard_card__card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -579,7 +575,11 @@ body {
     background-color: #ffffff;
 }
 
-.card_dashboard__only{
+.dashboard_card__main_card {
+    min-width: max-content;
+}
+
+.dashboard_card__card_content{
     display: contents;
 }
 
@@ -588,41 +588,4 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.card_dashboard__button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 20px;
-    border-radius: 8px;
-    background-color: var(--primary-color);
-    color: #ffffff;
-    margin-bottom: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.card_dashboard__button:hover {
-    background-color: var(--secondary-color);
-}
-
-.card_dashboard__button_text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 20px;
-    border-radius: 8px;
-    color: #ffffff;
-    margin-bottom: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.card_dashboard__button_text:hover {
-    background-color: var(--secondary-color);
-}
-
-.card_dashboard__chart_container {
-    width: 100%;
-    max-width: 500px; /* Adjust as needed */
-    margin: 0 auto;
-}
+ 
