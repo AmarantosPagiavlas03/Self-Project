@@ -8,26 +8,30 @@
 </head>
 <body>
     {% include 'navbar.html' %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+    <div class="card_container">
+ 
+            <div class="card_container__wrapper"> 
                 <!-- Profile Card -->
-                <div class="card mb-4 bg-info text-white shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <h2>Player Profile</h2>
-                        <p>Welcome Player, {{ profile.first_name }} {{ profile.last_name }}</p>
-                        {% if profile.user == request.user %}
-                            <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-                        {% endif %}
-                        <a href="{% url 'view_profile' %}" class="btn btn-primary">View Full Profile</a>
+                <div class="card_container__row">
+                    <div class="card_container__column">
+                        <div class="card_dashboard card_dashboard__main_card">
+                            <div class="card-body text-center p-4">
+                                <h2>Player Profile</h2>
+                                <p>Welcome Player, {{ profile.first_name }} {{ profile.last_name }}</p>
+                                {% if profile.user == request.user %}
+                                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                                {% endif %}
+                                <a href="{% url 'view_profile' %}" class="btn btn-primary">View Full Profile</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stats Cards -->
-                <div class="row g-4 mb-4 mt-4">
+                <div class="card_container__row">
                     <!-- Performance Card -->
-                    <div class="col-md-6">
-                        <div class="card bg-success text-white shadow-lg">
+                    <div class="card_container__column">
+                        <div class="card_dashboard">
                             <div class="card-body p-4">
                                 <h5 class="card-title">Performance</h5>
                                 <p>Check your stats and progress</p>
@@ -37,8 +41,8 @@
                     </div>
 
                     <!-- Match History Card -->
-                    <div class="col-md-6">
-                        <div class="card bg-warning text-white shadow-lg">
+                    <div class="card_container__column">
+                        <div class="card_dashboard">
                             <div class="card-body p-4">
                                 <h5 class="card-title">Recent Matches</h5>
                                 <p>Review your last matches</p>
@@ -47,10 +51,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="row g-4 mt-4"> 
+
+                <!-- Upcoming Events and News Cards -->
+                <div class="card_container__row"> 
                     <!-- Training Card -->
-                    <div class="col-md-6">
-                        <div class="card bg-info text-white shadow-lg">
+                    <div class="card_container__column">
+                        <div class="card_dashboard">
                             <div class="card-body p-4">
                                 <h5 class="card-title">Upcoming Events</h5>
                                 <p>Trainings and fixtures</p>
@@ -60,8 +66,8 @@
                     </div>
 
                     <!-- News Card -->
-                    <div class="col-md-6">
-                        <div class="card bg-danger text-white shadow-lg">
+                    <div class="card_container__column">
+                        <div class="card_dashboard">
                             <div class="card-body p-4">
                                 <h5 class="card-title">Latest News</h5>
                                 <p>Stay updated with team news</p>
@@ -70,18 +76,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="row g-4 mt-4"> 
-                    <div class="col-md-6">
-                        <div class="card bg-light shadow-lg">
-                            <div class="card-body p-4" id="chartContainer"> 
+
+                <!-- Performance Overview and Statistics Barplot Cards -->
+                <div class="card_container__row"> 
+                    <div class="card_container__column">
+                        <div class="card_dashboard">
+                            <div class="card-body p-4 chartContainer"> 
                                 <h5 class="card-title">Performance Overview</h5>
                                 <canvas id="performanceChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card bg-light shadow-lg">
-                            <div class="card-body p-4" id="chartContainer"> 
+                    <div class="card_container__column">
+                        <div class="card_dashboard">
+                            <div class="card-body p-4 chartContainer"> 
                                 <h5 class="card-title">Statistics Barplot</h5>
                                 <canvas id="performanceBarPlot"></canvas>
                             </div>
@@ -89,7 +97,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+ 
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -101,7 +109,7 @@
         // Check if there's any data.
         if (data.length === 0) {
             // If no data, replace the chart container's contents.
-            document.getElementById('chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
+            document.querySelector('.chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
         } else {
             // Get the canvas context and create a radar chart.
             const ctx = document.getElementById('performanceChart').getContext('2d');
@@ -146,7 +154,7 @@
         const bar_plot_data = JSON.parse('{{ bar_plot_data.data|escapejs }}');
         if (data.length === 0) {
             // If no data, replace the chart container's contents.
-            document.getElementById('chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
+            document.querySelector('.chartContainer').innerHTML = '<h5 class="card-title">Performance Overview</h5><p>No data available</p>';
         } else {
         // Bar Plot - Performance Statistics
         const barCtx = document.getElementById('performanceBarPlot').getContext('2d');

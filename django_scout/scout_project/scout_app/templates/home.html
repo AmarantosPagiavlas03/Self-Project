@@ -25,9 +25,11 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group">
+                        <label for="id_photo">Photo</label>
                         {{ post_form.photo }}
                     </div>
                     <div class="form-group">
+                        <label for="id_description">Description</label>
                         {{ post_form.description }}
                     </div>
                     <button type="submit" class="btn btn-primary">Post</button>

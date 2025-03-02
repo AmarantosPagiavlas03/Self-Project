@@ -398,13 +398,12 @@ body {
     color: #b3dbf7;
     cursor: default;
 }
-
-/* Remove any remaining default form styles */
+ 
 .comment-form input:focus {
     outline: none;
 }
 
-/* Post Creation Form Styles */
+ 
 .card {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -533,4 +532,93 @@ body {
     .dropdown-item {
         padding: 12px 16px;
     }
+}
+
+/* ------------------- Player DashBoard Styles  ----------------*/
+.card_container {
+    margin-top: 3rem !important;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.card_container__wrapper {
+    max-width: 960px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    display: grid;
+}
+
+.card_container__column {
+    width: 100%; /* Equivalent to col-md-8 */
+    padding-right: 15px;
+    padding-left: 15px;
+    max-height: 230px;
+}
+
+.card_container__row {
+    display: flex;
+    min-width: 600px;
+    justify-content: center;
+}
+
+.card_dashboard__main_card {
+    min-width: max-content;
+}
+
+
+.card_dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    max-height: 220px;
+}
+
+.card_dashboard__title {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.card_dashboard__button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.card_dashboard__button:hover {
+    background-color: var(--secondary-color);
+}
+
+.card_dashboard__button_text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: #ffffff;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.card_dashboard__button_text:hover {
+    background-color: var(--secondary-color);
+}
+
+.chartContainer {
+    width: 100%;
 }
