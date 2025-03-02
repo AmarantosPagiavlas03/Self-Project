@@ -556,7 +556,6 @@ body {
     width: 100%; /* Equivalent to col-md-8 */
     padding-right: 15px;
     padding-left: 15px;
-    max-height: 230px;
 }
 
 .card_container__row {
@@ -578,7 +577,10 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #ffffff;
-    max-height: 220px;
+}
+
+.card_dashboard__only{
+    display: contents;
 }
 
 .card_dashboard__title {
@@ -619,6 +621,8 @@ body {
     background-color: var(--secondary-color);
 }
 
-.chartContainer {
+.card_dashboard__chart_container {
     width: 100%;
+    max-width: 500px; /* Adjust as needed */
+    margin: 0 auto;
 }
