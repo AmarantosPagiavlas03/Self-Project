@@ -4,9 +4,10 @@ from .models import *
 # Register CustomUser model with custom admin settings
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'role')
+    list_display = ('email', 'first_name', 'last_name', 'role')
     list_filter = ('role',)
-    search_fields = ('username', 'email')
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering = ('email',)
 
 # Register other models
 admin.site.register(PlayerProfile)

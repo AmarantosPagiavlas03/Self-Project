@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render
 from .models import PlayerProfile, TeamProfile, Post,Comment
-from .forms import CustomUserCreationForm, PlayerProfileForm, CommentCreateForm, PostForm
+from .forms import *
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from .models import PlayerProfile
@@ -50,26 +50,6 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-def register(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # Attempt to find an existing profile to assign to this user
-            first_name = form.cleaned_data.get('first_name')
-            last_name = form.cleaned_data.get('last_name')
-            try:
-                profile = PlayerProfile.objects.get(first_name=first_name, last_name=last_name, user__isnull=True)
-                profile.user = user
-                profile.save()
-            except PlayerProfile.DoesNotExist:
-                pass
-            login(request, user)
-            return redirect('scout_app:dashboard')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'register.html', {'form': form})
-
 class CustomLoginView(LoginView):
     template_name = "login.html"
     def form_valid(self, form):
@@ -86,6 +66,40 @@ class CustomLoginView(LoginView):
     def form_invalid(self, form):
         messages.error(self.request, "Incorrect username or password. Please try again.")
         return self.render_to_response(self.get_context_data(form=form))
+
+def register(request):
+    logger.debug("Entering register view")
+    if request.method == 'POST':
+        logger.debug("Received POST request")
+        logger.debug(f"POST data: {request.POST}")
+        form = CustomUserCreationForm(request.POST)
+        logger.debug(f"Form errors: {form.errors}")
+        if form.is_valid():
+            logger.debug("Form is valid")
+            user = form.save()
+            logger.debug(f"User created: {user}")
+            # Create a PlayerProfile for the user if they are registering as a Player
+            if user.role == 'Player':
+                player_profile = PlayerProfile.objects.create(
+                    user=user,
+                    first_name=form.cleaned_data.get('first_name'),
+                    last_name=form.cleaned_data.get('last_name')
+                )
+                logger.debug(f"PlayerProfile created: {player_profile}")
+            login(request, user)
+            messages.success(request, 'Registration successful!')
+            logger.debug("User logged in and redirected to login page")
+            return redirect('scout_app:login')
+        else:
+            logger.debug("Form is invalid")
+            logger.debug(f"Form errors: {form.errors}")
+            messages.error(request, f'Please correct the errors below.{form.errors}')
+    else:
+        form = CustomUserCreationForm()
+        logger.debug("GET request received, rendering registration form")
+    return render(request, 'register.html', {'form': form})
+
+
 
 @login_required
 def logout_view(request):
@@ -123,6 +137,11 @@ def view_profile(request):
         profile = PlayerProfile.objects.get(user=user)
     except PlayerProfile.DoesNotExist:
         profile = None
+
+    context = {
+        'profile': profile
+    }
+    return render(request, 'view_profile.html', context)
 
 @login_required
 def view_player_profile(request, player_id):
@@ -174,10 +193,10 @@ def view_player_dashboard(request, player_id):
 
     # Normalize to percentage values:
     normalized_data = [
-        (profile_data['agility'] / max_values['agility']) * 100 if max_values['agility'] else 0,
-        (profile_data['power'] / max_values['power']) * 100 if max_values['power'] else 0,
-        (profile_data['speed'] / max_values['speed']) * 100 if max_values['speed'] else 0,
-        (profile_data['strategy'] / max_values['strategy']) * 100 if max_values['strategy'] else 0,
+        (profile_data['agility'] / max_values['agility']) * 100 if profile_data['agility'] is not None and max_values['agility'] else 0,
+        (profile_data['power'] / max_values['power']) * 100 if profile_data['power'] is not None and max_values['power'] else 0,
+        (profile_data['speed'] / max_values['speed']) * 100 if profile_data['speed'] is not None and max_values['speed'] else 0,
+        (profile_data['strategy'] / max_values['strategy']) * 100 if profile_data['strategy'] is not None and max_values['strategy'] else 0,
     ]
 
     context["performance_data"] = {
@@ -202,24 +221,28 @@ def edit_profile(request):
     except PlayerProfile.DoesNotExist:
         profile = None
 
-    if request.method == 'POST' and require_POST(request.path):
-        user_form = CustomUserCreationForm(request.POST, instance=user)
-        profile_form = PlayerProfileForm(request.POST, instance=profile)
-        if user_form.is_valid() and profile_form.is_valid():
+    if request.method == 'POST':
+        user_form = CustomUserEditForm(request.POST, instance=user)
+        profile_form = PlayerProfileEditForm(request.POST, instance=profile)
+        if user_form.is_valid() and (profile_form is None or profile_form.is_valid()):
             user_form.save()
-            profile_form.save()
-            messages.success(request, "Changes saved successfully.")
-            return redirect('scout_app:dashboard')
+            if profile_form:
+                profile = profile_form.save(commit=False)
+                profile.age = profile_form.cleaned_data.get('age', profile.age)
+                profile.height = profile_form.cleaned_data.get('height', profile.height)
+                profile.weight = profile_form.cleaned_data.get('weight', profile.weight)
+                profile.agility = profile_form.cleaned_data.get('agility', profile.agility)
+                profile.power = profile_form.cleaned_data.get('power', profile.power)
+                profile.speed = profile_form.cleaned_data.get('speed', profile.speed)
+                profile.bio = profile_form.cleaned_data.get('bio', profile.bio)
+                profile.video_links = profile_form.cleaned_data.get('video_links', profile.video_links)
+                profile.looking_for_team = profile_form.cleaned_data.get('looking_for_team', profile.looking_for_team)
+                profile.save()
+                messages.success(request, "Changes saved successfully.")
+                return redirect('scout_app:dashboard')
         else:
-            messages.error(request, "Error updating profile. Please check the fields.")
-            return render(request, 'edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
-    else:
-        user_form = CustomUserCreationForm(instance=user)
-        if profile:
-            profile_form = PlayerProfileForm(instance=profile)
-            return render(request, 'edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
-        else:
-            return render(request, 'edit_profile.html', {'user_form': user_form, 'message': "No profile found."})
+            messages.error(request, f"Error updating profile. Please check the fields.{user_form.errors}")
+    return render(request, 'edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
 
 @login_required
 def statistics(request):

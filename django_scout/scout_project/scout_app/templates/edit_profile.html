@@ -8,60 +8,91 @@
 </head>
 <body>
   {% include 'navbar.html' %}
+  {% if messages %}
+  <div class="alert alert-danger" role="alert">
+      {% for message in messages %}
+          {{ message }}
+      {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if form.non_field_errors %}
+  <div class="alert alert-danger" role="alert">
+      {% for error in form.non_field_errors %}
+          {{ error }}
+      {% endfor %}
+  </div>
+  {% endif %}
   <div class="container mt-5">
     <h2>Edit Profile</h2>
     <form method="post" class="needs-validation" novalidate>
       {% csrf_token %}
       <h4>User Information</h4>
       <div class="form-group">
-        <label for="id_username">Username</label>
-        {{ user_form.username }}
+      <label for="id_username">Username</label>
+      {{ user_form.username }}
       </div>
       <div class="form-group">
-        <label for="id_email">Email</label>
-        {{ user_form.email }}
+      <label for="id_email">Email</label>
+      {{ user_form.email }}
       </div>
       <hr>
       <h4>Profile Information</h4>
       <div class="form-group">
-        <label for="id_first_name">First Name</label>
-        {{ profile_form.first_name }}
+      <label for="id_first_name">First Name</label>
+      {{ profile_form.first_name }}
       </div>
       <div class="form-group">
-        <label for="id_last_name">Last Name</label>
-        {{ profile_form.last_name }}
+      <label for="id_last_name">Last Name</label>
+      {{ profile_form.last_name }}
       </div>
       <div class="form-group">
-        <label for="id_position">Position</label>
-        {{ profile_form.position }}
+      <label for="id_position">Position</label>
+      {{ profile_form.position }}
       </div>
       <div class="form-group">
-        <label for="id_role">Role</label>
-        {{ profile_form.role }}
+      <label for="id_role">Role</label>
+      {{ user_form.role }}
       </div>
       <div class="form-group">
-        <label for="id_age">Age</label>
-        {{ profile_form.age }}
+      <label for="id_age">Age</label>
+      {{ profile_form.age }}
       </div>
       <div class="form-group">
-        <label for="id_height">Height</label>
-        {{ profile_form.height }}
+      <label for="id_height">Height</label>
+      {{ profile_form.height }}
       </div>
       <div class="form-group">
-        <label for="id_weight">Weight</label>
-        {{ profile_form.weight }}
+      <label for="id_weight">Weight</label>
+      {{ profile_form.weight }}
       </div>
       <div class="form-group">
-        <label for="id_power">Power</label>
-        {{ profile_form.power }}
+      <label for="id_agility">Agility</label>
+      {{ profile_form.agility }}
       </div>
       <div class="form-group">
-        <label for="id_speed">Speed</label>
-        {{ profile_form.speed }}
+      <label for="id_power">Power</label>
+      {{ profile_form.power }}
       </div>
       <div class="form-group">
-        <label for="id_looking_for_team">Looking for Team</label>
-        {{ profile_form.looking_for_team }}
+      <label for="id_speed">Speed</label>
+      {{ profile_form.speed }}
+      </div>
+      <div class="form-group">
+      <label for="id_speed">Strategy</label>
+      {{ profile_form.strategy }}
+      </div>
+      <div class="form-group">
+      <label for="id_bio">Bio</label>
+      {{ profile_form.bio }}
+      </div>
+      <div class="form-group">
+      <label for="id_video_links">Video Links</label>
+      {{ profile_form.video_links }}
+      </div>
+      <div class="form-group">
+      <label for="id_looking_for_team">Looking for Team</label>
+      {{ profile_form.looking_for_team }}
       </div>
       <button type="submit" class="btn btn-primary">Save</button>
     </form>

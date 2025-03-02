@@ -27,6 +27,12 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
 
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def get_short_name(self):
+        return self.first_name
+
 class PlayerProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     first_name = models.CharField(max_length=50)
