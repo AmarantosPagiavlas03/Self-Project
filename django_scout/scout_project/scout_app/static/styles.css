@@ -553,6 +553,7 @@
   .dashboard_card_container__wrapper {
     gap: 20px;
     min-height: 1200px;
+    min-width: 710px;
   }
   
   .dashboard_card_container__column {
