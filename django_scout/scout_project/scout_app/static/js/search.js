@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.players.forEach(player => {
                         const resultItem = document.createElement('a');
                         resultItem.className = 'dropdown-item';
-                        resultItem.href = `/view_player_profile/${player.id}/`;
+                        resultItem.href = `/scout_app/player_dashboard/${player.id}/`;
                         resultItem.textContent = `${player.first_name} ${player.last_name} - ${player.position}`;
                         searchResultsDropdown.appendChild(resultItem);
                     });
