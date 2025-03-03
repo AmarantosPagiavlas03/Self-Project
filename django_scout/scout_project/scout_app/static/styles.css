@@ -580,6 +580,10 @@ body {
 .card_dashboard__title {
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 /* Info Icon and Tooltip Styles */
@@ -587,15 +591,16 @@ body {
     position: relative;
     display: inline-flex;
     align-items: center;
-    margin-left: 8px;
     cursor: help;
+    height: 20px;
 }
 
 .info-icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     color: #8e8e8e;
     transition: color 0.2s ease;
+    flex-shrink: 0;
 }
 
 .info-icon:hover {
@@ -605,7 +610,7 @@ body {
 .info-tooltip {
     visibility: hidden;
     position: absolute;
-    bottom: 100%;
+    bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(0, 0, 0, 0.8);
@@ -618,6 +623,7 @@ body {
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
 }
 
 .info-tooltip::after {
@@ -636,4 +642,3 @@ body {
     opacity: 1;
 }
 
- 
