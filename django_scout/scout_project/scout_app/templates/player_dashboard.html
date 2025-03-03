@@ -128,9 +128,11 @@
             // Radar Chart - Performance Overview
             const labels = JSON.parse('{{ performance_data.labels|escapejs }}');
             const data = JSON.parse('{{ performance_data.data|escapejs }}');
-    
-            if (data.length === 0) {
-                document.querySelector('.chartContainer').innerHTML = '<h5 class="card_dashboard__title">Performance Overview</h5><p>No data available</p>';
+            const total = data.reduce((acc, val) => acc + val, 0);
+            const chartCard = document.getElementById('performanceChart')
+                              .closest('.dashboard_card_container__row');
+            if (data.length === 0|| total === 0) {
+                chartCard.style.display = 'none';
             } else {
                 const ctx = document.getElementById('performanceChart').getContext('2d');
                 new Chart(ctx, {
@@ -175,10 +177,12 @@
             // Bar Chart - Performance Statistics
             const bar_plot_labels = JSON.parse('{{ bar_plot_data.labels|escapejs }}');
             const bar_plot_data = JSON.parse('{{ bar_plot_data.data|escapejs }}');
-    
-            if (bar_plot_data.length === 0) {
-                document.querySelector('.chartContainer').innerHTML = '<h5 class="card_dashboard__title">Performance Overview</h5><p>No data available</p>';
-            } else {
+            const total = bar_plot_data.reduce((acc, val) => acc + val, 0);
+            const chartCard = document.getElementById('performanceBarPlot')
+                              .closest('.dashboard_card_container__row');
+            if (bar_plot_data.length === 0|| total === 0) {
+                chartCard.style.display = 'none';
+            }  else {
                 const barCtx = document.getElementById('performanceBarPlot').getContext('2d');
                 new Chart(barCtx, {
                     type: 'bar',
