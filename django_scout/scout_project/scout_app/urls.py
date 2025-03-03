@@ -12,6 +12,7 @@ urlpatterns = [
     path('profile/', views.view_profile, name='view_profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('statistics/', views.statistics, name='statistics'),
+    path('statistics/detailed/', views.detailed_statistics_view, name='detailed_statistics'),
     path('search/', views.search, name='search'),
     path('player/<int:player_id>/', views.view_player_profile, name='view_player_profile'),
     path('player_dashboard/<int:player_id>/', views.view_player_dashboard, name='player_dashboard'),

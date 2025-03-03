@@ -107,7 +107,9 @@
                                         <span class="info-tooltip">Displays your key statistics in a bar chart format</span>
                                     </span>
                                 </h5>
-                                <canvas id="performanceBarPlot" width="300" height="300"></canvas>
+                                <a href="{% url 'scout_app:detailed_statistics' %}" class="statistics-link">
+                                    <canvas id="performanceBarPlot" width="300" height="300"></canvas>
+                                </a>
                             </div>
                         </div>
                     </div>

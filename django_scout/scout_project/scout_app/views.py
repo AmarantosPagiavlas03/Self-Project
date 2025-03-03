@@ -10,17 +10,17 @@ from .forms import *
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from .models import PlayerProfile
- 
 from django.contrib import messages
 from django.http import JsonResponse
 import json
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .models import MatchStatistics
 
 logger = logging.getLogger(__name__)
 
@@ -435,3 +435,30 @@ def delete_comment(request, comment_id):
             'success': False,
             'error': 'An error occurred while deleting the comment'
         }, status=500)
+
+@login_required
+def detailed_statistics_view(request):
+    # Get the player's profile
+    player = request.user.playerprofile
+    
+    # Get match statistics for the last 6 months
+    six_months_ago = datetime.now().date() - timedelta(days=180)
+    match_stats = MatchStatistics.objects.filter(
+        player=player,
+        match_date__gte=six_months_ago
+    ).order_by('match_date')
+    
+    # Prepare data for the chart
+    match_dates = [stat.match_date.strftime('%Y-%m-%d') for stat in match_stats]
+    goals_data = [stat.goals for stat in match_stats]
+    assists_data = [stat.assists for stat in match_stats]
+    tackles_data = [stat.tackles for stat in match_stats]
+    
+    context = {
+        'match_dates': json.dumps(match_dates),
+        'goals_data': json.dumps(goals_data),
+        'assists_data': json.dumps(assists_data),
+        'tackles_data': json.dumps(tackles_data),
+    }
+    
+    return render(request, 'detailed_statistics.html', context)

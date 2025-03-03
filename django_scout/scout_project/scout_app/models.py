@@ -108,3 +108,17 @@ class Comment(models.Model):
             return f'{self.author.username} : {self.content[:30]}'
         except:
             return f'No Author : {self.content[:30]}'
+
+class MatchStatistics(models.Model):
+    player = models.ForeignKey('PlayerProfile', on_delete=models.CASCADE, related_name='match_statistics')
+    match_date = models.DateField()
+    matches_played = models.IntegerField(default=1)
+    goals = models.IntegerField(default=0)
+    assists = models.IntegerField(default=0)
+    tackles = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['match_date']
+        
+    def __str__(self):
+        return f"{self.player.user.username}'s stats on {self.match_date}"

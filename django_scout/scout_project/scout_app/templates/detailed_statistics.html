@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detailed Statistics</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="detailed-stats-container">
+        <div class="stats-controls">
+            <div class="stats-toggle" data-metric="goals">
+                <span class="stats-toggle-icon">⚽</span>
+                Goals
+            </div>
+            <div class="stats-toggle" data-metric="assists">
+                <span class="stats-toggle-icon">👟</span>
+                Assists
+            </div>
+            <div class="stats-toggle" data-metric="tackles">
+                <span class="stats-toggle-icon">🛡️</span>
+                Tackles
+            </div>
+        </div>
+
+        <div class="stats-chart-container">
+            <h2 class="stats-chart-title">Match Statistics Timeline</h2>
+            <canvas id="statsTimelineChart"></canvas>
+            <div class="stats-legend">
+                <div class="stats-legend-item">
+                    <div class="stats-legend-color" style="background-color: rgba(255, 99, 132, 0.5)"></div>
+                    <span>Goals</span>
+                </div>
+                <div class="stats-legend-item">
+                    <div class="stats-legend-color" style="background-color: rgba(54, 162, 235, 0.5)"></div>
+                    <span>Assists</span>
+                </div>
+                <div class="stats-legend-item">
+                    <div class="stats-legend-color" style="background-color: rgba(75, 192, 192, 0.5)"></div>
+                    <span>Tackles</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('statsTimelineChart').getContext('2d');
+            const dates = JSON.parse('{{ match_dates|escapejs }}');
+            const goals = JSON.parse('{{ goals_data|escapejs }}');
+            const assists = JSON.parse('{{ assists_data|escapejs }}');
+            const tackles = JSON.parse('{{ tackles_data|escapejs }}');
+
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Goals',
+                            data: goals,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            hidden: false
+                        },
+                        {
+                            label: 'Assists',
+                            data: assists,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            hidden: true
+                        },
+                        {
+                            label: 'Tackles',
+                            data: tackles,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            hidden: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Match Date'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Count'
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Toggle metrics visibility
+            document.querySelectorAll('.stats-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const metric = this.dataset.metric;
+                    const index = {
+                        'goals': 1,
+                        'assists': 2,
+                        'tackles': 3
+                    }[metric];
+
+                    // Toggle active state of button
+                    this.classList.toggle('active');
+                    
+                    // Toggle dataset visibility
+                    const isDatasetVisible = chart.isDatasetVisible(index);
+                    if (isDatasetVisible) {
+                        chart.hide(index);
+                    } else {
+                        chart.show(index);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
