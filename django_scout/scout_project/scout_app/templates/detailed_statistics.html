@@ -10,8 +10,6 @@
     {% include 'navbar.html' %}
     
     <div class="detailed-stats-container">
-       
-
         <div class="stats-chart-container">
             <h2 class="stats-chart-title">Match Statistics Timeline</h2>
             <canvas id="statsTimelineChart"></canvas>
@@ -38,25 +36,24 @@
                 </div>
             </div>
         </div>
-
         <div class="stats-controls">
-            <div class="stats-toggle active" data-metric="goals">
+            <div class="stats-toggle active" data-metric="goals" data-toggle="1">
                 <span class="stats-toggle-icon">⚽</span>
                 Goals
             </div>
-            <div class="stats-toggle" data-metric="assists">
+            <div class="stats-toggle" data-metric="assists" data-toggle="2">
                 <span class="stats-toggle-icon">👟</span>
                 Assists
             </div>
-            <div class="stats-toggle" data-metric="tackles">
+            <div class="stats-toggle" data-metric="tackles" data-toggle="3">
                 <span class="stats-toggle-icon">🛡️</span>
                 Tackles
             </div>
-            <div class="stats-toggle" data-metric="yellow_cards">
+            <div class="stats-toggle" data-metric="yellow_cards" data-toggle="4">
                 <span class="stats-toggle-icon">🟨</span>
                 Yellow Cards
             </div>
-            <div class="stats-toggle" data-metric="red_cards">
+            <div class="stats-toggle" data-metric="red_cards" data-toggle="5">
                 <span class="stats-toggle-icon">🟥</span>
                 Red Cards
             </div>
@@ -76,7 +73,7 @@
             const tackles = JSON.parse('{{ tackles_data|escapejs }}');
             const yellowCards = JSON.parse('{{ yellow_cards_data|escapejs }}');
             const redCards = JSON.parse('{{ red_cards_data|escapejs }}');
-    
+        
             const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -152,32 +149,33 @@
                     }
                 }
             });
-    
-            // Toggle metrics visibility
+        
+            // Combined toggle logic for ensuring at least one active metric
             document.querySelectorAll('.stats-toggle').forEach(toggle => {
                 toggle.addEventListener('click', function() {
                     const metric = this.dataset.metric;
-                    const index = {
-                        'goals': 0,
-                        'assists': 1,
-                        'tackles': 2,
-                        'yellow_cards': 3,
-                        'red_cards': 4
-                    }[metric];
-    
-                    // Toggle active state of button
-                    this.classList.toggle('active');
-                    
-                    // Toggle dataset visibility
-                    const isDatasetVisible = chart.isDatasetVisible(index);
-                    if (isDatasetVisible) {
-                        chart.hide(index);
+                    const index = { 'goals': 0, 'assists': 1, 'tackles': 2, 'yellow_cards': 3, 'red_cards': 4 }[metric];
+                    const activeToggles = document.querySelectorAll('.stats-toggle.active');
+        
+                    // If currently active, only deactivate if there is more than one active toggle
+                    if (this.classList.contains('active')) {
+                        if (activeToggles.length === 1) {
+                            // Prevent deactivation so at least one remains active
+                            return;
+                        } else {
+                            this.classList.remove('active');
+                            chart.hide(index);
+                        }
                     } else {
+                        // Activate the toggle and show the dataset
+                        this.classList.add('active');
                         chart.show(index);
                     }
                 });
             });
         });
-    </script>
+        </script>
+        
+
 </body>
 </html>
