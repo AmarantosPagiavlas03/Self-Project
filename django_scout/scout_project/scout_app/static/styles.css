@@ -538,18 +538,12 @@ body {
 .dashboard_card__container {
     margin-top: 3rem !important;
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
 }
 
 .dashboard_card_container__wrapper {
-    max-width: 960px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     gap: 20px;
-    display: grid;
+    min-height: 1200px;
 }
 
 .dashboard_card_container__column {
@@ -560,8 +554,8 @@ body {
 
 .dashboard_card_container__row {
     display: flex;
-    min-width: 600px;
-    justify-content: center;
+    margin-bottom: 20px; 
+    margin-top: 10px;
 }
 
 
