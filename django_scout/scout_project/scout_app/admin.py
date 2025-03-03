@@ -11,7 +11,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 # Register other models
 admin.site.register(PlayerProfile)
-admin.site.register(PlayerStatistics)
+ 
 admin.site.register(TeamProfile)
 admin.site.register(Post)
 admin.site.register(Comment)

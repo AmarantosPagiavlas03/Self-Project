@@ -55,25 +55,7 @@ class PlayerProfile(models.Model):
     assists = models.IntegerField(default=0)
     tackles = models.IntegerField(default=0)
 
-class PlayerStatistics(models.Model):
-    player_profile = models.ForeignKey(PlayerProfile, related_name='statistics', on_delete=models.CASCADE)
-    season = models.CharField(max_length=10)
-    
-    # Main stats
-    goals = models.IntegerField(default=0)
-    own_goals = models.IntegerField(default=0)
-    yellow_cards = models.IntegerField(default=0)
-    red_cards = models.IntegerField(default=0)
-    minutes_played = models.CharField(max_length=10)  # Store as string with '
-    
-    # Additional stats
-    goal_every = models.CharField(max_length=10, default='--')
-    own_goal_every = models.CharField(max_length=10, default='--')
-    yellow_card_every = models.CharField(max_length=10, default='--')
-    red_card_every = models.CharField(max_length=10, default='--')
-    
-    class Meta:
-        unique_together = ('player_profile', 'season')
+ 
 class TeamProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     team_name = models.CharField(max_length=100)
@@ -112,10 +94,11 @@ class Comment(models.Model):
 class MatchStatistics(models.Model):
     player = models.ForeignKey('PlayerProfile', on_delete=models.CASCADE, related_name='match_statistics')
     match_date = models.DateField()
-    matches_played = models.IntegerField(default=1)
     goals = models.IntegerField(default=0)
     assists = models.IntegerField(default=0)
     tackles = models.IntegerField(default=0)
+    yellow_cards = models.IntegerField(default=0)
+    red_cards = models.IntegerField(default=0)
     
     class Meta:
         ordering = ['match_date']

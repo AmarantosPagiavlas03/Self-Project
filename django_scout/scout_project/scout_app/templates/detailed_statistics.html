@@ -11,7 +11,7 @@
     
     <div class="detailed-stats-container">
         <div class="stats-controls">
-            <div class="stats-toggle" data-metric="goals">
+            <div class="stats-toggle active" data-metric="goals">
                 <span class="stats-toggle-icon">⚽</span>
                 Goals
             </div>
@@ -22,6 +22,14 @@
             <div class="stats-toggle" data-metric="tackles">
                 <span class="stats-toggle-icon">🛡️</span>
                 Tackles
+            </div>
+            <div class="stats-toggle" data-metric="yellow_cards">
+                <span class="stats-toggle-icon">🟨</span>
+                Yellow Cards
+            </div>
+            <div class="stats-toggle" data-metric="red_cards">
+                <span class="stats-toggle-icon">🟥</span>
+                Red Cards
             </div>
         </div>
 
@@ -41,6 +49,14 @@
                     <div class="stats-legend-color" style="background-color: rgba(75, 192, 192, 0.5)"></div>
                     <span>Tackles</span>
                 </div>
+                <div class="stats-legend-item">
+                    <div class="stats-legend-color" style="background-color: rgba(255, 206, 86, 0.5)"></div>
+                    <span>Yellow Cards</span>
+                </div>
+                <div class="stats-legend-item">
+                    <div class="stats-legend-color" style="background-color: rgba(255, 99, 132, 0.5)"></div>
+                    <span>Red Cards</span>
+                </div>
             </div>
         </div>
     </div>
@@ -54,6 +70,8 @@
             const goals = JSON.parse('{{ goals_data|escapejs }}');
             const assists = JSON.parse('{{ assists_data|escapejs }}');
             const tackles = JSON.parse('{{ tackles_data|escapejs }}');
+            const yellowCards = JSON.parse('{{ yellow_cards_data|escapejs }}');
+            const redCards = JSON.parse('{{ red_cards_data|escapejs }}');
 
             const chart = new Chart(ctx, {
                 type: 'line',
@@ -79,6 +97,20 @@
                             data: tackles,
                             borderColor: 'rgb(75, 192, 192)',
                             backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            hidden: true
+                        },
+                        {
+                            label: 'Yellow Cards',
+                            data: yellowCards,
+                            borderColor: 'rgb(255, 206, 86)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                            hidden: true
+                        },
+                        {
+                            label: 'Red Cards',
+                            data: redCards,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
                             hidden: true
                         }
                     ]
@@ -117,9 +149,11 @@
                 toggle.addEventListener('click', function() {
                     const metric = this.dataset.metric;
                     const index = {
-                        'goals': 1,
-                        'assists': 2,
-                        'tackles': 3
+                        'goals': 0,
+                        'assists': 1,
+                        'tackles': 2,
+                        'yellow_cards': 3,
+                        'red_cards': 4
                     }[metric];
 
                     // Toggle active state of button

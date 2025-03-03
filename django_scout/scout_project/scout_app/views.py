@@ -453,12 +453,16 @@ def detailed_statistics_view(request):
     goals_data = [stat.goals for stat in match_stats]
     assists_data = [stat.assists for stat in match_stats]
     tackles_data = [stat.tackles for stat in match_stats]
+    yellow_cards_data = [stat.yellow_cards for stat in match_stats]
+    red_cards_data = [stat.red_cards for stat in match_stats]
     
     context = {
         'match_dates': json.dumps(match_dates),
         'goals_data': json.dumps(goals_data),
         'assists_data': json.dumps(assists_data),
         'tackles_data': json.dumps(tackles_data),
+        'yellow_cards_data': json.dumps(yellow_cards_data),
+        'red_cards_data': json.dumps(red_cards_data),
     }
     
     return render(request, 'detailed_statistics.html', context)
