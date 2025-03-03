@@ -95,6 +95,8 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="dashboard_card_container__row"> 
                     <div class="dashboard_card_container__column">
                         <div class="dashboard_card__card">
                             <div class="dashboard_card__card__chart_container"> 
@@ -108,7 +110,9 @@
                                     </span>
                                 </h5>
                                 <a href="{% url 'scout_app:detailed_statistics' %}" class="statistics-link">
-                                    <canvas id="performanceBarPlot" width="300" height="300"></canvas>
+                                    <div class="chart-wrapper">
+                                        <canvas id="performanceBarPlot"></canvas>
+                                    </div>
                                 </a>
                             </div>
                         </div>

@@ -10,28 +10,7 @@
     {% include 'navbar.html' %}
     
     <div class="detailed-stats-container">
-        <div class="stats-controls">
-            <div class="stats-toggle active" data-metric="goals">
-                <span class="stats-toggle-icon">⚽</span>
-                Goals
-            </div>
-            <div class="stats-toggle" data-metric="assists">
-                <span class="stats-toggle-icon">👟</span>
-                Assists
-            </div>
-            <div class="stats-toggle" data-metric="tackles">
-                <span class="stats-toggle-icon">🛡️</span>
-                Tackles
-            </div>
-            <div class="stats-toggle" data-metric="yellow_cards">
-                <span class="stats-toggle-icon">🟨</span>
-                Yellow Cards
-            </div>
-            <div class="stats-toggle" data-metric="red_cards">
-                <span class="stats-toggle-icon">🟥</span>
-                Red Cards
-            </div>
-        </div>
+       
 
         <div class="stats-chart-container">
             <h2 class="stats-chart-title">Match Statistics Timeline</h2>
@@ -59,8 +38,33 @@
                 </div>
             </div>
         </div>
+
+        <div class="stats-controls">
+            <div class="stats-toggle active" data-metric="goals">
+                <span class="stats-toggle-icon">⚽</span>
+                Goals
+            </div>
+            <div class="stats-toggle" data-metric="assists">
+                <span class="stats-toggle-icon">👟</span>
+                Assists
+            </div>
+            <div class="stats-toggle" data-metric="tackles">
+                <span class="stats-toggle-icon">🛡️</span>
+                Tackles
+            </div>
+            <div class="stats-toggle" data-metric="yellow_cards">
+                <span class="stats-toggle-icon">🟨</span>
+                Yellow Cards
+            </div>
+            <div class="stats-toggle" data-metric="red_cards">
+                <span class="stats-toggle-icon">🟥</span>
+                Red Cards
+            </div>
+        </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -72,7 +76,7 @@
             const tackles = JSON.parse('{{ tackles_data|escapejs }}');
             const yellowCards = JSON.parse('{{ yellow_cards_data|escapejs }}');
             const redCards = JSON.parse('{{ red_cards_data|escapejs }}');
-
+    
             const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -140,10 +144,15 @@
                                 stepSize: 1
                             }
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
             });
-
+    
             // Toggle metrics visibility
             document.querySelectorAll('.stats-toggle').forEach(toggle => {
                 toggle.addEventListener('click', function() {
@@ -155,7 +164,7 @@
                         'yellow_cards': 3,
                         'red_cards': 4
                     }[metric];
-
+    
                     // Toggle active state of button
                     this.classList.toggle('active');
                     
@@ -171,4 +180,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
