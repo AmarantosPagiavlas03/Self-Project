@@ -19,6 +19,9 @@
     </a>
     {% endif %}
 </div>
+<div class="feed_container__description">
+    <p class="excerpt3"><b>{{ post.author.username }}:</b> {{ post.description }}</p>
+</div>
 <div class="feed_container__interactions">
     <div class="feed_container__interactions_like" data-post-id="{{ post.id }}" data-post-url="{% url 'scout_app:like_post' post.id %}" data-liked="{% if user in post.likes.all %}true{% else %}false{% endif %}">
         {% if user in post.likes.all %}
@@ -42,9 +45,7 @@
 <div class="feed_container__likestotal">
     <p>{{ post.likes_count }} likes</p>
 </div>
-<div class="feed_container__description">
-    <p class="excerpt3"><b>{{ post.author.username }}:</b> {{ post.description }}</p>
-</div>
+
 <div class="feed_container__comments">
     <div class="feed_container__comments_list" style="display: none;">
         {% for comment in post.comments.all %}

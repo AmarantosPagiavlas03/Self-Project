@@ -3,218 +3,631 @@
 <head>
     <title>Player Dashboard</title>
     {% load static %}
+    {% load custom_filters %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     {% include 'navbar.html' %}
     <div class="dashboard_card__container">
- 
-            <div class="dashboard_card_container__wrapper"> 
-                <!-- Profile Card -->
-                <div class="dashboard_card_container__row">
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card dashboard_card__main_card">
-                            <div class="card-body text-center p-4">
-                                <h2>Player Profile</h2>
-                                <p>Welcome Player, {{ profile.first_name }} {{ profile.last_name }}</p>
-                                {% if profile.user == request.user %}
-                                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-                                {% endif %}
-                                <a href="{% url 'view_profile' %}" class="btn btn-primary">View Full Profile</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stats Cards -->
-                <div class="dashboard_card_container__row">
-                    <!-- Performance Card -->
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card">
-                            <div class="dashboard_card__card_content">
-                                <h5 class="card_dashboard__title">Performance</h5>
-                                <p>Check your stats and progress</p>
-                                <a href="{% url 'statistics' %}" class="btn btn-primary">View Stats</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Match History Card -->
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card">
-                            <div class="dashboard_card__card_content">
-                                <h5 class="card_dashboard__title">Recent Matches</h5>
-                                <p>Review your last matches</p>
-                                <a href="#" class="btn btn-primary">View History</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upcoming Events and News Cards -->
-                <div class="dashboard_card_container__row"> 
-                    <!-- Training Card -->
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card">
-                            <div class="dashboard_card__card_content">
-                                <h5 class="card_dashboard__title">Upcoming Events</h5>
-                                <p>Trainings and fixtures</p>
-                                <a href="#" class="btn btn-primary">View Schedule</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- News Card -->
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card">
-                            <div class="dashboard_card__card_content">
-                                <h5 class="card_dashboard__title">Latest News</h5>
-                                <p>Stay updated with team news</p>
-                                <a href="#" class="btn btn-primary">Read More</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Performance Overview and Statistics Barplot Cards -->
-                <div class="dashboard_card_container__row"> 
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card">
-                            <div class="dashboard_card__card__chart_container"> 
-                                <h5 class="card_dashboard__title">
-                                    Performance Overview
-                                    <span class="info-icon-container">
-                                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="info-tooltip">Shows your overall performance metrics across different aspects of the game</span>
-                                    </span>
-                                </h5>
-                                <canvas id="performanceChart" width="300" height="300"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="dashboard_card_container__row"> 
-                    <div class="dashboard_card_container__column">
-                        <div class="dashboard_card__card">
-                            <div class="dashboard_card__card__chart_container"> 
-                                <h5 class="card_dashboard__title">
-                                    Statistics Barplot
-                                    <span class="info-icon-container">
-                                        <svg class="info-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="info-tooltip">Displays your key statistics in a bar chart format</span>
-                                    </span>
-                                </h5>
-                                <a href="{% url 'scout_app:detailed_statistics' %}" class="statistics-link">
-                                    <div class="chart-wrapper">
-                                        <canvas id="performanceBarPlot"></canvas>
+        <div class="dashboard_card_container__wrapper">
+            <!-- Enhanced Profile Card -->
+            <div class="dashboard_card_container__row">
+                <div class="dashboard_card_container__column">
+                    <div class="dashboard_card__card dashboard_card__main_card">
+                        <div class="card-body text-center p-4">
+                            <div class="profile-header">
+                                {% if profile.profile_picture %}
+                                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                {% else %}
+                                    <div class="default-profile-picture rounded-circle mb-3">
+                                        <i class="fas fa-user"></i>
                                     </div>
-                                </a>
+                                {% endif %}
+                                <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
+                                 
+                                {% if profile.position %}
+                                    <span class="badge badge-primary">{{ profile.position }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="profile-stats mt-3 d-flex justify-content-around">
+                                <div class="stat-item">
+                                    <h5>{{ profile.matches_played|default:"0" }}</h5>
+                                    <small>Matches</small>
+                                </div>
+                                <div class="stat-item">
+                                    <h5>{{ profile.goals_scored|default:"0" }}</h5>
+                                    <small>Goals</small>
+                                </div>
+                                <div class="stat-item">
+                                    <h5>{{ profile.assists|default:"0" }}</h5>
+                                    <small>Assists</small>
+                                </div>
+                            </div>
+                            <div class="profile-bio mt-3">
+                                <p>{{ profile.bio|default:"No bio added yet." }}</p>
+                            </div>
+                            <div class="profile-actions mt-3">
+                                {% if profile.user == request.user %}
+                                    <a href="{% url 'edit_profile' %}" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Profile</a>
+                                {% endif %}
+                                <a href="{% url 'view_profile' %}" class="btn btn-outline-primary"><i class="fas fa-user"></i> Full Profile</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Recent Posts Section -->
+            <div class="dashboard_card_container__row">
+                <div class="dashboard_card_container__column">
+                    <div class="dashboard_card__card">
+                        <div class="dashboard_card__card_content">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card_dashboard__title">Recent Posts</h5>
+                            </div>
+                            
+                            {% if profile.user == request.user %}
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3">Share something with your followers</h6>
+                                        <form method="post" enctype="multipart/form-data" action="{% url 'scout_app:home' %}">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label for="id_photo">Photo (optional)</label>
+                                                {{ post_form.photo }}
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="id_description">What's on your mind?</label>
+                                                {{ post_form.description }}
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm">Share Post</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {% if posts %}
+                                <div class="posts-container">
+                                    {% for post in posts %}
+                                        <div class="feed_container mb-4">
+                                            {% include '_post_content.html' %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if has_more %}
+                                    <div class="text-center mt-3">
+                                        <button id="loadMoreBtn" class="btn btn-outline-primary" data-offset="3" data-player="{{ profile.id }}">
+                                            Load More Posts
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <p class="text-muted">No posts yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
  
+            <!-- Performance Overview and Statistics Barplot Cards -->
+            <div class="dashboard_card_container__row"> 
+                <div class="dashboard_card_container__column">
+                    <div class="dashboard_card__card">
+                        <div class="dashboard_card__card__chart_container"> 
+                            <h5 class="card_dashboard__title">
+                                Performance Overview
+                                <span class="info-icon-container">
+                                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span class="info-tooltip">Shows your overall performance metrics across different aspects of the game</span>
+                                </span>
+                            </h5>
+                            <canvas id="performanceChart" width="300" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard_card_container__row"> 
+                <div class="dashboard_card_container__column">
+                    <div class="dashboard_card__card">
+                        <div class="dashboard_card__card__chart_container"> 
+                            <h5 class="card_dashboard__title">
+                                Statistics Barplot
+                                <span class="info-icon-container">
+                                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span class="info-tooltip">Displays your key statistics in a bar chart format</span>
+                                </span>
+                            </h5>
+                            <a href="{% url 'scout_app:detailed_statistics' %}" class="statistics-link">
+                                <div class="chart-wrapper">
+                                    <canvas id="performanceBarPlot"></canvas>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Radar Chart - Performance Overview
+        // CSRF token helper function - defined globally
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+    <script defer>
+        // Utility function to check if element is in viewport with margin
+        function isInViewport(element, margin = 500) {
+            const rect = element.getBoundingClientRect();
+            return (
+                rect.top >= -margin &&
+                rect.left >= -margin &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + margin &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth) + margin
+            );
+        }
+
+        // Shared base configuration
+        const baseConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 750,
+                easing: 'easeOutQuart',
+                onProgress: function(animation) {
+                    if (animation.currentStep === animation.numSteps) {
+                        // Animation complete - enable interactions
+                        this.options.animation.duration = 300;
+                    }
+                }
+            },
+            transitions: {
+                active: {
+                    animation: {
+                        duration: 300
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        };
+
+        // Radar chart specific configuration
+        const radarConfig = {
+            ...baseConfig,
+            elements: {
+                line: {
+                    tension: 0 // Straight lines for radar chart
+                },
+                point: {
+                    radius: 4,
+                    hoverRadius: 6
+                }
+            }
+        };
+
+        // Bar chart specific configuration
+        const barConfig = {
+            ...baseConfig,
+            elements: {
+                bar: {
+                    borderWidth: 1
+                }
+            }
+        };
+
+        // Initialize charts when they come into view
+        function initializeChartsIfVisible() {
+            requestAnimationFrame(() => {
+                const performanceChart = document.getElementById('performanceChart');
+                const barPlot = document.getElementById('performanceBarPlot');
+                
+                if (performanceChart && isInViewport(performanceChart) && !performanceChart.chart) {
+                    setTimeout(() => initializePerformanceChart(), 50);
+                }
+                
+                if (barPlot && isInViewport(barPlot) && !barPlot.chart) {
+                    setTimeout(() => initializeBarPlot(), 100);
+                }
+            });
+        }
+
+        // Performance Chart initialization
+        function initializePerformanceChart() {
+            const performanceChart = document.getElementById('performanceChart');
+            if (!performanceChart || performanceChart.chart) return;
+
             const labels = JSON.parse('{{ performance_data.labels|escapejs }}');
             const data = JSON.parse('{{ performance_data.data|escapejs }}');
             const total = data.reduce((acc, val) => acc + val, 0);
-            const chartCard = document.getElementById('performanceChart')
-                              .closest('.dashboard_card_container__row');
-            if (data.length === 0|| total === 0) {
-                chartCard.style.display = 'none';
-            } else {
-                const ctx = document.getElementById('performanceChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Performance Metrics',
-                            data: data,
-                            borderColor: 'rgb(75, 192, 192)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            pointBackgroundColor: 'rgb(75, 192, 192)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgb(75, 192, 192)'
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            r: {
-                                min: 0,
-                                max: 4,
-                                ticks: {
-                                    stepSize: 1,
-                                    backdropColor: "transparent"
-                                }
+            
+            if (data.length === 0 || total === 0) {
+                performanceChart.closest('.dashboard_card_container__row').style.display = 'none';
+                return;
+            }
+
+            const ctx = performanceChart.getContext('2d');
+            performanceChart.chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Performance Metrics',
+                        data: data,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(75, 192, 192)'
+                    }]
+                },
+                options: {
+                    ...radarConfig,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 4,
+                            ticks: {
+                                stepSize: 1,
+                                backdropColor: "transparent"
                             }
                         }
                     }
+                }
+            });
+        }
+
+        // Bar Plot initialization
+        function initializeBarPlot() {
+            const barPlot = document.getElementById('performanceBarPlot');
+            if (!barPlot || barPlot.chart) return;
+
+            const labels = JSON.parse('{{ bar_plot_data.labels|escapejs }}');
+            const data = JSON.parse('{{ bar_plot_data.data|escapejs }}');
+            const total = data.reduce((acc, val) => acc + val, 0);
+            
+            if (data.length === 0 || total === 0) {
+                barPlot.closest('.dashboard_card_container__row').style.display = 'none';
+                return;
+            }
+
+            const ctx = barPlot.getContext('2d');
+            barPlot.chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Performance Stats',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...barConfig,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Optimized scroll handler with debounce
+        let scrollTimeout;
+        function debouncedScroll() {
+            if (scrollTimeout) {
+                window.cancelAnimationFrame(scrollTimeout);
+            }
+            scrollTimeout = window.requestAnimationFrame(initializeChartsIfVisible);
+        }
+
+        // Initialize after all resources are loaded
+        window.addEventListener('load', function() {
+            // Initial check with a slight delay to ensure DOM is ready
+            setTimeout(initializeChartsIfVisible, 100);
+            
+            // Add scroll listener
+            window.addEventListener('scroll', debouncedScroll, { passive: true });
+            
+            // Cleanup on page unload
+            window.addEventListener('unload', function() {
+                window.removeEventListener('scroll', debouncedScroll);
+                if (scrollTimeout) {
+                    window.cancelAnimationFrame(scrollTimeout);
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', function() {
+                    const offset = parseInt(this.dataset.offset);
+                    const playerId = this.dataset.player;
+                    
+                    fetch(`{% url 'scout_app:load_more_posts' player_id=profile.id %}?offset=${offset}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const postsContainer = document.querySelector('.posts-container');
+                        
+                        data.posts.forEach(post => {
+                            const postHtml = `
+                                <div class="feed_container mb-4">
+                                    <div class="feed_container__profile">
+                                        <a href="/player/${post.author_id}/" class="feed_container__profile_link">
+                                            <div class="feed_container__profile_icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2M7.07 18.28c.43-.9 3.05-1.78 4.93-1.78s4.5.88 4.93 1.78A7.9 7.9 0 0 1 12 20c-1.86 0-3.57-.64-4.93-1.72m11.29-1.45c-1.43-1.74-4.9-2.33-6.36-2.33s-4.93.59-6.36 2.33A7.93 7.93 0 0 1 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8c0 1.82-.62 3.5-1.64 4.83M12 6c-1.94 0-3.5 1.56-3.5 3.5S10.06 13 12 13s3.5-1.56 3.5-3.5S13.94 6 12 6m0 5a1.5 1.5 0 0 1-1.5-1.5A1.5 1.5 0 0 1 12 8a1.5 1.5 0 0 1 1.5 1.5A1.5 1.5 0 0 1 12 11"/></svg>
+                                            </div>
+                                            <div class="feed_container__profile_name">
+                                                <p>${post.author_name} • </p>
+                                            </div>
+                                        </a>
+                                        <div class="feed_container__profile_date_posted">
+                                            ${post.timestamp}
+                                        </div>
+                                    </div>
+                                    ${post.image_url ? `
+                                    <div class="feed_container__image">
+                                        <a href="/post/${post.id}/">
+                                            <img src="${post.image_url}" alt="Post Image">
+                                        </a>
+                                    </div>
+                                    ` : ''}
+                                    <div class="feed_container__interactions">
+                                        <div class="feed_container__interactions_like" data-post-id="${post.id}" data-post-url="/like-post/${post.id}/" data-liked="${post.is_liked}">
+                                            ${post.is_liked ? `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                                            </svg>
+                                            ` : `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
+                                            `}
+                                        </div>
+                                        <div class="feed_container__interactions_comment">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g class="chatbubble-outline"><path fill="currentColor" fill-rule="evenodd" d="M3.463 15.642a.4.4 0 0 0-.039-.24a18 18 0 0 1-.642-1.561c-.18-.517-.38-1.2-.407-1.862c-.2-5.056 4.019-9.076 9.09-9.277s9.595 3.471 9.796 8.527s-4.019 9.076-9.09 9.277a10 10 0 0 1-2.854-.296l-2.769 1.138c-1.992.818-4.087-.925-3.645-3.033zm1.958.411a2.4 2.4 0 0 0-.181-1.49c-.39-.844-.838-1.95-.866-2.663c-.152-3.813 3.058-7.036 7.17-7.2c4.111-.163 7.567 2.796 7.718 6.609c.152 3.813-3.058 7.036-7.17 7.2a8 8 0 0 1-2.558-.313a.97.97 0 0 0-.643.027l-3.103 1.275a.683.683 0 0 1-.928-.772l.56-2.673Z" clip-rule="evenodd"/></g></svg>
+                                        </div>
+                                    </div>
+                                    <div class="feed_container__likestotal">
+                                        <p>${post.likes_count} likes</p>
+                                    </div>
+                                    <div class="feed_container__description">
+                                        <p class="excerpt3"><b>${post.author_name}:</b> ${post.content}</p>
+                                    </div>
+                                    <div class="feed_container__comments">
+                                        <div class="feed_container__comments_list" style="display: none;"></div>
+                                        ${post.comments_count > 0 ? `
+                                        <button class="expand-comments-btn">View all ${post.comments_count} comments</button>
+                                        ` : ''}
+                                        <div class="add-comment-section add-comment-form" data-post-id="${post.id}" data-post-url="/post/${post.id}/comment/">
+                                            <form method="post" action="/post/${post.id}/comment/" class="comment-form">
+                                                <div class="comment-input-wrapper">
+                                                    <textarea name="content" placeholder="Add a comment..." class="comment-input" maxlength="500" required></textarea>
+                                                    <button type="submit" class="comment-submit-btn">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                            <path fill="#000" d="M2.01 21L23 12L2.01 3L2 10l15 2l-15 2z"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            postsContainer.insertAdjacentHTML('beforeend', postHtml);
+                        });
+                        
+                        if (data.has_more) {
+                            loadMoreBtn.dataset.offset = data.next_offset;
+                        } else {
+                            loadMoreBtn.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading more posts:', error);
+                        alert('Error loading more posts. Please try again.');
+                    });
                 });
             }
         });
     </script>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Bar Chart - Performance Statistics
-            const bar_plot_labels = JSON.parse('{{ bar_plot_data.labels|escapejs }}');
-            const bar_plot_data = JSON.parse('{{ bar_plot_data.data|escapejs }}');
-            const total = bar_plot_data.reduce((acc, val) => acc + val, 0);
-            const chartCard = document.getElementById('performanceBarPlot')
-                              .closest('.dashboard_card_container__row');
-            if (bar_plot_data.length === 0|| total === 0) {
-                chartCard.style.display = 'none';
-            }  else {
-                const barCtx = document.getElementById('performanceBarPlot').getContext('2d');
-                new Chart(barCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: bar_plot_labels,
-                        datasets: [{
-                            label: 'Performance Stats',
-                            data: bar_plot_data,
-                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                            borderColor: 'rgb(54, 162, 235)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
+            // Like button functionality
+            document.querySelectorAll('.like-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const postId = this.dataset.postId;
+                    const postUrl = this.dataset.postUrl;
+                    const isLiked = this.dataset.liked === 'true';
+                    const likeIcon = this.querySelector('i');
+                    const likesCount = this.querySelector('.likes-count');
+                    
+                    fetch(postUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                min: 0,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
+                        body: JSON.stringify({
+                            liked: !isLiked
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Toggle like status
+                            this.dataset.liked = (!isLiked).toString();
+                            likeIcon.classList.toggle('fas');
+                            likeIcon.classList.toggle('far');
+                            likesCount.textContent = data.likes_count;
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error updating like status');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Comment toggle functionality
+            document.querySelectorAll('.comment-toggle-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const commentsSection = this.closest('.post-card').querySelector('.comments-section');
+                    if (commentsSection) {
+                        commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
                     }
                 });
-            }
+            });
+
+            // Comment form submission
+            document.querySelectorAll('.comment-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const postId = this.dataset.postId;
+                    const postUrl = this.dataset.postUrl;
+                    const input = this.querySelector('.comment-input');
+                    const commentsCount = this.closest('.post-card').querySelector('.comments-count');
+                    const commentsList = this.closest('.post-card').querySelector('.comments-list');
+
+                    fetch(postUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            content: input.value
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Create new comment element
+                            const newComment = document.createElement('div');
+                            newComment.className = 'comment-item d-flex justify-content-between align-items-start';
+                            newComment.innerHTML = `
+                                <div>
+                                    <span class="font-weight-bold">${data.author}</span>
+                                    <span>${data.comment}</span>
+                                    <small class="text-muted d-block">Just now</small>
+                                </div>
+                                <button class="btn btn-sm text-danger delete-comment-btn" 
+                                        data-comment-id="${data.comment_id}" 
+                                        data-delete-url="{% url 'scout_app:delete_comment' 0 %}".replace('0', data.comment_id)>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            
+                            // Add the new comment to the list
+                            commentsList.insertBefore(newComment, commentsList.firstChild);
+                            
+                            // Show comments section if it was hidden
+                            const commentsSection = this.closest('.post-card').querySelector('.comments-section');
+                            if (commentsSection.style.display === 'none') {
+                                commentsSection.style.display = 'block';
+                            }
+                            
+                            // Update comment count
+                            commentsCount.textContent = data.comment_count;
+                            
+                            // Clear input
+                            input.value = '';
+                        } else {
+                            alert(data.error || 'Error adding comment');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error adding comment. Please try again.');
+                    });
+                });
+            });
+
+            // Delete comment functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-comment-btn')) {
+                    const btn = e.target.closest('.delete-comment-btn');
+                    const commentId = btn.dataset.commentId;
+                    const deleteUrl = btn.dataset.deleteUrl;
+                    const commentItem = btn.closest('.comment-item');
+                    const commentsCount = commentItem.closest('.post-card').querySelector('.comments-count');
+
+                    if (confirm('Are you sure you want to delete this comment?')) {
+                        fetch(deleteUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                commentItem.remove();
+                                commentsCount.textContent = data.comment_count;
+                            } else {
+                                alert(data.error || 'Error deleting comment');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error deleting comment');
+                        });
+                    }
+                }
+            });
         });
     </script>
 </body>

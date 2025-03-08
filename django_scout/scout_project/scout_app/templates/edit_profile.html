@@ -4,104 +4,245 @@
   <title>Edit Profile</title>
   {% load static %}
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+  <style>
+    .edit-profile-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .form-section {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    .form-section h4 {
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+    .form-group label {
+      font-weight: 500;
+      color: #495057;
+    }
+    .form-control {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    .btn-save {
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background: #3498db;
+      border: none;
+      transition: all 0.3s ease;
+    }
+    .btn-save:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .stats-input {
+      max-width: 120px;
+    }
+    .profile-picture-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .profile-picture-preview {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      object-fit: cover;
+      border: 3px solid #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
   {% include 'navbar.html' %}
-  {% if messages %}
-  <div class="alert alert-danger" role="alert">
-      {% for message in messages %}
-          {{ message }}
-      {% endfor %}
-  </div>
-  {% endif %}
+  
+  <div class="container">
+    <div class="edit-profile-container">
+      <h2 class="text-center mb-4">Edit Your Profile</h2>
+      
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
 
-  {% if form.non_field_errors %}
-  <div class="alert alert-danger" role="alert">
-      {% for error in form.non_field_errors %}
-          {{ error }}
-      {% endfor %}
+      <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <!-- Account Information Section -->
+        <div class="form-section">
+          <h4><i class="fas fa-user-circle mr-2"></i>Account Information</h4>
+          <div class="form-group">
+            <label for="id_username">Username</label>
+            {{ user_form.username }}
+          </div>
+          <div class="form-group">
+            <label for="id_email">Email</label>
+            {{ user_form.email }}
+          </div>
+          <div class="form-group">
+            <label for="id_role">Role</label>
+            {{ user_form.role }}
+            {% if user_form.role.errors %}
+              <div class="invalid-feedback d-block">
+                {{ user_form.role.errors }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h4><i class="fas fa-id-card mr-2"></i>Personal Information</h4>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_first_name">First Name</label>
+                {{ profile_form.first_name }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_last_name">Last Name</label>
+                {{ profile_form.last_name }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_position">Position</label>
+                {{ profile_form.position }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_age">Age</label>
+                {{ profile_form.age }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_height">Height (cm)</label>
+                {{ profile_form.height }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_weight">Weight (kg)</label>
+                {{ profile_form.weight }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Stats Section -->
+        <div class="form-section">
+          <h4><i class="fas fa-chart-line mr-2"></i>Performance Stats</h4>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="id_agility">Agility</label>
+                {{ profile_form.agility }}
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="id_power">Power</label>
+                {{ profile_form.power }}
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="id_speed">Speed</label>
+                {{ profile_form.speed }}
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="id_strategy">Strategy</label>
+                {{ profile_form.strategy }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="form-section">
+          <h4><i class="fas fa-info-circle mr-2"></i>Additional Information</h4>
+          <div class="form-group">
+            <label for="id_bio">Bio</label>
+            {{ profile_form.bio }}
+          </div>
+          <div class="form-group">
+            <label for="id_video_links">Video Links</label>
+            {{ profile_form.video_links }}
+          </div>
+          <div class="form-group">
+            <div class="custom-control custom-switch">
+              {{ profile_form.looking_for_team }}
+              <label class="custom-control-label" for="id_looking_for_team">Looking for Team</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary btn-save">
+            <i class="fas fa-save mr-2"></i>Save Changes
+          </button>
+          <a href="{% url 'scout_app:dashboard' %}" class="btn btn-secondary ml-2">
+            <i class="fas fa-times mr-2"></i>Cancel
+          </a>
+        </div>
+      </form>
+    </div>
   </div>
-  {% endif %}
-  <div class="container mt-5">
-    <h2>Edit Profile</h2>
-    <form method="post" class="needs-validation" novalidate>
-      {% csrf_token %}
-      <h4>User Information</h4>
-      <div class="form-group">
-      <label for="id_username">Username</label>
-      {{ user_form.username }}
-      </div>
-      <div class="form-group">
-      <label for="id_email">Email</label>
-      {{ user_form.email }}
-      </div>
-      <hr>
-      <h4>Profile Information</h4>
-      <div class="form-group">
-      <label for="id_first_name">First Name</label>
-      {{ profile_form.first_name }}
-      </div>
-      <div class="form-group">
-      <label for="id_last_name">Last Name</label>
-      {{ profile_form.last_name }}
-      </div>
-      <div class="form-group">
-      <label for="id_position">Position</label>
-      {{ profile_form.position }}
-      </div>
-      <div class="form-group">
-      <label for="id_role">Role</label>
-      {{ user_form.role }}
-      </div>
-      <div class="form-group">
-      <label for="id_age">Age</label>
-      {{ profile_form.age }}
-      </div>
-      <div class="form-group">
-      <label for="id_height">Height</label>
-      {{ profile_form.height }}
-      </div>
-      <div class="form-group">
-      <label for="id_weight">Weight</label>
-      {{ profile_form.weight }}
-      </div>
-      <div class="form-group">
-      <label for="id_agility">Agility</label>
-      {{ profile_form.agility }}
-      </div>
-      <div class="form-group">
-      <label for="id_power">Power</label>
-      {{ profile_form.power }}
-      </div>
-      <div class="form-group">
-      <label for="id_speed">Speed</label>
-      {{ profile_form.speed }}
-      </div>
-      <div class="form-group">
-      <label for="id_speed">Strategy</label>
-      {{ profile_form.strategy }}
-      </div>
-      <div class="form-group">
-      <label for="id_bio">Bio</label>
-      {{ profile_form.bio }}
-      </div>
-      <div class="form-group">
-      <label for="id_video_links">Video Links</label>
-      {{ profile_form.video_links }}
-      </div>
-      <div class="form-group">
-      <label for="id_looking_for_team">Looking for Team</label>
-      {{ profile_form.looking_for_team }}
-      </div>
-      <button type="submit" class="btn btn-primary">Save</button>
-    </form>
-    {% if message %}
-      <div class="alert alert-info mt-3">{{ message }}</div>
-    {% endif %}
-  </div>
+
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Add Bootstrap form validation
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+  </script>
 </body>
 </html>

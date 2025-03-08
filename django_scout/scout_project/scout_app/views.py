@@ -21,6 +21,7 @@ import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import MatchStatistics
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +155,32 @@ def view_player_profile(request, player_id):
 @login_required
 def view_player_dashboard(request, player_id):
     player_profile = get_object_or_404(PlayerProfile, id=player_id)
+    
+    # Handle post creation
+    if request.method == 'POST' and request.user == player_profile.user:
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, "Post created successfully!")
+            return redirect('scout_app:player_dashboard', player_id=player_id)
+        else:
+            messages.error(request, "Error creating post. Please check the form.")
+    else:
+        form = PostForm()
+    
+    # Get the player's posts (initial 3)
+    posts = Post.objects.filter(author=player_profile.user).order_by('-timestamp')[:3]
+    total_posts = Post.objects.filter(author=player_profile.user).count()
+    has_more = total_posts > 3
+    
     context = {
         'profile': player_profile,
+        'posts': posts,
+        'post_form': form,
+        'has_more': has_more,
+        'total_posts': total_posts,
         'performance_data': {
             'labels': ['Agility', 'Power', 'Speed', 'Strategy'],
             'data': [
@@ -211,6 +236,46 @@ def view_player_dashboard(request, player_id):
     return render(request, 'player_dashboard.html', context)
 
 @login_required
+def load_more_posts(request, player_id):
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+        
+    try:
+        offset = int(request.GET.get('offset', 0))
+        limit = 3  # Number of posts to load each time
+        player_profile = get_object_or_404(PlayerProfile, id=player_id)
+        
+        posts = Post.objects.filter(author=player_profile.user).order_by('-timestamp')[offset:offset+limit]
+        total_posts = Post.objects.filter(author=player_profile.user).count()
+        has_more = (offset + limit) < total_posts
+        
+        posts_html = []
+        for post in posts:
+            post_html = {
+                'id': post.id,
+                'author_id': post.author.playerprofile.id,
+                'author_name': post.author.get_full_name() or post.author.username,
+                'content': post.description,
+                'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'likes_count': post.likes.count(),
+                'comments_count': post.comments.count(),
+                'photo': post.photo.url if post.photo else None,
+                'is_liked': request.user in post.likes.all(),
+                'like_url': reverse('scout_app:like_post', args=[post.id]),
+                'comment_url': reverse('scout_app:add_comment', args=[post.id]),
+                'view_url': reverse('scout_app:view_post', args=[post.id])
+            }
+            posts_html.append(post_html)
+        
+        return JsonResponse({
+            'posts': posts_html,
+            'has_more': has_more,
+            'next_offset': offset + limit if has_more else None
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
 def edit_profile(request):
     user = request.user
     try:
@@ -223,7 +288,7 @@ def edit_profile(request):
 
     if request.method == 'POST':
         user_form = CustomUserEditForm(request.POST, instance=user)
-        profile_form = PlayerProfileEditForm(request.POST, instance=profile)
+        profile_form = PlayerProfileEditForm(request.POST, request.FILES, instance=profile) if profile else None
         if user_form.is_valid() and (profile_form is None or profile_form.is_valid()):
             user_form.save()
             if profile_form:
@@ -238,10 +303,14 @@ def edit_profile(request):
                 profile.video_links = profile_form.cleaned_data.get('video_links', profile.video_links)
                 profile.looking_for_team = profile_form.cleaned_data.get('looking_for_team', profile.looking_for_team)
                 profile.save()
-                messages.success(request, "Changes saved successfully.")
-                return redirect('scout_app:dashboard')
+            messages.success(request, "Changes saved successfully.")
+            return redirect('scout_app:dashboard')
         else:
             messages.error(request, f"Error updating profile. Please check the fields.{user_form.errors}")
+    else:
+        user_form = CustomUserEditForm(instance=user)
+        profile_form = PlayerProfileEditForm(instance=profile) if profile else None
+
     return render(request, 'edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
 
 @login_required
@@ -308,17 +377,16 @@ def add_comment(request, post_id):
             comment.parent_post = post
             comment.author = request.user
             comment.save()
-            post.comment_count += 1
-            post.save()
             
             # Return JSON response if it's an AJAX request
             if request.headers.get('content-type') == 'application/json' or request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
                     'comment': comment.content,
-                    'author': comment.author.username,
+                    'comment_id': comment.id,
+                    'author': comment.author.get_full_name() or comment.author.username,  # Use full name or fallback to username
                     'timestamp': comment.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-                    'comment_count': post.comment_count
+                    'comment_count': post.comments.count()
                 })
             return redirect('scout_app:view_post', post_id=post.id)
         else:
@@ -466,3 +534,20 @@ def detailed_statistics_view(request):
     }
     
     return render(request, 'detailed_statistics.html', context)
+
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, "Post created successfully!")
+            return redirect('scout_app:player_dashboard', player_id=request.user.playerprofile.id)
+        else:
+            messages.error(request, "Error creating post. Please check the form.")
+    else:
+        form = PostForm()
+    
+    return render(request, 'create_post.html', {'form': form})

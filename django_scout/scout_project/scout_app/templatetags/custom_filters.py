@@ -15,8 +15,14 @@ def custom_timesince(value):
         minutes = diff.seconds // 60
         return f"{minutes}m"
 
-@register.filter
+@register.filter(name='is_recent_comment')
 def is_recent_comment(value):
+    """
+    Check if a comment is less than 1 hour old.
+    Usage: {{ comment.timestamp|is_recent_comment }}
+    """
+    if not value:
+        return False
     now = datetime.now(value.tzinfo)
     diff = now - value
     return diff < timedelta(hours=1)
