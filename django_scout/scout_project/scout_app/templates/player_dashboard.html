@@ -35,7 +35,7 @@
                                         <a href="{% url 'scout_app:team_dashboard' profile.team.id %}" class="team-link">
                                             <span class="badge badge-success">
                                                 <i class="fas fa-shield-alt mr-1"></i>
-                                                {{ profile.team.team_name }}
+                                                {{ profile.team.name }}
                                             </span>
                                         </a>
                                     </div>
@@ -121,26 +121,7 @@
                 </div>
             </div>
 
- 
             <!-- Performance Overview and Statistics Barplot Cards -->
-            <div class="dashboard_card_container__row"> 
-                <div class="dashboard_card_container__column">
-                    <div class="dashboard_card__card">
-                        <div class="dashboard_card__card__chart_container"> 
-                            <h5 class="card_dashboard__title">
-                                Performance Overview
-                                <span class="info-icon-container">
-                                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span class="info-tooltip">Shows your overall performance metrics across different aspects of the game</span>
-                                </span>
-                            </h5>
-                            <canvas id="performanceChart" width="300" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="dashboard_card_container__row"> 
                 <div class="dashboard_card_container__column">
                     <div class="dashboard_card__card">
@@ -159,6 +140,22 @@
                                     <canvas id="performanceBarPlot"></canvas>
                                 </div>
                             </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard_card_container__column">
+                    <div class="dashboard_card__card">
+                        <div class="dashboard_card__card__chart_container"> 
+                            <h5 class="card_dashboard__title">
+                                Performance Overview
+                                <span class="info-icon-container">
+                                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span class="info-tooltip">Shows your overall performance metrics across different aspects of the game</span>
+                                </span>
+                            </h5>
+                            <canvas id="performanceChart" width="300" height="300"></canvas>
                         </div>
                     </div>
                 </div>

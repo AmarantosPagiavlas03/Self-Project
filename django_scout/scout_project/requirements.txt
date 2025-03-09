@@ -14,4 +14,5 @@ django-cors-headers>=4.3.1  # CORS support
 drf-yasg>=1.21.7       # API documentation
 Pillow>=10.2.0         # Image processing
 celery>=5.3.6          # Task queue (if needed)
-redis>=5.0.1           # For caching and Celery backend 
+redis>=5.0.1           # For caching and Celery backend
+mysqlclient>=2.2.4     # MySQL database adapter 
