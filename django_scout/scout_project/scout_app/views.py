@@ -551,3 +551,27 @@ def create_post(request):
         form = PostForm()
     
     return render(request, 'create_post.html', {'form': form})
+
+@login_required
+def view_team_dashboard(request, team_id):
+    team_profile = get_object_or_404(TeamProfile, id=team_id)
+    
+    # Get team's roster (players)
+    roster = team_profile.players.all()
+    
+    # Get team's recent posts
+    team_posts = Post.objects.filter(author=team_profile.user).order_by('-timestamp')[:5]
+    
+    context = {
+        'team': team_profile,
+        'roster': roster,
+        'posts': team_posts,
+        'team_stats': {
+            'roster_size': team_profile.roster_size,
+            'total_goals': sum(player.goals_scored for player in roster),
+            'total_assists': sum(player.assists for player in roster),
+            'total_matches': max(player.matches_played for player in roster) if roster else 0
+        }
+    }
+    
+    return render(request, 'team_dashboard.html', context)

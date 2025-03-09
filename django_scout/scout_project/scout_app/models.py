@@ -39,6 +39,8 @@ class PlayerProfile(models.Model):
     last_name = models.CharField(max_length=50)
     position = models.CharField(max_length=20, choices=[('Goalkeeper', 'Goalkeeper'), ('Defender', 'Defender'),
                                                          ('Midfielder', 'Midfielder'), ('Forward', 'Forward')])
+    team = models.ForeignKey('TeamProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='players')
+    joined_team_date = models.DateField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     height = models.IntegerField(null=True, blank=True)
     weight = models.IntegerField(null=True, blank=True)
@@ -55,13 +57,32 @@ class PlayerProfile(models.Model):
     assists = models.IntegerField(default=0)
     tackles = models.IntegerField(default=0)
 
- 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def save(self, *args, **kwargs):
+        # Update looking_for_team based on team status
+        if self.team:
+            self.looking_for_team = False
+        super().save(*args, **kwargs)
+
 class TeamProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     team_name = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     founded_year = models.IntegerField()
     coach_name = models.CharField(max_length=100)
+    team_logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    home_stadium = models.CharField(max_length=100, null=True, blank=True)
+    team_colors = models.CharField(max_length=100, null=True, blank=True)
+    
+    def __str__(self):
+        return self.team_name
+
+    @property
+    def roster_size(self):
+        return self.players.count()
 
 class ChatMessage(models.Model):
     sender = models.ForeignKey(CustomUser, related_name='sent_messages', on_delete=models.CASCADE)

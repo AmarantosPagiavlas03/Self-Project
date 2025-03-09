@@ -30,6 +30,16 @@
                                 {% if profile.position %}
                                     <span class="badge badge-primary">{{ profile.position }}</span>
                                 {% endif %}
+                                {% if profile.team %}
+                                    <div class="mt-2">
+                                        <a href="{% url 'scout_app:team_dashboard' profile.team.id %}" class="team-link">
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-shield-alt mr-1"></i>
+                                                {{ profile.team.team_name }}
+                                            </span>
+                                        </a>
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="profile-stats mt-3 d-flex justify-content-around">
                                 <div class="stat-item">
