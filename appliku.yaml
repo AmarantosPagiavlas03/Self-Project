@@ -1,0 +1,32 @@
+apps:
+  - name: django-scout
+    services:
+      - type: web
+        buildCommand: pip install -r requirements.txt
+        startCommand: gunicorn django_scout.wsgi:application --bind 0.0.0.0:$PORT
+        envVars:
+          - key: DJANGO_SETTINGS_MODULE
+            value: django_scout.settings.production
+          - key: PYTHONPATH
+            value: .
+        autoscaling:
+          enabled: true
+          minInstances: 1
+          maxInstances: 3
+      
+      - type: worker
+        buildCommand: pip install -r requirements.txt
+        startCommand: celery -A django_scout worker -l info
+        envVars:
+          - key: DJANGO_SETTINGS_MODULE
+            value: django_scout.settings.production
+
+    databases:
+      - type: postgresql
+        version: "14"
+        name: django_scout_db
+
+    caches:
+      - type: redis
+        version: "7"
+        name: django_scout_redis 
