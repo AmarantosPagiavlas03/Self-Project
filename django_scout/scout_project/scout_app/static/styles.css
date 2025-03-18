@@ -541,161 +541,149 @@
     }
   }
   
-  /* =====================================
-     Player Dashboard Styles
-  ===================================== */
+/* =====================================
+   Player Dashboard Styles
+===================================== */
+.dashboard_card__container {
+  margin-top: 2rem !important;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0 2rem;
+}
+
+.dashboard_card_container__wrapper {
+  width: 100%;
+  max-width: 1400px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Profile Card - Full Width */
+.dashboard_card_container__row:first-child {
+  grid-column: span 12;
+}
+
+/* Recent Posts - Spans 7 columns */
+.dashboard_card_container__row:nth-child(2) {
+  grid-column: span 7;
+}
+
+/* Charts Section - Spans 5 columns */
+.dashboard_card_container__row:nth-child(3),
+.dashboard_card_container__row:nth-child(4) {
+  grid-column: span 5;
+}
+
+/* responsive */
+@media (max-width: 1200px) {
+  .dashboard_card_container__row:nth-child(2),
+  .dashboard_card_container__row:nth-child(3),
+  .dashboard_card_container__row:nth-child(4) {
+      grid-column: span 12;
+  }
+}
+
+@media (max-width: 768px) {
   .dashboard_card__container {
-    margin-top: 2rem !important;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    padding: 0 2rem;
+      padding: 0 1rem;
   }
   
   .dashboard_card_container__wrapper {
-    width: 100%;
-    max-width: 1400px;
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1rem;
-    padding: 1rem;
-  }
-  
-  .dashboard_card_container__row {
-    grid-column: span 12;
-    display: grid;
-    gap: 0.75rem;
-  }
-  
-  /* Profile Card - Full Width */
-  .dashboard_card_container__row:first-child {
-    grid-template-columns: 1fr;
-  }
-  
-  /* Recent Posts - Spans 7 columns */
-  .dashboard_card_container__row:nth-child(2) {
-    grid-column: span 7;
-  }
-  
-  /* Charts Section - Spans 5 columns */
-  .dashboard_card_container__row:nth-child(3),
-  .dashboard_card_container__row:nth-child(4) {
-    grid-column: 8 / -1;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  
-  .dashboard_card_container__column {
-    width: 100%;
+      gap: 1rem;
+      padding: 0.5rem;
   }
   
   .dashboard_card__card {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    padding: 1.25rem;
-    height: 100%;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    max-height: fit-content;
-  }
-  
-  .dashboard_card__card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dashboard_card__main_card {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border: none;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-  }
-  
-  .dashboard_card__card_content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-  }
-  
-  /* Chart Containers */
-  .dashboard_card__card__chart_container {
-    width: 100%;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  #performanceChart {
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-  }
-  
-  #performanceBarPlot {
-    width: 100% !important;
-    height: auto !important;
-    aspect-ratio: 16/9;
-  }
-  
-  /* Card Titles */
-  .card_dashboard__title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #f0f2f5;
-  }
-  
-  /* Posts Container */
-  .posts-container {
-    max-height: 800px;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-  }
-  
-  .posts-container::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .posts-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-  }
-  
-  .posts-container::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 1200px) {
-    .dashboard_card_container__row:nth-child(2),
-    .dashboard_card_container__row:nth-child(3),
-    .dashboard_card_container__row:nth-child(4) {
-      grid-column: span 12;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .dashboard_card__container {
-      padding: 0 1rem;
-    }
-    
-    .dashboard_card_container__wrapper {
-      gap: 1rem;
-      padding: 0.5rem;
-    }
-    
-    .dashboard_card__card {
       padding: 1rem;
-    }
   }
-  
-  /* =====================================
-     Info Icon & Tooltip
-  ===================================== */
+}
+
+.dashboard_card__card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.25rem;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  max-height: fit-content;
+}
+
+.dashboard_card__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard_card__main_card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: none;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard_card__card_content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Chart Containers */
+.dashboard_card__card__chart_container {
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#performanceChart {
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+#performanceBarPlot {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16/9;
+}
+
+/* Card Titles */
+.card_dashboard__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f2f5;
+}
+
+/* Posts Container */
+.posts-container {
+  max-height: 800px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.posts-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.posts-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.posts-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+/* =====================================
+ Info Icon & Tooltip
+===================================== */
   .info-icon-container {
     position: relative;
     display: inline-flex;
