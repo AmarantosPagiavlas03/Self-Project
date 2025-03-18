@@ -577,6 +577,10 @@
   grid-column: span 5;
 }
 
+.dashboard_card_container__column {
+  margin-top: 10px;
+}
+
 /* responsive */
 @media (max-width: 1200px) {
   .dashboard_card_container__row:nth-child(2),
