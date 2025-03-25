@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Connection, Message, Post, Comment
+from .models import User, Connection, Message
 
 
 
@@ -41,8 +41,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ('id', 'username', 'email', 'thumbnail', 'name')
-		read_only_fields = ('id',)
+		fields = [
+			'username',
+			'name',
+			'thumbnail'
+		]
 
 	def get_name(self, obj):
 		fname = obj.first_name.capitalize()
@@ -124,43 +127,19 @@ class FriendSerializer(serializers.ModelSerializer):
 		return date.isoformat()
 
 
-class CommentSerializer(serializers.ModelSerializer):
-	user = UserSerializer(read_only=True)
-
-	class Meta:
-		model = Comment
-		fields = ('id', 'user', 'text', 'created_at')
-		read_only_fields = ('id', 'created_at')
-
-
-class PostSerializer(serializers.ModelSerializer):
-	user = UserSerializer(read_only=True)
-	comments = CommentSerializer(many=True, read_only=True)
-	likes_count = serializers.SerializerMethodField()
-
-	class Meta:
-		model = Post
-		fields = ('id', 'user', 'image', 'caption', 'created_at', 'comments', 'likes_count')
-		read_only_fields = ('id', 'created_at')
-
-	def get_likes_count(self, obj):
-		return obj.likes.count()
-
-
-class ConnectionSerializer(serializers.ModelSerializer):
-	sender = UserSerializer(read_only=True)
-	receiver = UserSerializer(read_only=True)
-
-	class Meta:
-		model = Connection
-		fields = ('id', 'sender', 'receiver', 'accepted', 'updated', 'created')
-		read_only_fields = ('id', 'updated', 'created')
 
 
 class MessageSerializer(serializers.ModelSerializer):
-	user = UserSerializer(read_only=True)
+	is_me = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Message
-		fields = ('id', 'connection', 'user', 'text', 'created')
-		read_only_fields = ('id', 'created')
+		fields = [
+			'id',
+			'is_me',
+			'text',
+			'created'
+		]
+
+	def get_is_me(self, obj):
+		return self.context['user'] == obj.user
